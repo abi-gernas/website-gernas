@@ -6,6 +6,7 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { redirectsPlugin } from "@payloadcms/plugin-redirects";
+import { s3Storage } from "@payloadcms/storage-s3";
 import { id as idTranslations } from "@payloadcms/translations/languages/id";
 import { idCustomTranslations } from "./payload/i18n/id-custom";
 
@@ -89,6 +90,33 @@ export default buildConfig({
       overrides: {
         admin: { group: "Pengaturan" },
         labels: { singular: "Pengalihan URL", plural: "Pengalihan URL" },
+      },
+    }),
+    /**
+     * Penyimpanan media di Supabase Storage lewat protokol S3.
+     *
+     * Alasan: filesystem Vercel bersifat sementara — berkas yang diunggah staf
+     * akan hilang setiap deploy ulang bila disimpan lokal.
+     *
+     * Portabilitas (FR-009): S3 adalah protokol standar, bukan API khusus
+     * Supabase. Pindah ke penyedia lain (Cloudflare R2, MinIO, AWS) cukup
+     * mengganti nilai env, tanpa mengubah kode.
+     *
+     * Dinonaktifkan otomatis bila env belum diisi, agar pengembangan lokal
+     * tetap bisa jalan memakai disk.
+     */
+    s3Storage({
+      enabled: Boolean(process.env.S3_BUCKET),
+      collections: { media: true },
+      bucket: process.env.S3_BUCKET ?? "",
+      config: {
+        endpoint: process.env.S3_ENDPOINT ?? "",
+        region: process.env.S3_REGION ?? "ap-southeast-1",
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID ?? "",
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? "",
+        },
+        forcePathStyle: true, // wajib untuk Supabase Storage
       },
     }),
   ],
