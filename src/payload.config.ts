@@ -1,0 +1,75 @@
+import path from "path";
+import { fileURLToPath } from "url";
+import sharp from "sharp";
+import { buildConfig } from "payload";
+import { postgresAdapter } from "@payloadcms/db-postgres";
+import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { seoPlugin } from "@payloadcms/plugin-seo";
+import { redirectsPlugin } from "@payloadcms/plugin-redirects";
+
+import { Users } from "./payload/collections/Users";
+import { Media } from "./payload/collections/Media";
+import { Pages } from "./payload/collections/Pages";
+import { Articles } from "./payload/collections/Articles";
+import { Categories } from "./payload/collections/Categories";
+import { SiteSettings } from "./payload/globals/SiteSettings";
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
+export default buildConfig({
+  serverURL: process.env.NEXT_PUBLIC_SERVER_URL,
+
+  admin: {
+    user: Users.slug,
+    // Branding minimal sesuai PRD §7 — pakai admin panel bawaan Payload,
+    // tanpa kustomisasi visual, untuk menjaga biaya Fase 1.
+    meta: {
+      titleSuffix: "— Gernas Tastaka",
+    },
+  },
+
+  collections: [Pages, Articles, Categories, Media, Users],
+  globals: [SiteSettings],
+
+  editor: lexicalEditor(),
+
+  /**
+   * Postgres standar (Supabase). CATATAN PORTABILITAS (FR-009 / KPI No.6):
+   * jangan pakai fitur proprietary Supabase (Auth, RLS sebagai logika,
+   * ekstensi non-standar) agar pg_dump/pg_restore ke server lain tetap utuh.
+   *
+   * - DATABASE_URI        : koneksi pooled (pgBouncer :6543) untuk runtime serverless
+   * - DATABASE_URI_DIRECT : koneksi langsung (:5432) untuk migrasi/DDL
+   */
+  db: postgresAdapter({
+    pool: {
+      connectionString: process.env.DATABASE_URI ?? "",
+    },
+    push: false, // skema hanya berubah lewat file migrasi yang tersimpan di repo
+    migrationDir: path.resolve(dirname, "../migrations"),
+  }),
+
+  plugins: [
+    // Field SEO (title, description, OG image) untuk Pages & Articles — FR-007
+    seoPlugin({
+      collections: ["pages", "articles"],
+      uploadsCollection: "media",
+      generateTitle: ({ doc }) => `${doc?.title ?? ""} | Gernas Tastaka`,
+      generateDescription: ({ doc }) => doc?.excerpt ?? "",
+    }),
+    // Redirect 301 yang dikelola staf — dipakai middleware untuk URL WordPress lama
+    redirectsPlugin({
+      collections: ["pages", "articles"],
+      overrides: {
+        admin: { group: "Pengaturan" },
+      },
+    }),
+  ],
+
+  secret: process.env.PAYLOAD_SECRET ?? "",
+  typescript: {
+    outputFile: path.resolve(dirname, "payload-types.ts"),
+  },
+  sharp,
+});

@@ -6,3 +6,5 @@
 next-env.d.ts
 .DS_Store
 .env*
+# Kecuali template — file ini justru panduan pengisian env, aman di-commit.
+!.env.example
