@@ -17,6 +17,9 @@ import { SiteSettings } from "./payload/globals/SiteSettings";
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
+/** Benar bila proses ini adalah perintah `payload migrate*`. */
+const isMigrating = process.argv.some((arg) => arg.startsWith("migrate"));
+
 export default buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL,
 
@@ -44,7 +47,11 @@ export default buildConfig({
    */
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URI ?? "",
+      // Perintah migrasi butuh koneksi session (5432): pooler transaksi (6543)
+      // tidak dapat menjalankan sebagian perintah DDL.
+      connectionString: isMigrating
+        ? (process.env.DATABASE_URI_DIRECT ?? process.env.DATABASE_URI ?? "")
+        : (process.env.DATABASE_URI ?? ""),
     },
     push: false, // skema hanya berubah lewat file migrasi yang tersimpan di repo
     migrationDir: path.resolve(dirname, "../migrations"),
