@@ -2,6 +2,7 @@
   "name": "gernastastaka-web",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Gernas Tastaka — front-end migration (Sprint 1) WordPress → Next.js",
   "scripts": {
     "dev": "next dev",
