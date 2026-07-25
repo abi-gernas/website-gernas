@@ -6,6 +6,8 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { redirectsPlugin } from "@payloadcms/plugin-redirects";
+import { id as idTranslations } from "@payloadcms/translations/languages/id";
+import { idCustomTranslations } from "./payload/i18n/id-custom";
 
 import { Users } from "./payload/collections/Users";
 import { Media } from "./payload/collections/Media";
@@ -36,6 +38,22 @@ export default buildConfig({
   globals: [SiteSettings],
 
   editor: lexicalEditor(),
+
+  /**
+   * Antarmuka dasbor memakai bahasa Indonesia agar staf non-teknis tidak
+   * menghadapi campuran dua bahasa (label kita ID, tombol bawaan EN).
+   * Inggris tetap tersedia bila pengguna ingin menggantinya sendiri.
+   */
+  i18n: {
+    fallbackLanguage: "id",
+    // Sengaja hanya "id": Payload mendahulukan bahasa browser di atas
+    // fallbackLanguage, sehingga staf dengan browser berbahasa Inggris akan
+    // melihat dasbor campur dua bahasa. Menambahkan `en: enTranslations` di
+    // sini akan mengembalikan opsi bahasa Inggris.
+    supportedLanguages: { id: idTranslations },
+    // Menambal teks plugin SEO & editor Lexical yang tidak punya berkas Indonesia.
+    translations: { id: idCustomTranslations },
+  },
 
   /**
    * Postgres standar (Supabase). CATATAN PORTABILITAS (FR-009 / KPI No.6):
@@ -70,6 +88,7 @@ export default buildConfig({
       collections: ["pages", "articles"],
       overrides: {
         admin: { group: "Pengaturan" },
+        labels: { singular: "Pengalihan URL", plural: "Pengalihan URL" },
       },
     }),
   ],

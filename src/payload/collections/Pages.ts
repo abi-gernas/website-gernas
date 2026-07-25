@@ -43,6 +43,8 @@ export const Pages: CollectionConfig = {
       name: "layout",
       type: "blocks",
       label: "Susunan halaman",
+      // Tanpa ini tombolnya berbunyi "Tambah Layout" (memakai nama field).
+      labels: { singular: "Blok", plural: "Blok" },
       blocks: pageBlocks,
       admin: {
         description:
