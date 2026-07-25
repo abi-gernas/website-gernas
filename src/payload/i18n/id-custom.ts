@@ -32,6 +32,14 @@ export const idCustomTranslations = {
     tooLong: "Terlalu panjang",
     tooShort: "Terlalu pendek",
   },
+  "plugin-redirects": {
+    customUrl: "URL kustom",
+    documentToRedirect: "Dokumen tujuan",
+    fromUrl: "Dari URL",
+    internalLink: "Tautan internal",
+    redirectType: "Jenis pengalihan",
+    toUrlType: "Jenis URL tujuan",
+  },
   lexical: {
     general: {
       placeholder: "Mulai mengetik, atau tekan '/' untuk perintah…",

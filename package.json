@@ -15,7 +15,8 @@
     "migrate:create": "npm run payload -- migrate:create",
     "migrate": "npm run payload -- migrate",
     "migrate:status": "npm run payload -- migrate:status",
-    "seed:media": "tsx scripts/seed-media.mts"
+    "seed:media": "tsx scripts/seed-media.mts",
+    "seed:articles": "tsx scripts/seed-articles.mts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.86.0",
