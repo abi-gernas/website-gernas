@@ -14,7 +14,8 @@
     "generate:importmap": "npm run payload -- generate:importmap",
     "migrate:create": "npm run payload -- migrate:create",
     "migrate": "npm run payload -- migrate",
-    "migrate:status": "npm run payload -- migrate:status"
+    "migrate:status": "npm run payload -- migrate:status",
+    "seed:media": "tsx scripts/seed-media.mts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.86.0",

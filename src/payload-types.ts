@@ -296,6 +296,10 @@ export interface Media {
    */
   alt?: string | null;
   caption?: string | null;
+  /**
+   * Lokasi berkas ini di situs WordPress lama. Dipakai untuk memetakan gambar ke artikel saat migrasi, dan sebagai penanda agar impor tidak terduplikasi. Kosong untuk unggahan baru.
+   */
+  legacyPath?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -702,6 +706,7 @@ export interface CategoriesSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  legacyPath?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
