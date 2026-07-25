@@ -151,24 +151,34 @@ Map 1:1 komponen `src/components/*` → Payload Block (props final dari sesi Des
 
 ## 4. Modul 3 — SEO Parity (FR-007 · US-006 · High · KPI No.2)
 
-**Tujuan:** 100% URL lama → 301; sitemap & meta terpasang; submit GSC.
+> **Perubahan scope (2026-07-25):** atas instruksi klien langsung ke Encode Craft,
+> **redirect map URL WordPress lama DIHAPUS dari cakupan** — domain/URL lama tidak
+> akan dipertahankan aksesnya. Ini mengubah FR-007 dari yang tertulis di SPK
+> (kontrak menyebut "100% redirect coverage"). **Belum ada konfirmasi tertulis
+> dari klien Gernas Tastaka** — komunikasi/adendum kontrak jadi tanggung jawab
+> Encode Craft, di luar sesi kerja ini. Berikut yang dieksekusi tetap sesuai
+> instruksi terbaru (tanpa redirect map):
+> - ~~Redirect map 301 dari URL WordPress lama~~ — dicoret
+> - ~~OI-002 (2 halaman orphan)~~ — tidak relevan lagi
+> - ~~OI-003 (5 post junk)~~ — tidak relevan lagi
+> - Collection **Redirects** di Payload dibiarkan terpasang (tidak diisi) —
+>   opsional dipakai in-house bila ada kebutuhan lain nanti.
 
-### 4.1 Redirect map
-- Ekstrak seluruh URL WordPress lama dari `initial dev/gernastastaka.WordPress...ALL_CONTENT.xml` (slug page, post, kategori, attachment).
-- Petakan lama → baru; muat ke **Redirects collection** (dikelola staf) + fallback statis.
-- Terapkan via `middleware.ts` (lookup Redirects) atau `next.config` redirects untuk yang statis. Semua **301** permanen.
-- Tangani OI-002 (2 halaman orphan: include/exclude) & OI-003 (5 post junk: exclude).
+**Tujuan (revisi):** sitemap & meta terpasang; submit GSC.
 
-### 4.2 Sitemap, robots, metadata
-- `app/(frontend)/sitemap.ts` (dinamis dari Pages+Articles) atau route `sitemap.xml`.
+### 4.1 Sitemap, robots, metadata
+- `app/(frontend)/sitemap.ts` (dinamis dari Articles, + halaman statis).
 - `app/robots.ts`.
-- `generateMetadata()` tiap halaman ambil dari group **SEO** (`@payloadcms/plugin-seo`): title, description, OG image.
+- `generateMetadata()` tiap halaman artikel ambil dari group **SEO**
+  (`@payloadcms/plugin-seo`): title, description, OG image.
 - Canonical URL, OG/Twitter tags.
 
-### 4.3 Google Search Console
+### 4.2 Google Search Console
 - Verifikasi domain (DNS TXT / file), submit `sitemap.xml`.
 - **Manual step pasca-DNS-cutover.** Butuh akses GSC (dependency §9).
-- **Acceptance (FR-007):** uji sample redirect + cek GSC → redirect map 100% berfungsi; submission GSC terkonfirmasi. Pantau trafik ±15% dalam 4 minggu.
+- **Acceptance (FR-007, revisi):** sitemap & meta tags terpasang; submission GSC
+  terkonfirmasi. Pantau trafik pasca-cutover (baseline baru, tanpa jaminan
+  paritas ke situs lama karena redirect tidak dipasang).
 
 ---
 

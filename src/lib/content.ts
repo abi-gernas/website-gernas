@@ -21,6 +21,12 @@ export type ArticleView = {
   excerpt: string;
   /** Pohon Lexical; hanya diisi pada halaman detail. */
   content?: PayloadArticle["content"];
+  /** Diisi staf lewat panel SEO (@payloadcms/plugin-seo); kosong bila belum diisi. */
+  seo: {
+    title: string | null;
+    description: string | null;
+    image: { url: string; width?: number; height?: number } | null;
+  };
 };
 
 const payloadPromise = getPayload({ config });
@@ -49,6 +55,11 @@ function toView(doc: PayloadArticle, withContent = false): ArticleView {
     category,
     image: toImage(doc.image),
     excerpt: doc.excerpt ?? "",
+    seo: {
+      title: doc.meta?.title ?? null,
+      description: doc.meta?.description ?? null,
+      image: toImage(doc.meta?.image),
+    },
     ...(withContent ? { content: doc.content } : {}),
   };
 }

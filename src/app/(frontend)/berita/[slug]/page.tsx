@@ -21,10 +21,23 @@ export async function generateMetadata({
   const article = await getArticleBySlug(slug);
   if (!article) return { title: "Berita" };
 
+  // Field SEO (diisi staf lewat panel SEO) diutamakan; jika kosong, jatuh
+  // kembali ke judul/ringkasan/sampul artikel.
+  const title = article.seo.title || article.title;
+  const description = article.seo.description || article.excerpt || undefined;
+  const ogImage = article.seo.image ?? article.image;
+
   return {
-    title: article.title,
-    description: article.excerpt || undefined,
-    openGraph: article.image ? { images: [{ url: article.image.url }] } : undefined,
+    title,
+    description,
+    alternates: { canonical: `/berita/${article.slug}` },
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      publishedTime: article.date,
+      images: ogImage ? [{ url: ogImage.url }] : undefined,
+    },
   };
 }
 
