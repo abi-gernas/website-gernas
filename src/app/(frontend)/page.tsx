@@ -20,9 +20,11 @@ import {
   homeVideos,
   heroImages,
 } from "@/data/site";
-import { articles } from "@/data/news";
+import { getArticles } from "@/lib/content";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const articles = await getArticles(3);
+
   return (
     <>
       <HeroCarousel slides={homeSlides} />
@@ -88,7 +90,7 @@ export default function HomePage() {
       {/* Kabar Terbaru */}
       <Section title="Kabar Terbaru" className="bg-surface" id="kabar-terbaru">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {articles.slice(0, 3).map((a) => (
+          {articles.map((a) => (
             <NewsCard key={a.id} article={a} />
           ))}
         </div>

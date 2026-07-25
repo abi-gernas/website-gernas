@@ -12,6 +12,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "www.gernastastaka.org" },
       { protocol: "https", hostname: "gernastastaka.org" },
+      // Media yang dikelola CMS disajikan langsung dari Supabase Storage.
+      { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" },
     ],
   },
 };

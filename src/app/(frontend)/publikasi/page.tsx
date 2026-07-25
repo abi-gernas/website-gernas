@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/Hero";
 import { Section } from "@/components/Section";
 import { NewsCard } from "@/components/NewsCard";
-import { articles } from "@/data/news";
+import { getArticles } from "@/lib/content";
 import { heroImages } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -19,7 +19,9 @@ const publications = Array.from({ length: 6 }, (_, i) => ({
   subtitle: "Publikasi Riset",
 }));
 
-export default function PublikasiPage() {
+export default async function PublikasiPage() {
+  const articles = await getArticles();
+
   return (
     <>
       <PageHero

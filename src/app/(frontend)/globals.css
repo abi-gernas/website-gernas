@@ -96,6 +96,38 @@
   .eyebrow {
     @apply text-xs font-semibold uppercase tracking-[0.2em] text-brand-red;
   }
+
+  /*
+   * Isi artikel dari CMS. Elemennya dihasilkan RichText Payload sehingga
+   * tidak bisa diberi class satu per satu — digayakan lewat selektor anak.
+   */
+  .article-body p {
+    @apply text-sm leading-relaxed text-body sm:text-base;
+  }
+
+  .article-body h2 {
+    @apply pt-4 text-xl font-bold text-brand-navy;
+  }
+
+  .article-body h3 {
+    @apply pt-3 text-lg font-bold text-brand-navy;
+  }
+
+  .article-body ul {
+    @apply list-disc space-y-2 pl-5 text-sm leading-relaxed text-body sm:text-base;
+  }
+
+  .article-body ol {
+    @apply list-decimal space-y-2 pl-5 text-sm leading-relaxed text-body sm:text-base;
+  }
+
+  .article-body a {
+    @apply font-semibold text-brand-red underline underline-offset-2;
+  }
+
+  .article-body blockquote {
+    @apply border-l-4 border-brand-yellow pl-4 italic text-body;
+  }
 }
 
 /* Hide scrollbars on horizontal scroll rows */

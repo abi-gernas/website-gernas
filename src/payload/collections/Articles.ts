@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { slugField } from "../fields/slug";
+import { revalidateArticle, revalidateArticleAfterDelete } from "../hooks/revalidate";
 
 /**
  * Artikel berita/publikasi — US-003: staf membuat & menerbitkan artikel
@@ -15,6 +16,10 @@ export const Articles: CollectionConfig = {
   labels: { singular: "Artikel", plural: "Artikel" },
   versions: {
     drafts: true,
+  },
+  hooks: {
+    afterChange: [revalidateArticle],
+    afterDelete: [revalidateArticleAfterDelete],
   },
   access: {
     read: ({ req }) => {

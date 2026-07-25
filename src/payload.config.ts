@@ -23,6 +23,15 @@ const dirname = path.dirname(filename);
 /** Benar bila proses ini adalah perintah `payload migrate*`. */
 const isMigrating = process.argv.some((arg) => arg.startsWith("migrate"));
 
+/**
+ * Basis URL publik Supabase Storage, diturunkan dari S3_ENDPOINT agar tidak
+ * ada nilai yang perlu diisi dua kali.
+ * https://<ref>.storage.supabase.co/storage/v1/s3
+ *   -> https://<ref>.supabase.co/storage/v1/object/public/<bucket>
+ */
+const supabaseRef = process.env.S3_ENDPOINT?.match(/https:\/\/([^.]+)\./)?.[1] ?? "";
+const supabasePublicBase = `https://${supabaseRef}.supabase.co/storage/v1/object/public/${process.env.S3_BUCKET}`;
+
 export default buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL,
 
@@ -107,7 +116,19 @@ export default buildConfig({
      */
     s3Storage({
       enabled: Boolean(process.env.S3_BUCKET),
-      collections: { media: true },
+      collections: {
+        media: {
+          /**
+           * Sajikan berkas langsung dari CDN Supabase, bukan diteruskan lewat
+           * server Next.js. Tanpa ini setiap gambar melewati /api/media/file/…
+           * sehingga membebani fungsi serverless Vercel dan lebih lambat.
+           * Aman karena bucket memang publik.
+           */
+          disablePayloadAccessControl: true,
+          generateFileURL: ({ filename, prefix }) =>
+            [supabasePublicBase, prefix, filename].filter(Boolean).join("/"),
+        },
+      },
       bucket: process.env.S3_BUCKET ?? "",
       config: {
         endpoint: process.env.S3_ENDPOINT ?? "",
