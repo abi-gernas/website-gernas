@@ -8,17 +8,31 @@ Status: **DRAFT rencana — belum ada kode ditulis.**
 
 ---
 
-## 0. Temuan teknis kritis (baca dulu)
+## 0. Temuan teknis (hasil eksekusi — bukan lagi asumsi)
 
-**Payload CMS 3.x membutuhkan Next.js 15 + React 19.** App saat ini Next 14.2.5 + React 18.3.
-Konsekuensi: langkah pertama Modul 1 adalah **upgrade Next 14 → 15 & React 18 → 19**, bukan sekadar `npm install payload`.
+**Modul 1 sudah dikerjakan.** Catatan yang berbeda dari perkiraan awal:
 
-Risiko upgrade (rendah–sedang, karena app masih relatif kecil & belum ada dependency berat):
-- `next/image`, metadata API, dan App Router API stabil lintas 14→15 — perubahan minor.
-- Perlu cek: `reactStrictMode`, konfigurasi Tailwind/PostCSS (tidak terpengaruh), tipe TS.
-- Alternatif bila upgrade ingin dihindari: jalankan Payload sebagai **app terpisah** (monorepo/subfolder) — tapi ini menambah kompleksitas deploy & tidak sesuai arahan PRD "arsitektur tunggal di atasnya". **Rekomendasi: tetap satu app, lakukan upgrade.**
-
-> Keputusan yang perlu dikonfirmasi klien/Tech Lead: setuju upgrade Next 15 dalam satu app (rekomendasi) vs app Payload terpisah.
+1. **Payload 3.86 tidak mendukung Next 15.5.x.** Rentang peer yang diterima:
+   `>=15.2.9 <15.3 || >=15.3.9 <15.4 || >=15.4.11 <15.5 || >=16.2.6 <17`.
+   Karena itu app dinaikkan ke **Next 16.2.11** (stabil terbaru, didukung), bukan 15.x.
+   Satu-satunya breaking change yang kena: `params` di `berita/[slug]` kini asinkron.
+2. **Node 25 bermasalah dengan toolchain Payload.**
+   - `npm install` 6 paket Payload sekaligus → **OOM crash** (RAM mesin 8 GB).
+     Solusi: install bertahap per paket + `NODE_OPTIONS=--max-old-space-size=6144`.
+   - CLI Payload (`generate:importmap`, `generate:types`) gagal:
+     `ERR_REQUIRE_ASYNC_MODULE` pada `@payloadcms/richtext-lexical` (interop tsx/Node 25).
+   - **Rekomendasi: pasang Node 22 LTS** (`brew install node@22`) untuk kerja Payload.
+     Symlink `node@20`/`node@21` di Homebrew mesin ini semuanya menunjuk ke Node 25 —
+     tidak ada LTS asli terpasang. Build Next sendiri jalan normal di Node 25.
+3. **Postgres lokal rusak.** `postgresql@14` & `@15` gagal jalan
+   (`icu4c` mismatch: butuh `libicui18n.73.dylib`, terpasang icu4c@78).
+   Tidak diperbaiki — di luar cakupan & butuh izin. Verifikasi DB akan langsung
+   memakai Supabase.
+4. `sharp` tidak boleh diimpor lewat top-level `await import()` di `payload.config.ts`
+   (esbuild CJS). Dipakai import statis biasa.
+5. `@payloadcms/next/routes` hanya mengekspor `GRAPHQL_POST` &
+   `GRAPHQL_PLAYGROUND_GET` — tidak ada `GRAPHQL_GET`/`GRAPHQL_OPTIONS`.
+6. `.gitignore` semula `.env*` ikut mengabaikan `.env.example`; ditambah `!.env.example`.
 
 ---
 
