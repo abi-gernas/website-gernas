@@ -1,0 +1,27 @@
+// AUTO-GENERATED gallery image list (halaman Galeri).
+export const gallery: string[] = [
+  "/media/5b320a038abff73c18308dd66ea6c4336636c877-3-169x300.jpg",
+  "/media/e24a82b72601c94f307a22fd72d2ba6ec0d24c5b-2-300x169.jpg",
+  "/media/5273eb49d56457059dadc6900004732cbc8d2200-300x169.jpg",
+  "/media/dfcae878ccfb4d2817651e4fd546e5ec3dc87496-169x300.jpg",
+  "/media/bc60fc4e7b2ccccdfc8ca6310a9ab98bc102f86e-300x169.jpg",
+  "/media/834296ea58977bb15745da9ee0c3d2385325dd99-300x169.png",
+  "/media/a4d5ed53492d8bf52d5785e896bb3dadee9f0688-300x169.png",
+  "/media/3cd58ec130639eead362c8aa7add291a98125026-300x169.png",
+  "/media/f7860ae0b2a36312a4a15e57dc106f573020e844-300x169.png",
+  "/media/77544a6d7cc0244fb84a34afecd2332f02816dc5-300x169.png",
+  "/media/3887ba8a71eb1331d285fc07078627f67f2dc735-300x169.png",
+  "/media/2e179e5cac71ab5008e6663239b32edb18a9568e-Medium-300x225.jpg",
+  "/media/0dce58a77b3fef3575056594bb4b71433f9f8630-Medium-300x224.jpg",
+  "/media/0755ce198112836b6367fbee81181f84a895a787-Medium-300x169.jpg",
+  "/media/f06abb8494c4ff902037b6a0365c737afc1425b6-Medium-300x169.jpg",
+  "/media/Program-Timah-Mengajar-300x200.png",
+  "/media/3-300x169.png",
+  "/media/1-300x169.png",
+  "/media/2-300x169.png",
+  "/media/PTBA2-300x200.jpg",
+  "/media/47408112b8fe6975df5eba2b3523035623e239b1-300x225.jpg",
+  "/media/cd9ec685e814f9693bd11630a7d12d7632653fd2-300x169.png",
+  "/media/PTBA-300x200.jpg",
+  "/media/ed0592ac8385c7f0134f0c7c57f00bf0fac67949-300x169.png"
+];

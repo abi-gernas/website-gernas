@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Reduce 300ms tap delay & tune tap highlight for mobile */
+    -webkit-tap-highlight-color: rgba(27, 42, 99, 0.12);
+  }
+
+  body {
+    @apply bg-white text-body font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    @apply font-heading text-ink;
+    text-wrap: balance;
+  }
+
+  /* Anchor targets clear the sticky navbar */
+  :target {
+    scroll-margin-top: 6rem;
+  }
+
+  /* Visible keyboard focus for every interactive element */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline-none ring-2 ring-brand-red ring-offset-2 ring-offset-white;
+    border-radius: 0.5rem;
+  }
+
+  /* Respect reduced-motion globally */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-container px-5 sm:px-8;
+  }
+
+  .btn {
+    @apply inline-flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-pill px-6 py-3 text-sm font-semibold transition-colors duration-200;
+  }
+
+  /* Skip-to-content link for keyboard users */
+  .skip-link {
+    @apply sr-only rounded-lg bg-brand-navy px-4 py-2 text-sm font-semibold text-white;
+  }
+  .skip-link:focus {
+    @apply not-sr-only fixed left-4 top-4 z-[100] no-underline;
+  }
+
+  .btn-red {
+    @apply btn bg-brand-red text-white hover:bg-brand-red-dark hover:shadow-lg;
+  }
+
+  .btn-yellow {
+    @apply btn bg-brand-yellow text-brand-navy hover:bg-brand-yellow-dark;
+  }
+
+  .btn-navy {
+    @apply btn bg-brand-navy text-white hover:bg-brand-navy-dark;
+  }
+
+  .btn-outline {
+    @apply btn border border-brand-navy/20 bg-white text-brand-navy hover:border-brand-navy hover:bg-brand-navy hover:text-white;
+  }
+
+  /* Section title used across pages: centered red heading */
+  .section-title {
+    @apply text-center text-2xl font-bold text-brand-red sm:text-3xl;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-brand-red;
+  }
+}
+
+/* Hide scrollbars on horizontal scroll rows */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
