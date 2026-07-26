@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getArticles } from "@/lib/content";
+import { getPageSitemapEntries } from "@/lib/pages";
 
 const SITE_URL = "https://gernastastaka.org";
 
@@ -34,5 +35,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticEntries, ...articleEntries];
+  /**
+   * Halaman yang disusun staf dari dasbor. Slug yang bentrok dengan halaman
+   * statis di atas dibuang: route berkas selalu menang di Next, jadi entri
+   * ganda hanya akan menjadi URL duplikat di sitemap.
+   */
+  const staticPaths = new Set(STATIC_PAGES.map(({ path }) => path));
+  const pages = await getPageSitemapEntries();
+  const pageEntries: MetadataRoute.Sitemap = pages
+    .filter(({ slug }) => !staticPaths.has(`/${slug}`))
+    .map(({ slug, updatedAt }) => ({
+      url: `${SITE_URL}/${slug}`,
+      lastModified: new Date(updatedAt),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    }));
+
+  return [...staticEntries, ...articleEntries, ...pageEntries];
 }

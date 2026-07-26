@@ -35,3 +35,33 @@ export const revalidateArticleAfterDelete: CollectionAfterDeleteHook = async ({ 
   await revalidateArticlePaths(doc?.slug);
   return doc;
 };
+
+/**
+ * Segarkan halaman dari koleksi Halaman (route catch-all `[...slug]`).
+ *
+ * Halaman itu di-render statis lewat `generateStaticParams`, jadi tanpa hook
+ * ini perubahan staf baru tampil setelah deploy ulang — persoalan yang sama
+ * dengan artikel.
+ */
+async function revalidatePagePath(slug?: string | null) {
+  if (!slug) return;
+  try {
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath(`/${slug}`);
+  } catch {
+    // Di luar runtime Next (CLI/seed) tidak ada yang perlu disegarkan.
+  }
+}
+
+export const revalidatePage: CollectionAfterChangeHook = async ({ doc, previousDoc }) => {
+  await revalidatePagePath(doc?.slug);
+  if (previousDoc?.slug && previousDoc.slug !== doc?.slug) {
+    await revalidatePagePath(previousDoc.slug);
+  }
+  return doc;
+};
+
+export const revalidatePageAfterDelete: CollectionAfterDeleteHook = async ({ doc }) => {
+  await revalidatePagePath(doc?.slug);
+  return doc;
+};

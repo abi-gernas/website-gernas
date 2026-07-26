@@ -30,7 +30,7 @@ export default async function HomePage() {
       <HeroCarousel slides={homeSlides} />
 
       {/* Value cards overlapping the hero */}
-      <div className="container-page relative z-10 -mt-8 sm:-mt-16">
+      <div className="container-page relative z-10 -mt-14 sm:-mt-24">
         <ValueCards cards={homeValueCards} />
       </div>
 

@@ -89,6 +89,48 @@ export const trainingModules: TrainingModule[] = [
   },
 ];
 
+export const readingTrainingIntro =
+  "Melalui Pelatihan membaca Gernas Tastaba dalam 36 Jam, guru belajar menjadi fasilitator pembelajaran Membaca yang Bermakna.";
+
+export const readingTrainingModules: TrainingModule[] = [
+  {
+    no: 1,
+    label: "Menjadi Pembaca Aktif",
+    subtitle: "Menjadi Pembaca Aktif",
+    tone: "red",
+    points: [
+      "Memaknai apa yang dimaksud sebagai pembaca aktif.",
+      "Mendiskusikan beberapa strategi untuk menjadi \"Membaca Aktif\".",
+      "Membuat rencana pribadi untuk menjadi pembaca yang lebih aktif.",
+    ],
+  },
+  {
+    no: 2,
+    label: "Membaca Dasar",
+    subtitle: "Membaca Dasar",
+    tone: "navy",
+    points: [
+      "Membahas empat aspek literasi / keterampilan berbahasa (mendengar, berbicara, membaca, menulis).",
+      "Mendiskusikan 6 komponen literasi (Kesadaran cetak, fonologi, pengetahuan alfabet, fonik, kosa kata, pemahaman) dan merefleksikan hubungannya.",
+      "Mendiskusikan dasar-dasar untuk melakukan diagnostik kemampuan membaca.",
+    ],
+  },
+  {
+    no: 3,
+    label: "Membaca Bermakna",
+    subtitle: "Membaca Bermakna",
+    tone: "yellow",
+    points: [
+      "Berlatih menggunakan beberapa strategi \"literasi aktif\".",
+      "Berlatih membuat pertanyaan yang bisa memfasilitasi anak dalam memaknai bacaan.",
+      "Membandingkan kegiatan membaca bersama (shared reading), membaca terbimbing (guided reading), dan close reading (membaca mendalam).",
+      "Berlatih menggunakan grafis pengatur untuk memaknai teks dan merefleksikan bagaimana menggunakan grafis pengatur untuk mengajar membaca di kelas.",
+      "Berlatih merancang kegiatan sebelum membaca, kegiatan saat membaca, dan setelah membaca.",
+      "Membuat rencana aksi.",
+    ],
+  },
+];
+
 export const programIntensif =
   "Program Intensif Gernas Tastaka memberikan pendampingan terstruktur yang memastikan pelatihan terimplementasi menjadi praktik nyata di kelas. Bersama mitra, kami mendukung guru melalui diskusi terarah, coaching, mentoring, micro-teaching, dan kelas percontohan yang mudah direplikasi. Program ini dirancang untuk membantu sekolah dan pemerintah daerah mencapai peningkatan mutu pembelajaran secara berkelanjutan dan terukur.";
 

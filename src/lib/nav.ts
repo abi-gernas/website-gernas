@@ -22,6 +22,11 @@ export const navItems: NavItem[] = [
     children: [
       { label: "Mitra", href: "/mitra", desc: "Kolaborasi & CSR" },
       { label: "Donatur", href: "/donatur", desc: "Dukung program kami" },
+    ],
+  },
+  {
+    label: "Program",
+    children: [
       {
         label: "Tumbuh Bersama",
         href: "/tumbuh-bersama",

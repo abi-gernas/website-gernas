@@ -6,9 +6,13 @@ import {
   trainingIntro,
   trainingSidebar,
   trainingModules,
+  readingTrainingIntro,
+  readingTrainingModules,
   programIntensif,
 } from "@/data/training";
+import type { TrainingModule } from "@/data/training";
 import { heroImages } from "@/data/site";
+import { ModuleCard } from "@/components/ModuleCard";
 
 export const metadata: Metadata = {
   title: "Belajar Bersama",
@@ -21,6 +25,40 @@ const toneCard: Record<string, string> = {
   navy: "bg-brand-navy text-white",
   yellow: "bg-brand-yellow text-brand-navy",
 };
+
+function TopikPelatihan({ modules }: { modules: TrainingModule[] }) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {modules.map((m) => (
+        <div
+          key={m.no}
+          className={`flex flex-col rounded-card p-6 ${toneCard[m.tone]}`}
+        >
+          <span className="text-xs font-semibold uppercase tracking-wide opacity-80">
+            Pelatihan {m.no}
+          </span>
+          <h3
+            className={`mt-1 text-lg font-bold ${
+              m.tone === "yellow" ? "text-brand-navy" : "text-white"
+            }`}
+          >
+            {m.label}
+          </h3>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RincianModul({ modules }: { modules: TrainingModule[] }) {
+  return (
+    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      {modules.map((m) => (
+        <ModuleCard key={m.no} module={m} />
+      ))}
+    </div>
+  );
+}
 
 export default function BelajarBersamaPage() {
   return (
@@ -56,50 +94,37 @@ export default function BelajarBersamaPage() {
             </Link>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {trainingModules.map((m) => (
-              <div
-                key={m.no}
-                className={`flex flex-col rounded-card p-6 ${toneCard[m.tone]}`}
-              >
-                <span className="text-xs font-semibold uppercase tracking-wide opacity-80">
-                  Pelatihan {m.no}
-                </span>
-                <h3
-                  className={`mt-1 text-lg font-bold ${
-                    m.tone === "yellow" ? "text-brand-navy" : "text-white"
-                  }`}
-                >
-                  {m.label}
-                </h3>
-              </div>
-            ))}
-          </div>
+          <TopikPelatihan modules={trainingModules} />
         </div>
       </Section>
 
-      {/* Detail modul */}
+      {/* Detail modul matematika */}
       <Section title="Rincian Modul Pelatihan">
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {trainingModules.map((m) => (
-            <div
-              key={m.no}
-              className="rounded-card bg-surface p-6"
-            >
-              <h3 className="text-base font-bold text-brand-navy">
-                Modul {m.no}: {m.subtitle}
-              </h3>
-              <ol className="mt-3 space-y-2 text-sm text-body">
-                {m.points.map((p, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="font-semibold text-brand-red">{i + 1}.</span>
-                    <span>{p}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ))}
+        <RincianModul modules={trainingModules} />
+      </Section>
+
+      {/* Topik Pelatihan Membaca */}
+      <Section title="Topik Pelatihan Membaca" className="bg-surface">
+        <div className="grid gap-8 lg:grid-cols-[0.9fr_2fr]">
+          <div className="rounded-card bg-white p-7 shadow-soft">
+            <p className="text-sm font-semibold leading-relaxed text-brand-red">
+              {readingTrainingIntro}
+            </p>
+            <p className="mt-6 text-sm font-medium text-brand-navy">
+              Tertarik untuk belajar?
+            </p>
+            <Link href="/mitra#hubungi" className="btn-yellow mt-3">
+              Gabung Sekarang
+            </Link>
+          </div>
+
+          <TopikPelatihan modules={readingTrainingModules} />
         </div>
+      </Section>
+
+      {/* Detail modul membaca */}
+      <Section title="Rincian Modul Pelatihan Membaca">
+        <RincianModul modules={readingTrainingModules} />
       </Section>
 
       {/* Program Intensif */}

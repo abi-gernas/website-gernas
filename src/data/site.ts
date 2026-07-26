@@ -77,6 +77,8 @@ export const testimonials: Testimonial[] = [
       "Pemerintah tidak bisa menjadi satu-satunya yang paling tahu, paling bisa, dan paling mengerti berbagai kondisi yang ada di lapangan. Jika kita bersatu, jika kita bisa berhimpun sebagai satu kekuatan ekosistem, kita bisa melakukan berbagai hal yang berdampak sangat signifikan kepada murid — terutama terhadap kompetensi dasar. Karena itu, Gernas Tastaka memperkuat kompetensi dasar ini.",
     name: "Dr. Iwan Syahril",
     role: "Direktur Jenderal Guru dan Tenaga Kependidikan, Kemendikbud Ristek 2020–2022",
+    photo:
+      "https://xcorxorvfdegnzpnlubj.supabase.co/storage/v1/object/public/media/6-797x1024.webp",
     tone: "yellow",
   },
   {
@@ -84,6 +86,8 @@ export const testimonials: Testimonial[] = [
       "Ketika saya kuliah belum ada pembelajaran seperti yang diajarkan di Gernas Tastaka; biasanya kuliah langsung teorinya saja. Ternyata di pelatihan Gernas Tastaka kami langsung menerapkan hal-hal yang nyata, dan konsep-konsepnya juga sangat mudah dipahami untuk anak-anak tingkat SD.",
     name: "Efti Ayu Pertiwi, S.Pd.",
     role: "Guru SDN 10 Lahat",
+    photo:
+      "https://xcorxorvfdegnzpnlubj.supabase.co/storage/v1/object/public/media/5-1-797x1024.webp",
     tone: "navy",
   },
   {
@@ -91,6 +95,8 @@ export const testimonials: Testimonial[] = [
       "Tanpa sumber daya manusia yang unggul, sulit menyebarkan kebaikan dan membangkitkan inovasi. Tadris Matematika lahir dari keinginan membangun peradaban baru Indonesia yang inovatif dan senantiasa menyebarkan kebaikan serta kebermanfaatan bagi masyarakat luas.",
     name: "Salman Subakat",
     role: "CEO PT. Paragon Technology and Innovation 2019–2022",
+    photo:
+      "https://xcorxorvfdegnzpnlubj.supabase.co/storage/v1/object/public/media/4-797x1024.webp",
     tone: "red",
   },
 ];

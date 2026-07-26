@@ -1,6 +1,5 @@
 import "server-only";
-import { getPayload } from "payload";
-import config from "@payload-config";
+import { payloadPromise } from "./payload";
 import type { Article as PayloadArticle, Media } from "@/payload-types";
 
 /**
@@ -28,8 +27,6 @@ export type ArticleView = {
     image: { url: string; width?: number; height?: number } | null;
   };
 };
-
-const payloadPromise = getPayload({ config });
 
 /** Ambil URL & dimensi dari relasi Media yang sudah ter-populate. */
 function toImage(value: unknown): ArticleView["image"] {
@@ -64,15 +61,26 @@ function toView(doc: PayloadArticle, withContent = false): ArticleView {
   };
 }
 
-/** Daftar artikel terbit, terbaru lebih dulu. */
-export async function getArticles(limit?: number): Promise<ArticleView[]> {
+/**
+ * Daftar artikel terbit, terbaru lebih dulu.
+ *
+ * `categoryId` dipakai blok "Berita Terbaru" di koleksi Halaman, yang boleh
+ * dibatasi ke satu kategori; kosongkan untuk mengambil semua kategori.
+ */
+export async function getArticles(
+  limit?: number,
+  categoryId?: string | number,
+): Promise<ArticleView[]> {
   const payload = await payloadPromise;
   const res = await payload.find({
     collection: "articles",
     depth: 1, // populate relasi image & category
     limit: limit ?? 100,
     sort: "-publishedAt",
-    where: { _status: { equals: "published" } },
+    where: {
+      _status: { equals: "published" },
+      ...(categoryId ? { category: { equals: categoryId } } : {}),
+    },
     pagination: false,
   });
   return res.docs.map((d) => toView(d));

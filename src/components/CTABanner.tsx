@@ -9,7 +9,8 @@ export function CTABanner({
 }: {
   title: string;
   body?: string;
-  cta: { label: string; href: string };
+  /** Opsional: blok CTA dari dasbor boleh diterbitkan tanpa tombol. */
+  cta?: { label: string; href: string };
   image?: string;
 }) {
   return (
@@ -29,9 +30,11 @@ export function CTABanner({
       </div>
       <div className="flex flex-col justify-center gap-5 bg-surface p-8 sm:p-10">
         {body && <p className="text-sm leading-relaxed text-body">{body}</p>}
-        <Link href={cta.href} className="btn-red self-start">
-          {cta.label}
-        </Link>
+        {cta && (
+          <Link href={cta.href} className="btn-red self-start">
+            {cta.label}
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { pageBlocks } from "../blocks";
 import { slugField } from "../fields/slug";
+import { revalidatePage, revalidatePageAfterDelete } from "../hooks/revalidate";
 
 /**
  * Halaman publik yang disusun staf dari Blocks — inti dari US-002:
@@ -20,6 +21,10 @@ export const Pages: CollectionConfig = {
   labels: { singular: "Halaman", plural: "Halaman" },
   versions: {
     drafts: true, // staf bisa menyimpan draf sebelum menerbitkan
+  },
+  hooks: {
+    afterChange: [revalidatePage],
+    afterDelete: [revalidatePageAfterDelete],
   },
   access: {
     // Publik hanya melihat yang sudah terbit; staf melihat semuanya.

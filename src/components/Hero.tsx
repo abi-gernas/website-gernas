@@ -104,25 +104,25 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             </Link>
           )}
         </div>
-      </div>
 
-      {/* dots — 44px hit area, small visual */}
-      <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2">
-        {slides.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => setI(idx)}
-            aria-label={`Tampilkan slide ${idx + 1} dari ${slides.length}`}
-            aria-current={idx === i}
-            className="group flex h-11 w-8 touch-manipulation items-center justify-center"
-          >
-            <span
-              className={`h-2 rounded-full transition-all ${
-                idx === i ? "w-6 bg-brand-yellow" : "w-2 bg-white/60 group-hover:bg-white"
-              }`}
-            />
-          </button>
-        ))}
+        {/* dots — 44px hit area, small visual */}
+        <div className="mt-8 flex">
+          {slides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setI(idx)}
+              aria-label={`Tampilkan slide ${idx + 1} dari ${slides.length}`}
+              aria-current={idx === i}
+              className="group flex h-11 w-8 touch-manipulation items-center justify-center"
+            >
+              <span
+                className={`h-2 rounded-full transition-all ${
+                  idx === i ? "w-6 bg-brand-yellow" : "w-2 bg-white/60 group-hover:bg-white"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );
