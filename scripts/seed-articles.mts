@@ -1,5 +1,5 @@
 /**
- * Impor artikel hasil migrasi WordPress (src/data/news.ts) ke koleksi
+ * Impor artikel hasil migrasi WordPress (scripts/data-artikel.ts) ke koleksi
  * Articles Payload.
  *
  * Jalankan:  npm run seed:articles   (jalankan seed:media lebih dulu)
@@ -19,7 +19,7 @@ for (const line of fs.readFileSync(".env", "utf8").split("\n")) {
 
 const { getPayload } = await import("payload");
 const config = (await import("../src/payload.config.js")).default;
-const { articles } = await import("../src/data/news.js");
+const { articles } = await import("./data-artikel.js");
 
 const payload = await getPayload({ config });
 

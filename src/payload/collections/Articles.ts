@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { slugField } from "../fields/slug";
 import { revalidateArticle, revalidateArticleAfterDelete } from "../hooks/revalidate";
+import { previewURL } from "../utils/preview";
 
 /**
  * Artikel berita/publikasi — US-003: staf membuat & menerbitkan artikel
@@ -12,6 +13,12 @@ export const Articles: CollectionConfig = {
     useAsTitle: "title",
     defaultColumns: ["title", "category", "publishedAt", "_status"],
     group: "Konten",
+    description:
+      "Berita dan kabar terbaru. Tampil di halaman Publikasi dan pada blok “Berita Terbaru” di halaman mana pun yang memakainya.",
+    livePreview: {
+      url: ({ data }) => previewURL({ collection: "articles", slug: data?.slug }),
+    },
+    preview: (doc) => previewURL({ collection: "articles", slug: doc?.slug }),
   },
   labels: { singular: "Artikel", plural: "Artikel" },
   versions: {
@@ -30,12 +37,44 @@ export const Articles: CollectionConfig = {
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => req.user?.role === "admin",
   },
+  /** Sama seperti koleksi Halaman: tabs harus di indeks 0, lihat Pages.ts. */
   fields: [
     {
-      name: "title",
-      type: "text",
-      required: true,
-      label: "Judul",
+      type: "tabs",
+      tabs: [
+        {
+          label: "Konten",
+          fields: [
+            {
+              name: "title",
+              type: "text",
+              required: true,
+              label: "Judul",
+            },
+            {
+              name: "image",
+              type: "upload",
+              relationTo: "media",
+              label: "Gambar sampul",
+            },
+            {
+              name: "excerpt",
+              type: "textarea",
+              label: "Ringkasan",
+              admin: {
+                description:
+                  "Cuplikan singkat di kartu berita. Bila kosong, diambil dari paragraf pertama.",
+              },
+            },
+            {
+              name: "content",
+              type: "richText",
+              required: true,
+              label: "Isi artikel",
+            },
+          ],
+        },
+      ],
     },
     ...slugField(),
     {
@@ -55,27 +94,6 @@ export const Articles: CollectionConfig = {
       relationTo: "categories",
       label: "Kategori",
       admin: { position: "sidebar" },
-    },
-    {
-      name: "image",
-      type: "upload",
-      relationTo: "media",
-      label: "Gambar sampul",
-    },
-    {
-      name: "excerpt",
-      type: "textarea",
-      label: "Ringkasan",
-      admin: {
-        description:
-          "Cuplikan singkat di kartu berita. Bila kosong, diambil dari paragraf pertama.",
-      },
-    },
-    {
-      name: "content",
-      type: "richText",
-      required: true,
-      label: "Isi artikel",
     },
   ],
 };

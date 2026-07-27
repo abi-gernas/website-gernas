@@ -1,4 +1,5 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from "payload";
+import { pagePath } from "../../lib/routes";
 
 /**
  * Segarkan halaman publik begitu staf menerbitkan perubahan.
@@ -47,7 +48,9 @@ async function revalidatePagePath(slug?: string | null) {
   if (!slug) return;
   try {
     const { revalidatePath } = await import("next/cache");
-    revalidatePath(`/${slug}`);
+    // `pagePath` memetakan slug beranda ke "/" — menyegarkan "/beranda" tidak
+    // akan menyentuh halaman yang benar-benar dilayani.
+    revalidatePath(pagePath(slug));
   } catch {
     // Di luar runtime Next (CLI/seed) tidak ada yang perlu disegarkan.
   }
@@ -63,5 +66,34 @@ export const revalidatePage: CollectionAfterChangeHook = async ({ doc, previousD
 
 export const revalidatePageAfterDelete: CollectionAfterDeleteHook = async ({ doc }) => {
   await revalidatePagePath(doc?.slug);
+  return doc;
+};
+
+/**
+ * Segarkan seluruh halaman publik.
+ *
+ * Dipakai koleksi data berulang (Penggerak, Mitra, Video, Modul Pelatihan):
+ * satu dokumen di sana bisa muncul di banyak halaman sekaligus — logo mitra
+ * tampil di beranda dan di halaman Mitra — dan tidak ada cara murah untuk
+ * mengetahui halaman mana saja yang memakainya. Menyegarkan semuanya jauh
+ * lebih sederhana daripada melacak ketergantungan, dan situs ini cukup kecil
+ * sehingga biayanya tidak terasa.
+ */
+async function revalidateSeluruhSitus() {
+  try {
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath("/", "layout");
+  } catch {
+    // Di luar runtime Next (CLI/seed) tidak ada yang perlu disegarkan.
+  }
+}
+
+export const revalidateSemua: CollectionAfterChangeHook = async ({ doc }) => {
+  await revalidateSeluruhSitus();
+  return doc;
+};
+
+export const revalidateSemuaAfterDelete: CollectionAfterDeleteHook = async ({ doc }) => {
+  await revalidateSeluruhSitus();
   return doc;
 };

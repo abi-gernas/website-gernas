@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
+import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Section } from "@/components/Section";
 import { NewsCard } from "@/components/NewsCard";
 import { ArticleBody } from "@/components/ArticleBody";
+import { LivePreviewListener } from "@/components/LivePreviewListener";
+import { PreviewBadge } from "@/components/PreviewBadge";
 import { getArticleBySlug, getArticleSlugs, getArticles } from "@/lib/content";
 
 export async function generateStaticParams() {
@@ -18,7 +21,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const { isEnabled: draft } = await draftMode();
+  const article = await getArticleBySlug(slug, draft);
   if (!article) return { title: "Berita" };
 
   // Field SEO (diisi staf lewat panel SEO) diutamakan; jika kosong, jatuh
@@ -55,13 +59,21 @@ export default async function ArticlePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const { isEnabled: draft } = await draftMode();
+  const article = await getArticleBySlug(slug, draft);
   if (!article) notFound();
 
   const related = (await getArticles()).filter((a) => a.slug !== article.slug).slice(0, 3);
 
   return (
     <article>
+      {draft && (
+        <>
+          <LivePreviewListener />
+          <PreviewBadge />
+        </>
+      )}
+
       {/* Header */}
       <div className="bg-surface">
         <div className="container-page max-w-3xl py-12">

@@ -71,6 +71,10 @@ export interface Config {
     articles: Article;
     categories: Category;
     media: Media;
+    penggerak: Penggerak;
+    mitra: Mitra;
+    video: Video;
+    'modul-pelatihan': ModulPelatihan;
     users: User;
     redirects: Redirect;
     'payload-kv': PayloadKv;
@@ -84,6 +88,10 @@ export interface Config {
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    penggerak: PenggerakSelect<false> | PenggerakSelect<true>;
+    mitra: MitraSelect<false> | MitraSelect<true>;
+    video: VideoSelect<false> | VideoSelect<true>;
+    'modul-pelatihan': ModulPelatihanSelect<false> | ModulPelatihanSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -130,6 +138,8 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Halaman situs yang disusun dari blok. Seret blok untuk mengubah urutannya, lalu pakai Pratinjau untuk melihat hasilnya sebelum diterbitkan.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
@@ -137,24 +147,29 @@ export interface Page {
   id: number;
   title: string;
   /**
-   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
-   */
-  slug: string;
-  /**
    * Tambahkan blok sesuai urutan tampilan dari atas ke bawah. Seret untuk mengubah urutan.
    */
   layout?:
     | (
         | {
+            /**
+             * Setiap slide tampil bergantian otomatis. Untuk satu gambar diam, cukup isi satu slide.
+             */
             slides?:
               | {
                   title: string;
                   /**
-                   * Bagian akhir judul yang diberi warna kuning, mis. “Bermakna dan Bernalar”.
+                   * Bagian akhir judul yang diberi warna kuning, mis. “Bermakna dan Bernalar”. Ditempel setelah judul, jangan diketik ulang di kolom Judul.
                    */
                   highlight?: string | null;
                   description?: string | null;
+                  /**
+                   * Gambar melintang beresolusi tinggi, minimal 1920 piksel.
+                   */
                   image: number | Media;
+                  /**
+                   * Kosongkan keduanya bila blok ini tidak perlu tombol.
+                   */
                   cta?: {
                     label?: string | null;
                     /**
@@ -173,82 +188,14 @@ export interface Page {
             title: string;
             description?: string | null;
             image: number | Media;
+            /**
+             * Lapisan warna di atas gambar agar teks tetap terbaca. Pilih Gelap bila gambarnya terang.
+             */
             tint?: ('navy' | 'dark') | null;
+            garisBawah?: boolean | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'pageHero';
-          }
-        | {
-            stats?:
-              | {
-                  /**
-                   * Angka saja, tanpa titik/koma. Mis. 1250
-                   */
-                  value: number;
-                  /**
-                   * Mis. “+” atau “ribu”
-                   */
-                  suffix?: string | null;
-                  label: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'statCounter';
-          }
-        | {
-            cards?:
-              | {
-                  title: string;
-                  body: string;
-                  tone: 'red' | 'navy' | 'yellow';
-                  cta?: {
-                    label?: string | null;
-                    /**
-                     * Contoh: /tumbuh-bersama atau https://…
-                     */
-                    href?: string | null;
-                  };
-                  links?:
-                    | {
-                        label?: string | null;
-                        href?: string | null;
-                        id?: string | null;
-                      }[]
-                    | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'valueCards';
-          }
-        | {
-            title: string;
-            body?: string | null;
-            image?: (number | null) | Media;
-            cta?: {
-              label?: string | null;
-              /**
-               * Contoh: /tumbuh-bersama atau https://…
-               */
-              href?: string | null;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'ctaBanner';
-          }
-        | {
-            heading?: string | null;
-            limit?: number | null;
-            /**
-             * Kosongkan untuk menampilkan semua kategori.
-             */
-            category?: (number | null) | Category;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'latestNews';
           }
         | {
             heading?: string | null;
@@ -267,9 +214,466 @@ export interface Page {
               };
               [k: string]: unknown;
             } | null;
+            lebar?: ('sedang' | 'penuh') | null;
+            rataTengah?: boolean | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'richText';
+          }
+        | {
+            heading?: string | null;
+            /**
+             * Di layar ponsel semua blok tetap turun menjadi satu kolom.
+             */
+            kolom?: ('2' | '3' | '4') | null;
+            /**
+             * Bila diisi, kartu-kartu bergeser ke kanan dan gambar ini mengisi kolom kiri. Dipakai halaman Mitra.
+             */
+            gambarSamping?: {
+              gambar?: (number | null) | Media;
+              judul?: string | null;
+              /**
+               * Ditempel di depan judul, mis. “Selalu Ada Ruang”.
+               */
+              judulSorot?: string | null;
+            };
+            cards?:
+              | {
+                  judul: string;
+                  /**
+                   * Baris kecil di bawah judul, mis. kepanjangan singkatan lembaga.
+                   */
+                  subjudul?: string | null;
+                  /**
+                   * Boleh memakai daftar bernomor — dipakai kotak Misi di halaman Tentang.
+                   */
+                  isi?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: any;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  /**
+                   * Opsional. Tampil di atas judul.
+                   */
+                  gambar?: (number | null) | Media;
+                  warna?: ('putih' | 'abu' | 'navy' | 'merah' | 'kuning') | null;
+                  /**
+                   * Kosongkan keduanya bila blok ini tidak perlu tombol.
+                   */
+                  cta?: {
+                    label?: string | null;
+                    /**
+                     * Contoh: /tumbuh-bersama atau https://…
+                     */
+                    href?: string | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'featureCards';
+          }
+        | {
+            /**
+             * Tampilan beranda: kartu naik menutupi bagian bawah hero. Hanya masuk akal bila blok ini tepat di bawah blok Hero.
+             */
+            tumpukDiAtasHero?: boolean | null;
+            cards?:
+              | {
+                  title: string;
+                  body: string;
+                  tone: 'red' | 'navy' | 'yellow';
+                  /**
+                   * Kosongkan keduanya bila blok ini tidak perlu tombol.
+                   */
+                  cta?: {
+                    label?: string | null;
+                    /**
+                     * Contoh: /tumbuh-bersama atau https://…
+                     */
+                    href?: string | null;
+                  };
+                  /**
+                   * Dipakai bila kartu perlu beberapa tautan kecil alih-alih satu tombol.
+                   */
+                  links?:
+                    | {
+                        label?: string | null;
+                        href?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'valueCards';
+          }
+        | {
+            judul: string;
+            isi?: string | null;
+            warna?: ('putih' | 'abu' | 'navy' | 'merah' | 'kuning') | null;
+            rataTengah?: boolean | null;
+            /**
+             * Tampil sebagai kotak-kotak persegi di bawah teks. Dipakai bagian “Rangkaian produk pilihan”.
+             */
+            gambar?: (number | Media)[] | null;
+            /**
+             * Kosongkan keduanya bila blok ini tidak perlu tombol.
+             */
+            cta?: {
+              label?: string | null;
+              /**
+               * Contoh: /tumbuh-bersama atau https://…
+               */
+              href?: string | null;
+            };
+            /**
+             * Tampil sebagai pil putih berjajar, mis. “Shopee” dan “Tokopedia”.
+             */
+            tautanTambahan?:
+              | {
+                  /**
+                   * Mis. “Temukan Kami:”. Cukup diisi pada tautan pertama.
+                   */
+                  awalan?: string | null;
+                  label: string;
+                  href?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'callout';
+          }
+        | {
+            title: string;
+            body?: string | null;
+            image?: (number | null) | Media;
+            /**
+             * Kosongkan keduanya bila blok ini tidak perlu tombol.
+             */
+            cta?: {
+              label?: string | null;
+              /**
+               * Contoh: /tumbuh-bersama atau https://…
+               */
+              href?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'ctaBanner';
+          }
+        | {
+            heading?: string | null;
+            /**
+             * Urutan di sini menentukan urutan dari atas ke bawah. Entri tampil berselang-seling kiri dan kanan secara otomatis.
+             */
+            entries?:
+              | {
+                  /**
+                   * Mis. 2018
+                   */
+                  tahun: string;
+                  teks: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'timeline';
+          }
+        | {
+            heading?: string | null;
+            stats?:
+              | {
+                  /**
+                   * Angka saja, tanpa titik/koma. Mis. 16000
+                   */
+                  value: number;
+                  /**
+                   * Mis. “+” atau “ribu”. Boleh dikosongkan.
+                   */
+                  suffix?: string | null;
+                  label: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statCounter';
+          }
+        | {
+            heading?: string | null;
+            /**
+             * Artikel terbaru diambil lebih dulu.
+             */
+            limit?: number | null;
+            /**
+             * Di layar ponsel semua blok tetap turun menjadi satu kolom.
+             */
+            kolom?: ('2' | '3' | '4') | null;
+            /**
+             * Kosongkan untuk menampilkan semua kategori.
+             */
+            category?: (number | null) | Category;
+            /**
+             * Kosongkan keduanya bila blok ini tidak perlu tombol.
+             */
+            cta?: {
+              label?: string | null;
+              /**
+               * Contoh: /tumbuh-bersama atau https://…
+               */
+              href?: string | null;
+            };
+            /**
+             * Membuat bagian ini bisa dituju langsung lewat alamat, mis. “/#kabar-terbaru”. Hanya huruf kecil dan tanda hubung. Jangan diubah bila sudah dipakai di menu.
+             */
+            anchor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'latestNews';
+          }
+        | {
+            /**
+             * Blok ini menampilkan seluruh isi Data Situs → Penggerak, urut menurut “Urutan tampil”. Untuk menambah atau menghapus orang, sunting koleksinya — bukan blok ini.
+             */
+            heading?: string | null;
+            /**
+             * Membuat bagian ini bisa dituju langsung lewat alamat, mis. “/tentang-gernas-tastaka#penggerak”. Hanya huruf kecil dan tanda hubung. Jangan diubah bila sudah dipakai di menu.
+             */
+            anchor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'teamGrid';
+          }
+        | {
+            /**
+             * Logo diambil dari Data Situs → Mitra. Tambah atau ganti logo di koleksi itu, bukan di sini.
+             */
+            heading?: string | null;
+            /**
+             * “Berkelompok” menampilkan semua mitra di bawah judul kelompoknya masing-masing. “Barisan berjalan” hanya menampilkan mitra yang dicentang “Tampilkan di beranda”.
+             */
+            tampilan: 'berkelompok' | 'barisan';
+            /**
+             * Kosongkan keduanya bila blok ini tidak perlu tombol.
+             */
+            cta?: {
+              label?: string | null;
+              /**
+               * Contoh: /tumbuh-bersama atau https://…
+               */
+              href?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'partnerLogos';
+          }
+        | {
+            /**
+             * Video diambil dari Data Situs → Video, urut menurut “Urutan tampil”.
+             */
+            heading?: string | null;
+            /**
+             * Kosongkan untuk menampilkan semua video.
+             */
+            limit?: number | null;
+            /**
+             * Di layar ponsel semua blok tetap turun menjadi satu kolom.
+             */
+            kolom?: ('2' | '3' | '4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'videoGrid';
+          }
+        | {
+            /**
+             * Modul diambil dari Data Situs → Modul Pelatihan. Warna kartu berganti merah–biru–kuning otomatis mengikuti urutan.
+             */
+            heading?: string | null;
+            program: 'matematika' | 'membaca';
+            /**
+             * Halaman Belajar Bersama memakai keduanya: “Ringkas” di bagian Topik Pelatihan, “Rincian” di bagian Rincian Modul.
+             */
+            tampilan: 'topik' | 'rincian';
+            /**
+             * Hanya tampil pada tampilan Ringkas. Kosongkan judul untuk menyembunyikannya.
+             */
+            sidebar?: {
+              teks?: string | null;
+              /**
+               * Mis. “Tertarik untuk belajar?”
+               */
+              ajakan?: string | null;
+              /**
+               * Kosongkan keduanya bila blok ini tidak perlu tombol.
+               */
+              cta?: {
+                label?: string | null;
+                /**
+                 * Contoh: /tumbuh-bersama atau https://…
+                 */
+                href?: string | null;
+              };
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'trainingModules';
+          }
+        | {
+            heading?: string | null;
+            /**
+             * Foto boleh beda ukuran — tingginya menyesuaikan sendiri. Seret untuk mengubah urutan.
+             */
+            images: (number | Media)[];
+            /**
+             * Di layar ponsel semua blok tetap turun menjadi satu kolom.
+             */
+            kolom?: ('2' | '3' | '4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'gallery';
+          }
+        | {
+            heading?: string | null;
+            /**
+             * Warna latar tiap kutipan berganti kuning–biru–merah otomatis mengikuti urutan.
+             */
+            items?:
+              | {
+                  kutipan: string;
+                  nama: string;
+                  /**
+                   * Mis. “Guru SDN 10 Lahat”.
+                   */
+                  peran?: string | null;
+                  foto?: (number | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonials';
+          }
+        | {
+            heading?: string | null;
+            /**
+             * Peta sebaran provinsi sudah tertanam di situs dan tidak disunting dari sini.
+             */
+            tampilkanPeta?: boolean | null;
+            stats?:
+              | {
+                  /**
+                   * Angka saja, tanpa titik/koma. Mis. 16000
+                   */
+                  value: number;
+                  /**
+                   * Mis. “+” atau “ribu”. Boleh dikosongkan.
+                   */
+                  suffix?: string | null;
+                  label: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'indonesiaMap';
+          }
+        | {
+            heading?: string | null;
+            items?:
+              | {
+                  judul: string;
+                  /**
+                   * Mis. “Kelas 1”. Tampil sebagai label kuning.
+                   */
+                  kelas?: string | null;
+                  /**
+                   * Mis. “Bilangan” atau “Fonik”. Tampil sebagai label merah.
+                   */
+                  topik?: string | null;
+                  gambar: number | Media;
+                  href?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Di layar ponsel semua blok tetap turun menjadi satu kolom.
+             */
+            kolom?: ('2' | '3' | '4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'ideaCards';
+          }
+        | {
+            /**
+             * Isian formulirnya tetap (nama, surel, pesan) dan tidak diubah dari sini.
+             */
+            heading?: string | null;
+            /**
+             * Membuat bagian ini bisa dituju langsung lewat alamat, mis. “/mitra#hubungi”. Hanya huruf kecil dan tanda hubung. Jangan diubah bila sudah dipakai di menu.
+             */
+            anchor?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contactForm';
+          }
+        | {
+            judul: string;
+            /**
+             * Ditempel di akhir judul, mis. “Bernalar”.
+             */
+            judulSorot?: string | null;
+            isi?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'donationTiers';
+          }
+        | {
+            heading?: string | null;
+            items?:
+              | {
+                  judul: string;
+                  gambar: number | Media;
+                  /**
+                   * Angka saja, tanpa titik. Mis. 270000000
+                   */
+                  terkumpul: number;
+                  target: number;
+                  /**
+                   * Kosongkan keduanya bila blok ini tidak perlu tombol.
+                   */
+                  cta?: {
+                    label?: string | null;
+                    /**
+                     * Contoh: /tumbuh-bersama atau https://…
+                     */
+                    href?: string | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Di layar ponsel semua blok tetap turun menjadi satu kolom.
+             */
+            kolom?: ('2' | '3' | '4') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'donationCampaigns';
           }
       )[]
     | null;
@@ -281,6 +685,10 @@ export interface Page {
      */
     image?: (number | null) | Media;
   };
+  /**
+   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
+   */
+  slug: string;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -353,18 +761,14 @@ export interface Category {
   createdAt: string;
 }
 /**
+ * Berita dan kabar terbaru. Tampil di halaman Publikasi dan pada blok “Berita Terbaru” di halaman mana pun yang memakainya.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "articles".
  */
 export interface Article {
   id: number;
   title: string;
-  /**
-   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
-   */
-  slug: string;
-  publishedAt: string;
-  category?: (number | null) | Category;
   image?: (number | null) | Media;
   /**
    * Cuplikan singkat di kartu berita. Bila kosong, diambil dari paragraf pertama.
@@ -393,9 +797,135 @@ export interface Article {
      */
     image?: (number | null) | Media;
   };
+  /**
+   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
+   */
+  slug: string;
+  publishedAt: string;
+  category?: (number | null) | Category;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * Daftar penggerak yang tampil pada blok “Penggerak”. Menambah orang di sini otomatis menambahkannya di halaman yang memakai blok itu.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "penggerak".
+ */
+export interface Penggerak {
+  id: number;
+  nama: string;
+  /**
+   * Sebaiknya foto potret persegi. Bila kosong, kotak abu-abu yang tampil.
+   */
+  foto?: (number | null) | Media;
+  /**
+   * Satu baris per jabatan. Semuanya tampil dipisah tanda titik tengah, mis. “Trainer Gernas Tastaka · Peneliti PRPIC”.
+   */
+  peran?:
+    | {
+        nama: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
+   */
+  urutan?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Logo mitra. Dipakai blok “Logo Mitra” di halaman Mitra (dikelompokkan) dan di beranda (barisan berjalan).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mitra".
+ */
+export interface Mitra {
+  id: number;
+  /**
+   * Dipakai sebagai teks alternatif logo, jadi tetap isi walau logonya sudah memuat nama.
+   */
+  nama: string;
+  /**
+   * Sebaiknya PNG berlatar transparan.
+   */
+  logo: number | Media;
+  /**
+   * Menentukan di bawah judul mana logo ini dikelompokkan.
+   */
+  kelompok: 'pemerintah' | 'korporasi' | 'pendidikan';
+  /**
+   * Bila dicentang, logo ikut pada barisan mitra yang berjalan di beranda.
+   */
+  tampilDiBeranda?: boolean | null;
+  /**
+   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
+   */
+  urutan?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Daftar video. Dipakai blok “Daftar Video”; blok itu bisa dibatasi jumlahnya, mis. hanya 3 teratas di beranda.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "video".
+ */
+export interface Video {
+  id: number;
+  judul: string;
+  /**
+   * Gambar yang tampil sebelum video diklik. Sebaiknya melintang (16:9).
+   */
+  thumbnail: number | Media;
+  /**
+   * Alamat lengkap video, mis. https://www.youtube.com/watch?v=… . Bila kosong, sampulnya tetap tampil tetapi tidak bisa diklik.
+   */
+  tautan?: string | null;
+  /**
+   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
+   */
+  urutan?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Modul pelatihan matematika & membaca. Dipakai blok “Modul Pelatihan” di halaman Belajar Bersama.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "modul-pelatihan".
+ */
+export interface ModulPelatihan {
+  id: number;
+  /**
+   * Mis. “Bilangan” atau “Prinsip-Prinsip Dasar Mengajar”.
+   */
+  judul: string;
+  /**
+   * Menentukan bagian mana di halaman yang memuat modul ini.
+   */
+  program: 'matematika' | 'membaca';
+  /**
+   * Angka yang tampil sebagai “Pelatihan 1”, “Pelatihan 2”, dan seterusnya.
+   */
+  nomor: number;
+  /**
+   * Poin-poin yang tampil pada kartu rincian modul. Satu baris per tujuan.
+   */
+  tujuan?:
+    | {
+        teks: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
+   */
+  urutan?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -491,6 +1021,22 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'penggerak';
+        value: number | Penggerak;
+      } | null)
+    | ({
+        relationTo: 'mitra';
+        value: number | Mitra;
+      } | null)
+    | ({
+        relationTo: 'video';
+        value: number | Video;
+      } | null)
+    | ({
+        relationTo: 'modul-pelatihan';
+        value: number | ModulPelatihan;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null)
@@ -546,7 +1092,6 @@ export interface PayloadMigration {
  */
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
-  slug?: T;
   layout?:
     | T
     | {
@@ -578,18 +1123,46 @@ export interface PagesSelect<T extends boolean = true> {
               description?: T;
               image?: T;
               tint?: T;
+              garisBawah?: T;
               id?: T;
               blockName?: T;
             };
-        statCounter?:
+        richText?:
           | T
           | {
-              stats?:
+              heading?: T;
+              content?: T;
+              lebar?: T;
+              rataTengah?: T;
+              id?: T;
+              blockName?: T;
+            };
+        featureCards?:
+          | T
+          | {
+              heading?: T;
+              kolom?: T;
+              gambarSamping?:
                 | T
                 | {
-                    value?: T;
-                    suffix?: T;
-                    label?: T;
+                    gambar?: T;
+                    judul?: T;
+                    judulSorot?: T;
+                  };
+              cards?:
+                | T
+                | {
+                    judul?: T;
+                    subjudul?: T;
+                    isi?: T;
+                    gambar?: T;
+                    warna?: T;
+                    cta?:
+                      | T
+                      | {
+                          label?: T;
+                          href?: T;
+                        };
                     id?: T;
                   };
               id?: T;
@@ -598,6 +1171,7 @@ export interface PagesSelect<T extends boolean = true> {
         valueCards?:
           | T
           | {
+              tumpukDiAtasHero?: T;
               cards?:
                 | T
                 | {
@@ -622,6 +1196,31 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        callout?:
+          | T
+          | {
+              judul?: T;
+              isi?: T;
+              warna?: T;
+              rataTengah?: T;
+              gambar?: T;
+              cta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              tautanTambahan?:
+                | T
+                | {
+                    awalan?: T;
+                    label?: T;
+                    href?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
         ctaBanner?:
           | T
           | {
@@ -637,20 +1236,200 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        timeline?:
+          | T
+          | {
+              heading?: T;
+              entries?:
+                | T
+                | {
+                    tahun?: T;
+                    teks?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        statCounter?:
+          | T
+          | {
+              heading?: T;
+              stats?:
+                | T
+                | {
+                    value?: T;
+                    suffix?: T;
+                    label?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
         latestNews?:
           | T
           | {
               heading?: T;
               limit?: T;
+              kolom?: T;
               category?: T;
+              cta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
-        richText?:
+        teamGrid?:
           | T
           | {
               heading?: T;
-              content?: T;
+              anchor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        partnerLogos?:
+          | T
+          | {
+              heading?: T;
+              tampilan?: T;
+              cta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        videoGrid?:
+          | T
+          | {
+              heading?: T;
+              limit?: T;
+              kolom?: T;
+              id?: T;
+              blockName?: T;
+            };
+        trainingModules?:
+          | T
+          | {
+              heading?: T;
+              program?: T;
+              tampilan?: T;
+              sidebar?:
+                | T
+                | {
+                    teks?: T;
+                    ajakan?: T;
+                    cta?:
+                      | T
+                      | {
+                          label?: T;
+                          href?: T;
+                        };
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        gallery?:
+          | T
+          | {
+              heading?: T;
+              images?: T;
+              kolom?: T;
+              id?: T;
+              blockName?: T;
+            };
+        testimonials?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    kutipan?: T;
+                    nama?: T;
+                    peran?: T;
+                    foto?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        indonesiaMap?:
+          | T
+          | {
+              heading?: T;
+              tampilkanPeta?: T;
+              stats?:
+                | T
+                | {
+                    value?: T;
+                    suffix?: T;
+                    label?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        ideaCards?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    judul?: T;
+                    kelas?: T;
+                    topik?: T;
+                    gambar?: T;
+                    href?: T;
+                    id?: T;
+                  };
+              kolom?: T;
+              id?: T;
+              blockName?: T;
+            };
+        contactForm?:
+          | T
+          | {
+              heading?: T;
+              anchor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        donationTiers?:
+          | T
+          | {
+              judul?: T;
+              judulSorot?: T;
+              isi?: T;
+              id?: T;
+              blockName?: T;
+            };
+        donationCampaigns?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    judul?: T;
+                    gambar?: T;
+                    terkumpul?: T;
+                    target?: T;
+                    cta?:
+                      | T
+                      | {
+                          label?: T;
+                          href?: T;
+                        };
+                    id?: T;
+                  };
+              kolom?: T;
               id?: T;
               blockName?: T;
             };
@@ -662,6 +1441,7 @@ export interface PagesSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -672,9 +1452,6 @@ export interface PagesSelect<T extends boolean = true> {
  */
 export interface ArticlesSelect<T extends boolean = true> {
   title?: T;
-  slug?: T;
-  publishedAt?: T;
-  category?: T;
   image?: T;
   excerpt?: T;
   content?: T;
@@ -685,6 +1462,9 @@ export interface ArticlesSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  slug?: T;
+  publishedAt?: T;
+  category?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -752,6 +1532,66 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "penggerak_select".
+ */
+export interface PenggerakSelect<T extends boolean = true> {
+  nama?: T;
+  foto?: T;
+  peran?:
+    | T
+    | {
+        nama?: T;
+        id?: T;
+      };
+  urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mitra_select".
+ */
+export interface MitraSelect<T extends boolean = true> {
+  nama?: T;
+  logo?: T;
+  kelompok?: T;
+  tampilDiBeranda?: T;
+  urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "video_select".
+ */
+export interface VideoSelect<T extends boolean = true> {
+  judul?: T;
+  thumbnail?: T;
+  tautan?: T;
+  urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "modul-pelatihan_select".
+ */
+export interface ModulPelatihanSelect<T extends boolean = true> {
+  judul?: T;
+  program?: T;
+  nomor?: T;
+  tujuan?:
+    | T
+    | {
+        teks?: T;
+        id?: T;
+      };
+  urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

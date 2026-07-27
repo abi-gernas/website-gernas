@@ -13,9 +13,11 @@ export function PartnerLogoGrid({ partners }: { partners: Partner[] }) {
   }
   return (
     <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-8">
-      {partners.map((p) => (
+      {/* Kunci memakai posisi, bukan nama: beberapa mitra sengaja memakai nama
+          yang sama ("Pemerintah Daerah") karena logonya berbeda-beda. */}
+      {partners.map((p, i) => (
         <div
-          key={p.name}
+          key={i}
           className="relative flex h-16 w-32 items-center justify-center grayscale transition duration-300 hover:grayscale-0 sm:h-20 sm:w-40"
         >
           <Image

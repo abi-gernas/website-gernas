@@ -10,11 +10,16 @@ import { s3Storage } from "@payloadcms/storage-s3";
 import { id as idTranslations } from "@payloadcms/translations/languages/id";
 import { idCustomTranslations } from "./payload/i18n/id-custom";
 
+import { livePreviewBreakpoints } from "./payload/utils/preview";
 import { Users } from "./payload/collections/Users";
 import { Media } from "./payload/collections/Media";
 import { Pages } from "./payload/collections/Pages";
 import { Articles } from "./payload/collections/Articles";
 import { Categories } from "./payload/collections/Categories";
+import { Penggerak } from "./payload/collections/Penggerak";
+import { Mitra } from "./payload/collections/Mitra";
+import { Video } from "./payload/collections/Video";
+import { ModulPelatihan } from "./payload/collections/ModulPelatihan";
 import { SiteSettings } from "./payload/globals/SiteSettings";
 
 const filename = fileURLToPath(import.meta.url);
@@ -42,9 +47,44 @@ export default buildConfig({
     meta: {
       titleSuffix: "— Gernas Tastaka",
     },
+    /**
+     * Basis penyelesaian jalur komponen kustom (mis. RowLabel). Tanpa ini
+     * Payload menghitungnya dari cwd, sehingga jalur di config harus diawali
+     * "/src/…" — pemisahan yang mudah lupa saat berkas dipindahkan.
+     */
+    importMap: {
+      baseDir: path.resolve(dirname),
+    },
+    components: {
+      // Panduan singkat berbahasa Indonesia di beranda dasbor.
+      beforeDashboard: ["/payload/components/PanduanDasbor#PanduanDasbor"],
+    },
+    /**
+     * Ukuran layar yang bisa dipilih staf di bilah Live Preview. URL pratinjau
+     * per koleksi diatur di masing-masing `admin.livePreview.url`; di sini
+     * hanya pengaturan yang berlaku untuk semuanya.
+     */
+    livePreview: {
+      breakpoints: livePreviewBreakpoints,
+    },
   },
 
-  collections: [Pages, Articles, Categories, Media, Users],
+  /**
+   * Urutan di sini menentukan urutan di bilah sisi dasbor. Dikelompokkan lewat
+   * `admin.group` masing-masing koleksi: "Konten" (yang disunting sehari-hari),
+   * "Data Situs" (daftar berulang yang dipakai blok), lalu "Pengaturan".
+   */
+  collections: [
+    Pages,
+    Articles,
+    Categories,
+    Media,
+    Penggerak,
+    Mitra,
+    Video,
+    ModulPelatihan,
+    Users,
+  ],
   globals: [SiteSettings],
 
   editor: lexicalEditor(),
@@ -90,6 +130,13 @@ export default buildConfig({
     seoPlugin({
       collections: ["pages", "articles"],
       uploadsCollection: "media",
+      /**
+       * Pisahkan panel SEO ke tabnya sendiri. Tanpa ini field meta menempel di
+       * bawah isi halaman, sehingga staf harus menggulir melewati seluruh
+       * susunan blok untuk mencapainya. Tab "Konten" diambil dari tabs yang
+       * sudah didefinisikan di koleksinya masing-masing.
+       */
+      tabbedUI: true,
       generateTitle: ({ doc }) => `${doc?.title ?? ""} | Gernas Tastaka`,
       generateDescription: ({ doc }) => doc?.excerpt ?? "",
     }),

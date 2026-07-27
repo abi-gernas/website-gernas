@@ -1,0 +1,39 @@
+/**
+ * Pemetaan dokumen Payload → alamat publiknya.
+ *
+ * Sengaja tanpa `server-only` dan tanpa impor apa pun: berkas ini dipakai dua
+ * sisi yang berjalan di runtime berbeda — route front-end (Next) dan
+ * payload.config (juga dimuat CLI `payload migrate` di luar Next). Menaruh
+ * aturan alamat di satu tempat mencegah tombol "Pratinjau" di dasbor menunjuk
+ * ke URL yang berbeda dari yang benar-benar dilayani.
+ */
+
+/**
+ * Slug dokumen Halaman yang melayani beranda.
+ *
+ * Beranda tidak bisa ikut route catch-all `[...slug]` (tidak ada segmen yang
+ * bisa dicocokkan), jadi `src/app/(frontend)/page.tsx` mengambil dokumen ini
+ * secara khusus. Mengubah nilainya berarti mengubah slug dokumennya juga.
+ */
+export const HOME_SLUG = "beranda";
+
+/** Alamat publik satu dokumen Halaman. */
+export function pagePath(slug: string): string {
+  return slug === HOME_SLUG ? "/" : `/${slug}`;
+}
+
+/** Alamat publik satu dokumen Artikel. */
+export function articlePath(slug: string): string {
+  return `/berita/${slug}`;
+}
+
+/** Koleksi yang punya halaman publik, karena itu bisa dipratinjau. */
+export type PreviewableCollection = "pages" | "articles";
+
+/** Alamat publik sebuah dokumen, dipilih berdasarkan koleksinya. */
+export function publicPath(
+  collection: PreviewableCollection,
+  slug: string,
+): string {
+  return collection === "articles" ? articlePath(slug) : pagePath(slug);
+}

@@ -17,16 +17,29 @@ import type { Page } from "@/payload-types";
  */
 const DEPTH = 2;
 
-/** Satu halaman terbit berdasarkan slug. Mengembalikan null bila tidak ada. */
-export async function getPageBySlug(slug: string): Promise<Page | null> {
+/**
+ * Satu halaman berdasarkan slug. Mengembalikan null bila tidak ada.
+ *
+ * `draft` hanya boleh bernilai true bila draft mode Next menyala — lihat
+ * `src/app/(frontend)/next/preview/route.ts`, yang memastikan pemanggilnya
+ * staf yang sudah masuk. Saat aktif, filter `_status` dilepas agar halaman
+ * yang belum pernah diterbitkan pun bisa dipratinjau, dan `draft: true`
+ * membuat Payload mengembalikan versi tersimpan terakhir alih-alih versi
+ * terbit.
+ */
+export async function getPageBySlug(
+  slug: string,
+  draft = false,
+): Promise<Page | null> {
   const payload = await payloadPromise;
   const res = await payload.find({
     collection: "pages",
     depth: DEPTH,
     limit: 1,
+    draft,
     where: {
       slug: { equals: slug },
-      _status: { equals: "published" },
+      ...(draft ? {} : { _status: { equals: "published" } }),
     },
     pagination: false,
   });

@@ -1,4 +1,5 @@
 import type { GlobalConfig } from "payload";
+import { judulBaris } from "../fields/rowLabel";
 
 /**
  * Pengaturan situs yang dipakai lintas halaman (footer, kontak, sosial).
@@ -31,6 +32,7 @@ export const SiteSettings: GlobalConfig = {
               name: "social",
               type: "array",
               label: "Tautan",
+              admin: { components: judulBaris },
               fields: [
                 {
                   name: "platform",

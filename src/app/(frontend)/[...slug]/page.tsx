@@ -1,7 +1,11 @@
+import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { RenderBlocks } from "@/components/RenderBlocks";
+import { LivePreviewListener } from "@/components/LivePreviewListener";
+import { PreviewBadge } from "@/components/PreviewBadge";
 import { getPageBySlug, getPageSlugs } from "@/lib/pages";
+import { HOME_SLUG } from "@/lib/routes";
 
 /**
  * Halaman publik yang disusun staf dari Blocks (US-002).
@@ -17,9 +21,16 @@ import { getPageBySlug, getPageSlugs } from "@/lib/pages";
 
 type RouteParams = { slug: string[] };
 
+/**
+ * Beranda dilayani `(frontend)/page.tsx` di "/". Bila slug-nya tidak dibuang
+ * di sini, isi yang sama juga tayang di "/beranda" — URL duplikat yang saling
+ * bersaing di hasil pencarian.
+ */
 export async function generateStaticParams() {
   const slugs = await getPageSlugs();
-  return slugs.map((slug) => ({ slug: [slug] }));
+  return slugs
+    .filter((slug) => slug !== HOME_SLUG)
+    .map((slug) => ({ slug: [slug] }));
 }
 
 export async function generateMetadata({
@@ -28,7 +39,8 @@ export async function generateMetadata({
   params: Promise<RouteParams>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const page = await getPageBySlug(slug.join("/"));
+  const { isEnabled: draft } = await draftMode();
+  const page = await getPageBySlug(slug.join("/"), draft);
   if (!page) return {};
 
   // Panel SEO (@payloadcms/plugin-seo) diutamakan; bila staf belum mengisinya,
@@ -59,8 +71,22 @@ export default async function DynamicPage({
   params: Promise<RouteParams>;
 }) {
   const { slug } = await params;
-  const page = await getPageBySlug(slug.join("/"));
+  const jalur = slug.join("/");
+  if (jalur === HOME_SLUG) notFound(); // lihat catatan di generateStaticParams
+
+  const { isEnabled: draft } = await draftMode();
+  const page = await getPageBySlug(jalur, draft);
   if (!page) notFound();
 
-  return <RenderBlocks blocks={page.layout} />;
+  return (
+    <>
+      {draft && (
+        <>
+          <LivePreviewListener />
+          <PreviewBadge />
+        </>
+      )}
+      <RenderBlocks blocks={page.layout} />
+    </>
+  );
 }

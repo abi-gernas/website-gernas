@@ -86,16 +86,26 @@ export async function getArticles(
   return res.docs.map((d) => toView(d));
 }
 
-/** Satu artikel berdasarkan slug. Mengembalikan null bila tidak ada. */
-export async function getArticleBySlug(slug: string): Promise<ArticleView | null> {
+/**
+ * Satu artikel berdasarkan slug. Mengembalikan null bila tidak ada.
+ *
+ * `draft` mengikuti pola yang sama dengan `getPageBySlug` di `pages.ts`:
+ * hanya bernilai true saat draft mode Next menyala, sehingga staf dapat
+ * melihat artikel yang belum terbit lewat tombol Pratinjau.
+ */
+export async function getArticleBySlug(
+  slug: string,
+  draft = false,
+): Promise<ArticleView | null> {
   const payload = await payloadPromise;
   const res = await payload.find({
     collection: "articles",
     depth: 2, // gambar di dalam isi ikut ter-populate
     limit: 1,
+    draft,
     where: {
       slug: { equals: slug },
-      _status: { equals: "published" },
+      ...(draft ? {} : { _status: { equals: "published" } }),
     },
     pagination: false,
   });

@@ -1,32 +1,32 @@
 import type { MetadataRoute } from "next";
 import { getArticles } from "@/lib/content";
 import { getPageSitemapEntries } from "@/lib/pages";
+import { HOME_SLUG, pagePath } from "@/lib/routes";
 
 const SITE_URL = "https://gernastastaka.org";
 
 /**
- * Halaman statis situs. Didaftarkan manual (bukan dibaca dari filesystem)
- * karena jumlahnya kecil dan stabil — lebih mudah dirawat daripada scanning
- * folder app/(frontend) secara otomatis.
+ * Bobot halaman-halaman utama.
+ *
+ * Seluruh halaman kini berasal dari koleksi Halaman, sehingga daftarnya tidak
+ * lagi ditulis manual di sini — yang tersisa hanya bobot untuk slug yang
+ * memang lebih penting daripada halaman baru buatan staf. Slug yang tidak
+ * terdaftar memakai nilai bawaan.
  */
-const STATIC_PAGES: { path: string; priority: number }[] = [
-  { path: "/", priority: 1 },
-  { path: "/tentang-gernas-tastaka", priority: 0.8 },
-  { path: "/mitra", priority: 0.6 },
-  { path: "/donatur", priority: 0.6 },
-  { path: "/tumbuh-bersama", priority: 0.6 },
-  { path: "/belajar-bersama", priority: 0.6 },
-  { path: "/publikasi", priority: 0.8 },
-  { path: "/galeri", priority: 0.5 },
-];
+const PRIORITAS: Record<string, number> = {
+  [HOME_SLUG]: 1,
+  "tentang-gernas-tastaka": 0.8,
+  publikasi: 0.8,
+  mitra: 0.6,
+  donatur: 0.6,
+  "tumbuh-bersama": 0.6,
+  "belajar-bersama": 0.6,
+  galeri: 0.5,
+};
+
+const PRIORITAS_BAWAAN = 0.6;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticEntries: MetadataRoute.Sitemap = STATIC_PAGES.map(({ path, priority }) => ({
-    url: `${SITE_URL}${path}`,
-    changeFrequency: path === "/" ? "weekly" : "monthly",
-    priority,
-  }));
-
   const articles = await getArticles();
   const articleEntries: MetadataRoute.Sitemap = articles.map((a) => ({
     url: `${SITE_URL}/berita/${a.slug}`,
@@ -35,21 +35,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  /**
-   * Halaman yang disusun staf dari dasbor. Slug yang bentrok dengan halaman
-   * statis di atas dibuang: route berkas selalu menang di Next, jadi entri
-   * ganda hanya akan menjadi URL duplikat di sitemap.
-   */
-  const staticPaths = new Set(STATIC_PAGES.map(({ path }) => path));
+  // Halaman yang disusun staf dari dasbor. `pagePath` memetakan slug beranda
+  // ke "/", bukan "/beranda" — alamat itu memang tidak dilayani.
   const pages = await getPageSitemapEntries();
-  const pageEntries: MetadataRoute.Sitemap = pages
-    .filter(({ slug }) => !staticPaths.has(`/${slug}`))
-    .map(({ slug, updatedAt }) => ({
-      url: `${SITE_URL}/${slug}`,
-      lastModified: new Date(updatedAt),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    }));
+  const pageEntries: MetadataRoute.Sitemap = pages.map(({ slug, updatedAt }) => ({
+    url: `${SITE_URL}${pagePath(slug)}`,
+    lastModified: new Date(updatedAt),
+    changeFrequency: slug === HOME_SLUG ? "weekly" : "monthly",
+    priority: PRIORITAS[slug] ?? PRIORITAS_BAWAAN,
+  }));
 
-  return [...staticEntries, ...articleEntries, ...pageEntries];
+  return [...pageEntries, ...articleEntries];
 }

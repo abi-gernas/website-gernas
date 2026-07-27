@@ -17,10 +17,12 @@
     "migrate:status": "npm run payload -- migrate:status",
     "seed:media": "tsx scripts/seed-media.mts",
     "seed:articles": "tsx scripts/seed-articles.mts",
-    "seed:demo-page": "tsx scripts/seed-demo-page.mts"
+    "seed:datasitus": "tsx scripts/seed-datasitus.mts",
+    "seed:pages": "tsx scripts/seed-pages.mts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.86.0",
+    "@payloadcms/live-preview-react": "^3.86.0",
     "@payloadcms/next": "^3.86.0",
     "@payloadcms/plugin-redirects": "^3.86.0",
     "@payloadcms/plugin-seo": "^3.86.0",
