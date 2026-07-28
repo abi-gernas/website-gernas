@@ -43,6 +43,13 @@ public/media/               # 111 aset media hasil migrasi
 
 ## Catatan implementasi
 
+- **Region Vercel (`vercel.json`)**: fungsi dikunci ke `sin1` (Singapura) agar satu
+  benua dengan database Supabase (`ap-southeast-1`). Tanpa ini Vercel memakai
+  default `iad1` (Washington DC), sehingga setiap query menempuh ~230 ms pulang
+  pergi — dasbor Payload yang menembak puluhan query per halaman jadi terasa
+  sangat lambat, padahal di komputer lokal (Indonesia → Singapura, ~25 ms) terasa
+  wajar. JSON tidak bisa memuat komentar, jadi alasannya dicatat di sini: jangan
+  ubah region tanpa memindahkan database-nya sekalian.
 - **Design System v2.0** dipetakan ke token Tailwind (`tailwind.config.ts`): merah `#B4181F`, navy `#1B2A63`, biru `#1E4F9E`, kuning `#F6C321`; font **Plus Jakarta Sans**.
 - **Donasi**: tombol "DONASI SEKARANG" sengaja tanpa aksi (payment gateway di luar cakupan — fase lanjutan).
 - **Form kontak**: front-end only, fallback ke `mailto:` (belum ada backend submit).

@@ -2,6 +2,7 @@ import { draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 import { getPayload } from "payload";
 import config from "@payload-config";
+import { jalurInternal } from "@/lib/routes";
 
 /**
  * Menyalakan draft mode Next lalu melempar ke halaman publik yang diminta.
@@ -23,13 +24,7 @@ export async function GET(req: Request): Promise<Response> {
     return new Response("Parameter `path` wajib diisi.", { status: 400 });
   }
 
-  /**
-   * Hanya izinkan alamat internal. Tanpa penjagaan ini `path` bisa diisi
-   * `//situs-lain.com` atau `/\situs-lain.com` — keduanya diperlakukan
-   * browser sebagai alamat absolut, sehingga route ini menjadi open redirect
-   * yang tampak berasal dari domain kita.
-   */
-  if (!path.startsWith("/") || path.startsWith("//") || path.startsWith("/\\")) {
+  if (!jalurInternal(path)) {
     return new Response("Parameter `path` harus berupa alamat internal.", {
       status: 400,
     });

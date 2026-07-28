@@ -27,6 +27,24 @@ export function articlePath(slug: string): string {
   return `/berita/${slug}`;
 }
 
+/**
+ * Benar bila `path` menunjuk ke alamat di situs ini sendiri.
+ *
+ * Dipakai route `/next/preview` dan `/next/exit-preview`, yang keduanya
+ * meneruskan pengunjung ke alamat dari query string. Tanpa penjagaan ini isinya
+ * bisa diisi `//situs-lain.com` atau `/\situs-lain.com` — keduanya diperlakukan
+ * browser sebagai alamat absolut, sehingga route itu menjadi open redirect yang
+ * tampak berasal dari domain kita.
+ */
+export function jalurInternal(path: unknown): path is string {
+  return (
+    typeof path === "string" &&
+    path.startsWith("/") &&
+    !path.startsWith("//") &&
+    !path.startsWith("/\\")
+  );
+}
+
 /** Koleksi yang punya halaman publik, karena itu bisa dipratinjau. */
 export type PreviewableCollection = "pages" | "articles";
 
