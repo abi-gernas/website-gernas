@@ -63,7 +63,9 @@ export default async function ArticlePage({
   const article = await getArticleBySlug(slug, draft);
   if (!article) notFound();
 
-  const related = (await getArticles()).filter((a) => a.slug !== article.slug).slice(0, 3);
+  // Ambil 4, bukan seluruh arsip: satu di antaranya bisa jadi artikel ini
+  // sendiri, yang tersaring di bawah — sisanya tetap cukup untuk tiga kartu.
+  const related = (await getArticles(4)).filter((a) => a.slug !== article.slug).slice(0, 3);
 
   return (
     <article>

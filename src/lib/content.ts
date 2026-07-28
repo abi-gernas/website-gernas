@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { payloadPromise } from "./payload";
 import type { Article as PayloadArticle, Media } from "@/payload-types";
 
@@ -67,7 +68,7 @@ function toView(doc: PayloadArticle, withContent = false): ArticleView {
  * `categoryId` dipakai blok "Berita Terbaru" di koleksi Halaman, yang boleh
  * dibatasi ke satu kategori; kosongkan untuk mengambil semua kategori.
  */
-export async function getArticles(
+export const getArticles = cache(async function getArticles(
   limit?: number,
   categoryId?: string | number,
 ): Promise<ArticleView[]> {
@@ -84,7 +85,7 @@ export async function getArticles(
     pagination: false,
   });
   return res.docs.map((d) => toView(d));
-}
+});
 
 /**
  * Satu artikel berdasarkan slug. Mengembalikan null bila tidak ada.
@@ -93,7 +94,7 @@ export async function getArticles(
  * hanya bernilai true saat draft mode Next menyala, sehingga staf dapat
  * melihat artikel yang belum terbit lewat tombol Pratinjau.
  */
-export async function getArticleBySlug(
+export const getArticleBySlug = cache(async function getArticleBySlug(
   slug: string,
   draft = false,
 ): Promise<ArticleView | null> {
@@ -111,7 +112,7 @@ export async function getArticleBySlug(
   });
   const doc = res.docs[0];
   return doc ? toView(doc, true) : null;
-}
+});
 
 /** Slug seluruh artikel terbit — untuk generateStaticParams. */
 export async function getArticleSlugs(): Promise<string[]> {
@@ -125,4 +126,25 @@ export async function getArticleSlugs(): Promise<string[]> {
     select: { slug: true },
   });
   return res.docs.map((d) => d.slug);
+}
+
+/**
+ * Slug + tanggal terbit seluruh artikel — untuk sitemap.
+ *
+ * Terpisah dari `getArticles` karena sitemap tidak merender apa pun: `depth: 0`
+ * melewatkan populate relasi gambar & kategori yang di sini tidak terpakai.
+ */
+export async function getArticleSitemapEntries(): Promise<
+  { slug: string; publishedAt: string }[]
+> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "articles",
+    depth: 0,
+    limit: 1000,
+    where: { _status: { equals: "published" } },
+    pagination: false,
+    select: { slug: true, publishedAt: true },
+  });
+  return res.docs.map((d) => ({ slug: d.slug, publishedAt: d.publishedAt }));
 }

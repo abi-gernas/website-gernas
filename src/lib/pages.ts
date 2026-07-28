@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { payloadPromise } from "./payload";
 import type { Page } from "@/payload-types";
 
@@ -27,7 +28,7 @@ const DEPTH = 2;
  * membuat Payload mengembalikan versi tersimpan terakhir alih-alih versi
  * terbit.
  */
-export async function getPageBySlug(
+export const getPageBySlug = cache(async function getPageBySlug(
   slug: string,
   draft = false,
 ): Promise<Page | null> {
@@ -44,7 +45,7 @@ export async function getPageBySlug(
     pagination: false,
   });
   return res.docs[0] ?? null;
-}
+});
 
 /** Slug seluruh halaman terbit — untuk generateStaticParams & sitemap. */
 export async function getPageSlugs(): Promise<string[]> {

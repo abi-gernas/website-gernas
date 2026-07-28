@@ -12,15 +12,39 @@ import { pagePath } from "../../lib/routes";
  * CLI (`payload migrate`, script seed) yang berjalan di luar runtime Next;
  * di sana modul itu tidak tersedia dan tidak diperlukan.
  */
-async function revalidateArticlePaths(slug?: string | null) {
+
+/**
+ * Jalankan `revalidatePath` bila kita memang berada di runtime Next.
+ *
+ * Kegagalan di dalam runtime dicatat, tidak ditelan: kalau penyegaran gagal
+ * diam-diam, staf melihat "Tersimpan" di dasbor sementara halaman publik tetap
+ * memuat versi lama, dan tidak ada satu pun jejak untuk menelusurinya.
+ * Ketiadaan `next/cache` di CLI bukan kegagalan — di sana tidak ada cache yang
+ * perlu disegarkan — jadi hanya kasus itu yang dilewati tanpa suara.
+ */
+async function segarkan(jalankan: (revalidatePath: RevalidatePath) => void) {
+  let revalidatePath: RevalidatePath;
   try {
-    const { revalidatePath } = await import("next/cache");
+    ({ revalidatePath } = await import("next/cache"));
+  } catch {
+    return; // di luar runtime Next (CLI/seed) — memang tidak ada yang disegarkan
+  }
+
+  try {
+    jalankan(revalidatePath);
+  } catch (error) {
+    console.error("[revalidate] gagal menyegarkan halaman publik:", error);
+  }
+}
+
+type RevalidatePath = (typeof import("next/cache"))["revalidatePath"];
+
+async function revalidateArticlePaths(slug?: string | null) {
+  await segarkan((revalidatePath) => {
     revalidatePath("/"); // blok "Kabar Terbaru" di beranda
     revalidatePath("/publikasi");
     if (slug) revalidatePath(`/berita/${slug}`);
-  } catch {
-    // Di luar runtime Next (CLI/seed) tidak ada yang perlu disegarkan.
-  }
+  });
 }
 
 export const revalidateArticle: CollectionAfterChangeHook = async ({ doc, previousDoc }) => {
@@ -46,14 +70,11 @@ export const revalidateArticleAfterDelete: CollectionAfterDeleteHook = async ({ 
  */
 async function revalidatePagePath(slug?: string | null) {
   if (!slug) return;
-  try {
-    const { revalidatePath } = await import("next/cache");
+  await segarkan((revalidatePath) => {
     // `pagePath` memetakan slug beranda ke "/" — menyegarkan "/beranda" tidak
     // akan menyentuh halaman yang benar-benar dilayani.
     revalidatePath(pagePath(slug));
-  } catch {
-    // Di luar runtime Next (CLI/seed) tidak ada yang perlu disegarkan.
-  }
+  });
 }
 
 export const revalidatePage: CollectionAfterChangeHook = async ({ doc, previousDoc }) => {
@@ -80,12 +101,9 @@ export const revalidatePageAfterDelete: CollectionAfterDeleteHook = async ({ doc
  * sehingga biayanya tidak terasa.
  */
 async function revalidateSeluruhSitus() {
-  try {
-    const { revalidatePath } = await import("next/cache");
+  await segarkan((revalidatePath) => {
     revalidatePath("/", "layout");
-  } catch {
-    // Di luar runtime Next (CLI/seed) tidak ada yang perlu disegarkan.
-  }
+  });
 }
 
 export const revalidateSemua: CollectionAfterChangeHook = async ({ doc }) => {

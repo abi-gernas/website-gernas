@@ -120,6 +120,15 @@ export default buildConfig({
       connectionString: isMigrating
         ? (process.env.DATABASE_URI_DIRECT ?? process.env.DATABASE_URI ?? "")
         : (process.env.DATABASE_URI ?? ""),
+      /**
+       * Batas koneksi per instans fungsi. Default `pg` adalah 10, dan Vercel
+       * bisa menghidupkan banyak instans sekaligus (build + traffic) — angka
+       * itu cepat menghabiskan kuota pooler Supabase paket gratis. Halaman
+       * publik hampir semuanya statis, jadi 3 sudah lebih dari cukup.
+       */
+      max: 3,
+      // Lepas koneksi menganggur supaya instans idle tidak menahan slot.
+      idleTimeoutMillis: 10_000,
     },
     push: false, // skema hanya berubah lewat file migrasi yang tersimpan di repo
     migrationDir: path.resolve(dirname, "../migrations"),

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getArticles } from "@/lib/content";
+import { getArticleSitemapEntries } from "@/lib/content";
 import { getPageSitemapEntries } from "@/lib/pages";
 import { HOME_SLUG, pagePath } from "@/lib/routes";
 
@@ -27,10 +27,10 @@ const PRIORITAS: Record<string, number> = {
 const PRIORITAS_BAWAAN = 0.6;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const articles = await getArticles();
+  const articles = await getArticleSitemapEntries();
   const articleEntries: MetadataRoute.Sitemap = articles.map((a) => ({
     url: `${SITE_URL}/berita/${a.slug}`,
-    lastModified: new Date(a.date),
+    lastModified: new Date(a.publishedAt),
     changeFrequency: "yearly",
     priority: 0.7,
   }));
