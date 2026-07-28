@@ -35,6 +35,14 @@ const nextConfig = {
       { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" },
     ],
   },
+  // URL bawaan WordPress lama yang masih ter-index Google. Situs baru tidak
+  // punya halaman di slug ini (beranda sekarang di "/"), jadi tanpa redirect
+  // pengunjung dari hasil pencarian lama akan kena 404.
+  async redirects() {
+    return [
+      { source: "/home-page", destination: "/", permanent: true },
+    ];
+  },
 };
 
 export default withPayload(nextConfig);
