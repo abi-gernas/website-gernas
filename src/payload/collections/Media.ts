@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { terapkanReferensiLokal } from "../fields/localeReference";
 
 /** Konversi WebP dipakai untuk berkas induk maupun tiap ukuran turunan. */
 const webp = { format: "webp" as const, options: { quality: 82 } };
@@ -38,7 +39,7 @@ export const Media: CollectionConfig = {
     ],
     mimeTypes: ["image/*", "application/pdf"],
   },
-  fields: [
+  fields: terapkanReferensiLokal([
     {
       name: "alt",
       type: "text",
@@ -68,5 +69,5 @@ export const Media: CollectionConfig = {
           "Lokasi berkas ini di situs WordPress lama. Dipakai untuk memetakan gambar ke artikel saat migrasi, dan sebagai penanda agar impor tidak terduplikasi. Kosong untuk unggahan baru.",
       },
     },
-  ],
+  ]),
 };

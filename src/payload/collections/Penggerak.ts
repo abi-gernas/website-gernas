@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { terapkanReferensiLokal } from "../fields/localeReference";
 import { judulBaris } from "../fields/rowLabel";
 import { urutanField } from "../fields/urutan";
 import { revalidateSemua, revalidateSemuaAfterDelete } from "../hooks/revalidate";
@@ -30,7 +31,7 @@ export const Penggerak: CollectionConfig = {
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => Boolean(req.user),
   },
-  fields: [
+  fields: terapkanReferensiLokal([
     {
       name: "nama",
       type: "text",
@@ -68,5 +69,5 @@ export const Penggerak: CollectionConfig = {
       ],
     },
     urutanField(),
-  ],
+  ]),
 };

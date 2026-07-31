@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { terapkanReferensiLokal } from "../fields/localeReference";
 import { urutanField } from "../fields/urutan";
 import { revalidateSemua, revalidateSemuaAfterDelete } from "../hooks/revalidate";
 
@@ -28,7 +29,7 @@ export const Video: CollectionConfig = {
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => Boolean(req.user),
   },
-  fields: [
+  fields: terapkanReferensiLokal([
     {
       name: "judul",
       type: "text",
@@ -57,5 +58,5 @@ export const Video: CollectionConfig = {
       },
     },
     urutanField(),
-  ],
+  ]),
 };

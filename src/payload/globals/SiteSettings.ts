@@ -1,4 +1,5 @@
 import type { GlobalConfig } from "payload";
+import { terapkanReferensiLokal } from "../fields/localeReference";
 import { judulBaris } from "../fields/rowLabel";
 
 /**
@@ -13,7 +14,7 @@ export const SiteSettings: GlobalConfig = {
     read: () => true,
     update: ({ req }) => Boolean(req.user),
   },
-  fields: [
+  fields: terapkanReferensiLokal([
     {
       type: "tabs",
       tabs: [
@@ -60,5 +61,5 @@ export const SiteSettings: GlobalConfig = {
         },
       ],
     },
-  ],
+  ]),
 };

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { terapkanReferensiLokal } from "../fields/localeReference";
 import { slugField } from "../fields/slug";
 import { revalidateArticle, revalidateArticleAfterDelete } from "../hooks/revalidate";
 import { previewURL } from "../utils/preview";
@@ -38,7 +39,7 @@ export const Articles: CollectionConfig = {
     delete: ({ req }) => req.user?.role === "admin",
   },
   /** Sama seperti koleksi Halaman: tabs harus di indeks 0, lihat Pages.ts. */
-  fields: [
+  fields: terapkanReferensiLokal([
     {
       type: "tabs",
       tabs: [
@@ -96,5 +97,5 @@ export const Articles: CollectionConfig = {
       label: "Kategori",
       admin: { position: "sidebar" },
     },
-  ],
+  ]),
 };

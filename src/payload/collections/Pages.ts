@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { pageBlocks } from "../blocks";
+import { terapkanReferensiLokal } from "../fields/localeReference";
 import { slugField } from "../fields/slug";
 import { revalidatePage, revalidatePageAfterDelete } from "../hooks/revalidate";
 import { previewURL } from "../utils/preview";
@@ -47,7 +48,7 @@ export const Pages: CollectionConfig = {
    * tab "Content" berbahasa Inggris sendiri bila tidak. Field bilah sisi
    * (slug) sengaja dibiarkan di luar tab agar tetap tampil di semua tab.
    */
-  fields: [
+  fields: terapkanReferensiLokal([
     {
       type: "tabs",
       tabs: [
@@ -78,5 +79,5 @@ export const Pages: CollectionConfig = {
       ],
     },
     ...slugField(),
-  ],
+  ]),
 };

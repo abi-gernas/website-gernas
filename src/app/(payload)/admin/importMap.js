@@ -1,3 +1,4 @@
+import { LocaleReference as LocaleReference_03b8e30fa6b814bb4ae0deaaa8437e26 } from '../../../payload/components/LocaleReference'
 import { RowLabel as RowLabel_7c3fc7ee1cd12f35fe6e1529dc16cb04 } from '../../../payload/components/RowLabel'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -33,6 +34,7 @@ import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } f
 
 /** @type import('payload').ImportMap */
 export const importMap = {
+  "/payload/components/LocaleReference#LocaleReference": LocaleReference_03b8e30fa6b814bb4ae0deaaa8437e26,
   "/payload/components/RowLabel#RowLabel": RowLabel_7c3fc7ee1cd12f35fe6e1529dc16cb04,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,

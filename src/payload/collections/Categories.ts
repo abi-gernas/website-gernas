@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { terapkanReferensiLokal } from "../fields/localeReference";
 import { slugField } from "../fields/slug";
 
 export const Categories: CollectionConfig = {
@@ -14,8 +15,8 @@ export const Categories: CollectionConfig = {
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => req.user?.role === "admin",
   },
-  fields: [
+  fields: terapkanReferensiLokal([
     { name: "title", type: "text", required: true, localized: true, label: "Nama kategori" },
     ...slugField(),
-  ],
+  ]),
 };
