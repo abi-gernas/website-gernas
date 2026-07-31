@@ -49,6 +49,7 @@ export const Articles: CollectionConfig = {
               name: "title",
               type: "text",
               required: true,
+              localized: true,
               label: "Judul",
             },
             {

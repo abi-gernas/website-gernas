@@ -2,6 +2,9 @@ import * as migration_20260725_063811_initial from './20260725_063811_initial';
 import * as migration_20260725_075103_tambah_legacy_path from './20260725_075103_tambah_legacy_path';
 import * as migration_20260727_150103_tambah_koleksi_data_situs from './20260727_150103_tambah_koleksi_data_situs';
 import * as migration_20260727_163901_tambah_blok_halaman from './20260727_163901_tambah_blok_halaman';
+import * as migration_20260730_091756_tambah_localization from './20260730_091756_tambah_localization';
+import * as migration_20260730_161555_tambah_localized_tombol from './20260730_161555_tambah_localized_tombol';
+import * as migration_20260730_164524_bilingual_penuh from './20260730_164524_bilingual_penuh';
 
 export const migrations = [
   {
@@ -22,6 +25,21 @@ export const migrations = [
   {
     up: migration_20260727_163901_tambah_blok_halaman.up,
     down: migration_20260727_163901_tambah_blok_halaman.down,
-    name: '20260727_163901_tambah_blok_halaman'
+    name: '20260727_163901_tambah_blok_halaman',
+  },
+  {
+    up: migration_20260730_091756_tambah_localization.up,
+    down: migration_20260730_091756_tambah_localization.down,
+    name: '20260730_091756_tambah_localization',
+  },
+  {
+    up: migration_20260730_161555_tambah_localized_tombol.up,
+    down: migration_20260730_161555_tambah_localized_tombol.down,
+    name: '20260730_161555_tambah_localized_tombol',
+  },
+  {
+    up: migration_20260730_164524_bilingual_penuh.up,
+    down: migration_20260730_164524_bilingual_penuh.down,
+    name: '20260730_164524_bilingual_penuh'
   },
 ];

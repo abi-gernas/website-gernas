@@ -62,6 +62,7 @@ export const Penggerak: CollectionConfig = {
           name: "nama",
           type: "text",
           required: true,
+          localized: true,
           label: "Nama peran",
         },
       ],

@@ -1,8 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { navItems, type NavItem } from "@/lib/nav";
+import { getNavItems, type NavItem } from "@/lib/nav";
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  localeLabel,
+  localePathname,
+  splitLocalePath,
+  uiText,
+  type Locale,
+} from "@/lib/i18n";
 import { Logo } from "./Logo";
 
 function Chevron({ open }: { open?: boolean }) {
@@ -64,91 +74,177 @@ function DesktopItem({ item }: { item: NavItem }) {
   );
 }
 
+function LanguageSwitcher({
+  locale,
+  pathname,
+  mobile = false,
+  onNavigate,
+}: {
+  locale: Locale;
+  pathname: string;
+  mobile?: boolean;
+  onNavigate?: () => void;
+}) {
+  return (
+    <div
+      className={`flex items-center ${
+        mobile ? "justify-center pt-2" : "ml-2"
+      } text-xs font-bold uppercase tracking-wide`}
+      aria-label="Language"
+    >
+      {LOCALES.slice()
+        .reverse()
+        .map((target, index) => (
+          <span key={target} className="inline-flex items-center">
+            {index > 0 && <span className="mx-1.5 text-muted">|</span>}
+            <Link
+              href={localePathname(pathname, target)}
+              hrefLang={target}
+              aria-label={localeLabel(target)}
+              aria-current={locale === target ? "true" : undefined}
+              onClick={onNavigate}
+              className={
+                locale === target
+                  ? "text-brand-red"
+                  : "text-brand-navy/70 transition-colors hover:text-brand-red"
+              }
+            >
+              {target}
+            </Link>
+          </span>
+        ))}
+    </div>
+  );
+}
+
 export function Navbar() {
+  const pathname = usePathname();
+  const { locale } = splitLocalePath(pathname);
+  const navItems = getNavItems(locale);
+  const text = uiText[locale];
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const homeHref = localePathname("/", locale);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/5 bg-white/95 backdrop-blur">
-      <nav className="container-page flex h-16 items-center justify-between sm:h-20">
-        <Logo />
+    <>
+      <a href="#main" className="skip-link">
+        {text.skipToContent}
+      </a>
+      <header className="sticky top-0 z-50 border-b border-black/5 bg-white/95 backdrop-blur">
+        <nav className="container-page flex h-16 items-center justify-between sm:h-20">
+          <Logo
+            href={homeHref}
+            ariaLabel={`Gernas Tastaka - ${locale === DEFAULT_LOCALE ? "Beranda" : "Home"}`}
+          />
 
-        {/* Desktop */}
-        <div className="hidden items-center gap-0.5 lg:flex">
-          {navItems.map((item) => (
-            <DesktopItem key={item.label} item={item} />
-          ))}
-          <Link href="/donatur" className="btn-red ml-3 !px-5 !py-2.5">
-            Donasi
-          </Link>
-        </div>
+          {/* Desktop */}
+          <div className="hidden items-center gap-0.5 lg:flex">
+            {navItems.map((item) => (
+              <DesktopItem key={item.label} item={item} />
+            ))}
+            <Link
+              href={localePathname("/donatur", locale)}
+              className="btn-red ml-3 !px-5 !py-2.5"
+            >
+              {text.donate}
+            </Link>
+            <LanguageSwitcher locale={locale} pathname={pathname} />
+          </div>
 
-        {/* Mobile toggle */}
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-lg text-brand-navy lg:hidden"
-          aria-label={open ? "Tutup menu" : "Buka menu"}
-          aria-expanded={open}
-        >
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            {open ? (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
-      </nav>
+          {/* Mobile toggle */}
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-lg text-brand-navy lg:hidden"
+            aria-label={open ? text.closeMenu : text.openMenu}
+            aria-expanded={open}
+          >
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              {open ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
+          </button>
+        </nav>
 
-      {/* Mobile panel */}
-      {open && (
-        <div className="border-t border-black/5 bg-white lg:hidden">
-          <div className="container-page space-y-1 py-4">
-            {navItems.map((item) =>
-              item.children ? (
-                <div key={item.label}>
-                  <button
-                    onClick={() =>
-                      setExpanded((e) => (e === item.label ? null : item.label))
-                    }
-                    className="flex min-h-[44px] w-full items-center justify-between py-2.5 text-sm font-semibold text-brand-navy"
-                    aria-expanded={expanded === item.label}
+        {/* Mobile panel */}
+        {open && (
+          <div className="border-t border-black/5 bg-white lg:hidden">
+            <div className="container-page space-y-1 py-4">
+              {navItems.map((item) =>
+                item.children ? (
+                  <div key={item.label}>
+                    <button
+                      onClick={() =>
+                        setExpanded((e) =>
+                          e === item.label ? null : item.label,
+                        )
+                      }
+                      className="flex min-h-[44px] w-full items-center justify-between py-2.5 text-sm font-semibold text-brand-navy"
+                      aria-expanded={expanded === item.label}
+                    >
+                      {item.label}
+                      <Chevron open={expanded === item.label} />
+                    </button>
+                    {expanded === item.label && (
+                      <div className="ml-3 border-l border-black/10 pl-4">
+                        {item.children.map((c) => (
+                          <Link
+                            key={c.href}
+                            href={c.href}
+                            onClick={() => setOpen(false)}
+                            className="flex min-h-[44px] items-center py-2 text-sm text-body"
+                          >
+                            {c.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    key={item.label}
+                    href={item.href!}
+                    onClick={() => setOpen(false)}
+                    className="flex min-h-[44px] items-center py-2.5 text-sm font-semibold text-brand-navy"
                   >
                     {item.label}
-                    <Chevron open={expanded === item.label} />
-                  </button>
-                  {expanded === item.label && (
-                    <div className="ml-3 border-l border-black/10 pl-4">
-                      {item.children.map((c) => (
-                        <Link
-                          key={c.href}
-                          href={c.href}
-                          onClick={() => setOpen(false)}
-                          className="flex min-h-[44px] items-center py-2 text-sm text-body"
-                        >
-                          {c.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <Link
-                  key={item.label}
-                  href={item.href!}
-                  onClick={() => setOpen(false)}
-                  className="flex min-h-[44px] items-center py-2.5 text-sm font-semibold text-brand-navy"
-                >
-                  {item.label}
-                </Link>
-              )
-            )}
-            <Link href="/donatur" onClick={() => setOpen(false)} className="btn-red mt-3 w-full">
-              Donasi
-            </Link>
+                  </Link>
+                ),
+              )}
+              <Link
+                href={localePathname("/donatur", locale)}
+                onClick={() => setOpen(false)}
+                className="btn-red mt-3 w-full"
+              >
+                {text.donate}
+              </Link>
+              <LanguageSwitcher
+                locale={locale}
+                pathname={pathname}
+                mobile
+                onNavigate={() => setOpen(false)}
+              />
+            </div>
           </div>
-        </div>
-      )}
-    </header>
+        )}
+      </header>
+    </>
   );
 }

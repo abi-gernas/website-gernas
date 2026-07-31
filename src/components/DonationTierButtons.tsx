@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DEFAULT_LOCALE, uiText, type Locale } from "@/lib/i18n";
 
 const tiers = [50000, 100000, 150000, 200000, 500000, 1000000];
 const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
@@ -9,7 +10,8 @@ const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
  * DonationTierButtons — nominal donasi + tombol CTA.
  * CTA href kosong (payment gateway di luar cakupan Sprint 1, per PRD/Technical Brief).
  */
-export function DonationTierButtons() {
+export function DonationTierButtons({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
+  const text = uiText[locale];
   const [tab, setTab] = useState<"bebas" | "bulanan">("bebas");
   const [active, setActive] = useState<number | null>(null);
 
@@ -22,7 +24,7 @@ export function DonationTierButtons() {
             tab === "bebas" ? "bg-brand-red text-white" : "text-brand-navy"
           }`}
         >
-          Donasi Bebas
+          {text.oneTimeDonation}
         </button>
         <button
           onClick={() => setTab("bulanan")}
@@ -30,7 +32,7 @@ export function DonationTierButtons() {
             tab === "bulanan" ? "bg-brand-red text-white" : "text-brand-navy"
           }`}
         >
-          Donasi Bulanan
+          {text.monthlyDonation}
         </button>
       </div>
 
@@ -54,14 +56,11 @@ export function DonationTierButtons() {
         type="button"
         // href/aksi kosong: payment gateway belum aktif
         className="btn-red mt-6 w-full"
-        title="Fitur donasi online akan segera hadir"
+        title={text.donationSoonTitle}
       >
-        DONASI SEKARANG
+        {text.donateNow}
       </button>
-      <p className="mt-3 text-center text-xs text-muted">
-        Untuk donasi saat ini, silakan hubungi kami langsung. Donasi online akan
-        segera hadir.
-      </p>
+      <p className="mt-3 text-center text-xs text-muted">{text.donationSoon}</p>
     </div>
   );
 }

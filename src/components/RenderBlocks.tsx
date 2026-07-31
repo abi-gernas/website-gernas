@@ -21,6 +21,7 @@ import { PartnerLogoGrid, PartnerMarquee } from "@/components/PartnerLogoGrid";
 import { VideoCard } from "@/components/VideoCard";
 import Link from "next/link";
 import { getArticles } from "@/lib/content";
+import { localizedPath, uiText, type Locale } from "@/lib/i18n";
 import {
   getMitra,
   getModulPelatihan,
@@ -57,9 +58,10 @@ type Block = NonNullable<Page["layout"]>[number];
  */
 function toCTA(
   cta: { label?: string | null; href?: string | null } | null | undefined,
+  locale: Locale,
 ): { label: string; href: string } | undefined {
   if (!cta?.label || !cta?.href) return undefined;
-  return { label: cta.label, href: cta.href };
+  return { label: cta.label, href: localizedPath(cta.href, locale) };
 }
 
 /** Ambil URL + alt sekaligus — dipakai blok yang menampilkan banyak gambar. */
@@ -78,24 +80,27 @@ function Contained({ children }: { children: React.ReactNode }) {
 
 async function LatestNews({
   block,
+  locale,
 }: {
   block: Extract<Block, { blockType: "latestNews" }>;
+  locale: Locale;
 }) {
   const categoryId =
     block.category && typeof block.category === "object"
       ? block.category.id
       : (block.category ?? undefined);
 
-  const articles = await getArticles(block.limit ?? 3, categoryId ?? undefined);
+  const articles = await getArticles(block.limit ?? 3, categoryId ?? undefined, locale);
   if (articles.length === 0) return null;
 
-  const cta = toCTA(block.cta);
+  const cta = toCTA(block.cta, locale);
+  const text = uiText[locale];
 
   return (
-    <Section title={block.heading ?? "Kabar Terbaru"} id={block.anchor ?? undefined}>
+    <Section title={block.heading ?? text.latestNews} id={block.anchor ?? undefined}>
       <div className={`grid gap-6 ${kolomKe(block.kolom)}`}>
         {articles.map((a) => (
-          <NewsCard key={a.id} article={a} />
+          <NewsCard key={a.id} article={a} locale={locale} />
         ))}
       </div>
       {cta && (
@@ -111,10 +116,12 @@ async function LatestNews({
 
 async function Penggerak({
   block,
+  locale,
 }: {
   block: Extract<Block, { blockType: "teamGrid" }>;
+  locale: Locale;
 }) {
-  const docs = await getPenggerak();
+  const docs = await getPenggerak(locale);
   if (docs.length === 0) return null;
 
   const anggota = docs.map((d) => ({
@@ -125,21 +132,23 @@ async function Penggerak({
 
   return (
     <Section title={block.heading ?? undefined} id={block.anchor ?? undefined}>
-      <TeamGrid anggota={anggota} />
+      <TeamGrid anggota={anggota} locale={locale} />
     </Section>
   );
 }
 
 async function LogoMitra({
   block,
+  locale,
 }: {
   block: Extract<Block, { blockType: "partnerLogos" }>;
+  locale: Locale;
 }) {
   const barisan = block.tampilan === "barisan";
-  const docs = await getMitra(barisan);
+  const docs = await getMitra(barisan, locale);
   if (docs.length === 0) return null;
 
-  const cta = toCTA(block.cta);
+  const cta = toCTA(block.cta, locale);
   const toPartner = (d: (typeof docs)[number]) => ({
     name: d.nama,
     logo: mediaURL(d.logo) ?? "",
@@ -161,9 +170,9 @@ async function LogoMitra({
             return (
               <div key={kelompok}>
                 <h3 className="mb-8 text-center text-lg font-bold text-brand-red sm:text-xl">
-                  {kelompokMitraLabel[kelompok]}
+                  {kelompokMitraLabel[locale][kelompok]}
                 </h3>
-                <PartnerLogoGrid partners={anggota} />
+                <PartnerLogoGrid partners={anggota} locale={locale} />
               </div>
             );
           })}
@@ -182,10 +191,12 @@ async function LogoMitra({
 
 async function DaftarVideo({
   block,
+  locale,
 }: {
   block: Extract<Block, { blockType: "videoGrid" }>;
+  locale: Locale;
 }) {
-  const docs = await getVideo(block.limit);
+  const docs = await getVideo(block.limit, locale);
   if (docs.length === 0) return null;
 
   return (
@@ -208,10 +219,12 @@ async function DaftarVideo({
 
 async function ModulPelatihanBlok({
   block,
+  locale,
 }: {
   block: Extract<Block, { blockType: "trainingModules" }>;
+  locale: Locale;
 }) {
-  const docs = await getModulPelatihan(block.program);
+  const docs = await getModulPelatihan(block.program, locale);
   if (docs.length === 0) return null;
 
   const modul = docs.map((d) => ({
@@ -220,13 +233,14 @@ async function ModulPelatihanBlok({
     tujuan: (d.tujuan ?? []).map((t) => t.teks).filter(Boolean),
   }));
 
-  const sidebarCTA = toCTA(block.sidebar?.cta);
+  const sidebarCTA = toCTA(block.sidebar?.cta, locale);
 
   return (
     <Section title={block.heading ?? undefined}>
       <TrainingModules
         modul={modul}
         tampilan={block.tampilan}
+        locale={locale}
         sidebar={
           block.sidebar?.teks
             ? {
@@ -243,7 +257,7 @@ async function ModulPelatihanBlok({
 
 // ─── Pemetaan blok → komponen ─────────────────────────────────────────────
 
-async function RenderBlock({ block }: { block: Block }) {
+async function RenderBlock({ block, locale }: { block: Block; locale: Locale }) {
   switch (block.blockType) {
     case "hero": {
       const slides = (block.slides ?? []).flatMap((s) => {
@@ -256,7 +270,7 @@ async function RenderBlock({ block }: { block: Block }) {
             highlight: s.highlight ?? undefined,
             description: s.description ?? undefined,
             image,
-            cta: toCTA(s.cta),
+            cta: toCTA(s.cta, locale),
           },
         ];
       });
@@ -298,7 +312,7 @@ async function RenderBlock({ block }: { block: Block }) {
         isi: c.isi,
         gambar: mediaURL(c.gambar),
         warna: c.warna,
-        cta: toCTA(c.cta),
+        cta: toCTA(c.cta, locale),
       }));
       if (cards.length === 0) return null;
 
@@ -328,9 +342,11 @@ async function RenderBlock({ block }: { block: Block }) {
         title: c.title,
         body: c.body,
         tone: c.tone,
-        cta: toCTA(c.cta),
+        cta: toCTA(c.cta, locale),
         links: (c.links ?? []).flatMap((l) =>
-          l.label && l.href ? [{ label: l.label, href: l.href }] : [],
+          l.label && l.href
+            ? [{ label: l.label, href: localizedPath(l.href, locale) }]
+            : [],
         ),
       }));
       if (cards.length === 0) return null;
@@ -360,11 +376,11 @@ async function RenderBlock({ block }: { block: Block }) {
             gambar={(block.gambar ?? [])
               .map(toFoto)
               .filter((f): f is { url: string; alt: string } => Boolean(f))}
-            cta={toCTA(block.cta)}
+            cta={toCTA(block.cta, locale)}
             tautanTambahan={(block.tautanTambahan ?? []).map((t) => ({
               awalan: t.awalan ?? undefined,
               label: t.label,
-              href: t.href ?? undefined,
+              href: t.href ? localizedPath(t.href, locale) : undefined,
             }))}
             rataTengah={Boolean(block.rataTengah)}
           />
@@ -377,7 +393,7 @@ async function RenderBlock({ block }: { block: Block }) {
           <CTABanner
             title={block.title}
             body={block.body ?? undefined}
-            cta={toCTA(block.cta)}
+            cta={toCTA(block.cta, locale)}
             image={mediaURL(block.image)}
           />
         </Contained>
@@ -409,19 +425,19 @@ async function RenderBlock({ block }: { block: Block }) {
     }
 
     case "latestNews":
-      return <LatestNews block={block} />;
+      return <LatestNews block={block} locale={locale} />;
 
     case "teamGrid":
-      return <Penggerak block={block} />;
+      return <Penggerak block={block} locale={locale} />;
 
     case "partnerLogos":
-      return <LogoMitra block={block} />;
+      return <LogoMitra block={block} locale={locale} />;
 
     case "videoGrid":
-      return <DaftarVideo block={block} />;
+      return <DaftarVideo block={block} locale={locale} />;
 
     case "trainingModules":
-      return <ModulPelatihanBlok block={block} />;
+      return <ModulPelatihanBlok block={block} locale={locale} />;
 
     case "gallery": {
       const foto = (block.images ?? [])
@@ -490,11 +506,11 @@ async function RenderBlock({ block }: { block: Block }) {
     case "contactForm":
       return (
         <Section
-          title={block.heading ?? "Hubungi Kami"}
+          title={block.heading ?? uiText[locale].contactUs}
           id={block.anchor ?? undefined}
           className="bg-surface"
         >
-          <ContactForm />
+          <ContactForm locale={locale} />
         </Section>
       );
 
@@ -515,7 +531,7 @@ async function RenderBlock({ block }: { block: Block }) {
                 </p>
               )}
             </div>
-            <DonationTierButtons />
+            <DonationTierButtons locale={locale} />
           </div>
         </Section>
       );
@@ -530,7 +546,7 @@ async function RenderBlock({ block }: { block: Block }) {
             gambar,
             terkumpul: c.terkumpul,
             target: c.target,
-            cta: toCTA(c.cta),
+            cta: toCTA(c.cta, locale),
           },
         ];
       });
@@ -547,13 +563,23 @@ async function RenderBlock({ block }: { block: Block }) {
   }
 }
 
-export function RenderBlocks({ blocks }: { blocks: Page["layout"] }) {
+export function RenderBlocks({
+  blocks,
+  locale,
+}: {
+  blocks: Page["layout"];
+  locale: Locale;
+}) {
   if (!blocks || blocks.length === 0) return null;
 
   return (
     <>
       {blocks.map((block, i) => (
-        <RenderBlock key={block.id ?? `${block.blockType}-${i}`} block={block} />
+        <RenderBlock
+          key={block.id ?? `${block.blockType}-${i}`}
+          block={block}
+          locale={locale}
+        />
       ))}
     </>
   );

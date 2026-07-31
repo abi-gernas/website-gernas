@@ -42,6 +42,7 @@ export const Media: CollectionConfig = {
     {
       name: "alt",
       type: "text",
+      localized: true,
       label: "Teks alternatif (alt)",
       admin: {
         description:
@@ -51,6 +52,7 @@ export const Media: CollectionConfig = {
     {
       name: "caption",
       type: "text",
+      localized: true,
       label: "Keterangan",
     },
     {

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { DEFAULT_LOCALE, uiText, type Locale } from "@/lib/i18n";
 
 /** Satu penggerak, sudah diratakan dari dokumen Payload. */
 export type AnggotaTim = {
@@ -12,12 +13,16 @@ export type AnggotaTim = {
  * lebih baik daripada menghilangkan orangnya dari daftar hanya karena
  * fotonya belum diunggah.
  */
-export function TeamGrid({ anggota }: { anggota: AnggotaTim[] }) {
+export function TeamGrid({
+  anggota,
+  locale = DEFAULT_LOCALE,
+}: {
+  anggota: AnggotaTim[];
+  locale?: Locale;
+}) {
   if (anggota.length === 0) {
     return (
-      <p className="text-center text-sm text-muted">
-        Daftar penggerak akan segera diperbarui.
-      </p>
+      <p className="text-center text-sm text-muted">{uiText[locale].teamEmpty}</p>
     );
   }
 

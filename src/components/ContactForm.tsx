@@ -2,21 +2,23 @@
 
 import { useState } from "react";
 import { contact } from "@/lib/nav";
+import { DEFAULT_LOCALE, uiText, type Locale } from "@/lib/i18n";
 
 /**
  * Contact form — front-end only (Sprint 1). Tidak ada backend submit dalam
  * cakupan PRD ini; aksi mengarahkan ke mailto sebagai fallback aman.
  */
-export function ContactForm() {
+export function ContactForm({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
+  const text = uiText[locale];
   const [f, setF] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setF({ ...f, [k]: e.target.value });
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const body = `Nama: ${f.name}%0D%0ATelepon: ${f.phone}%0D%0A%0D%0A${f.message}`;
+    const body = `${text.mailName}: ${f.name}%0D%0A${text.mailPhone}: ${f.phone}%0D%0A%0D%0A${f.message}`;
     window.location.href = `mailto:${contact.email}?subject=${encodeURIComponent(
-      f.subject || "Pesan dari Website"
+      f.subject || text.mailSubject
     )}&body=${body}`;
   };
 
@@ -27,8 +29,8 @@ export function ContactForm() {
     <div className="grid overflow-hidden rounded-card shadow-card md:grid-cols-[0.9fr_1.1fr]">
       {/* Info panel */}
       <div className="relative bg-brand-navy p-8 text-white sm:p-10">
-        <h3 className="text-xl font-bold">Contact Information</h3>
-        <p className="mt-1 text-sm text-white/70">Yuk Berjejaring!</p>
+        <h3 className="text-xl font-bold">{text.contactInfo}</h3>
+        <p className="mt-1 text-sm text-white/70">{text.contactTagline}</p>
         <ul className="mt-8 space-y-5 text-sm">
           <li className="flex items-center gap-3">
             <span aria-hidden>📞</span>
@@ -54,14 +56,14 @@ export function ContactForm() {
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
             <label htmlFor="cf-name" className="text-xs font-medium text-muted">
-              Nama <span className="text-brand-red">*</span>
+              {text.name} <span className="text-brand-red">*</span>
             </label>
             <input
               id="cf-name"
               name="name"
               autoComplete="name"
               className={fieldDark}
-              placeholder="Tulis nama…"
+              placeholder={text.namePlaceholder}
               value={f.name}
               onChange={set("name")}
               required
@@ -69,7 +71,7 @@ export function ContactForm() {
           </div>
           <div>
             <label htmlFor="cf-phone" className="text-xs font-medium text-muted">
-              Nomor Telepon
+              {text.phone}
             </label>
             <input
               id="cf-phone"
@@ -85,7 +87,7 @@ export function ContactForm() {
           </div>
           <div>
             <label htmlFor="cf-email" className="text-xs font-medium text-muted">
-              Email <span className="text-brand-red">*</span>
+              {text.email} <span className="text-brand-red">*</span>
             </label>
             <input
               id="cf-email"
@@ -103,14 +105,14 @@ export function ContactForm() {
           </div>
           <div>
             <label htmlFor="cf-subject" className="text-xs font-medium text-muted">
-              Subjek
+              {text.subject}
             </label>
             <input
               id="cf-subject"
               name="subject"
               autoComplete="off"
               className={fieldDark}
-              placeholder="Mis. Kerja sama CSR"
+              placeholder={text.subjectPlaceholder}
               value={f.subject}
               onChange={set("subject")}
             />
@@ -118,19 +120,19 @@ export function ContactForm() {
         </div>
         <div>
           <label htmlFor="cf-message" className="text-xs font-medium text-muted">
-            Pesan
+            {text.message}
           </label>
           <textarea
             id="cf-message"
             name="message"
             className={`${fieldDark} min-h-[90px] resize-none`}
-            placeholder="Tulis pesan…"
+            placeholder={text.messagePlaceholder}
             value={f.message}
             onChange={set("message")}
           />
         </div>
         <button type="submit" className="btn-red">
-          Kirim Pesan
+          {text.submitMessage}
         </button>
       </form>
     </div>

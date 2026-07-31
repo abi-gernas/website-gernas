@@ -1,5 +1,6 @@
 import "server-only";
 import { payloadPromise } from "./payload";
+import { DEFAULT_LOCALE, type Locale } from "./i18n";
 import type { Media, ModulPelatihan, Penggerak, Mitra, Video } from "@/payload-types";
 
 /**
@@ -20,7 +21,7 @@ export function mediaURL(value: unknown): string | undefined {
 /** Urutkan menurut `urutan`, lalu nama, agar hasilnya stabil antar-permintaan. */
 const SORT = "urutan";
 
-export async function getPenggerak(): Promise<Penggerak[]> {
+export async function getPenggerak(locale: Locale = DEFAULT_LOCALE): Promise<Penggerak[]> {
   const payload = await payloadPromise;
   const res = await payload.find({
     collection: "penggerak",
@@ -28,11 +29,16 @@ export async function getPenggerak(): Promise<Penggerak[]> {
     limit: 200,
     sort: SORT,
     pagination: false,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
   });
   return res.docs;
 }
 
-export async function getMitra(hanyaBeranda = false): Promise<Mitra[]> {
+export async function getMitra(
+  hanyaBeranda = false,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<Mitra[]> {
   const payload = await payloadPromise;
   const res = await payload.find({
     collection: "mitra",
@@ -40,6 +46,8 @@ export async function getMitra(hanyaBeranda = false): Promise<Mitra[]> {
     limit: 500,
     sort: SORT,
     pagination: false,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
     ...(hanyaBeranda
       ? { where: { tampilDiBeranda: { equals: true } } }
       : {}),
@@ -47,7 +55,10 @@ export async function getMitra(hanyaBeranda = false): Promise<Mitra[]> {
   return res.docs;
 }
 
-export async function getVideo(limit?: number | null): Promise<Video[]> {
+export async function getVideo(
+  limit?: number | null,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<Video[]> {
   const payload = await payloadPromise;
   const res = await payload.find({
     collection: "video",
@@ -55,12 +66,15 @@ export async function getVideo(limit?: number | null): Promise<Video[]> {
     limit: limit ?? 200,
     sort: SORT,
     pagination: false,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
   });
   return res.docs;
 }
 
 export async function getModulPelatihan(
   program: "matematika" | "membaca",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ModulPelatihan[]> {
   const payload = await payloadPromise;
   const res = await payload.find({
@@ -69,6 +83,8 @@ export async function getModulPelatihan(
     limit: 100,
     sort: SORT,
     pagination: false,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
     where: { program: { equals: program } },
   });
   return res.docs;
@@ -78,10 +94,17 @@ export async function getModulPelatihan(
  * Judul kelompok mitra yang tampil di atas tiap grid pada halaman Mitra.
  * Nilai kuncinya harus sama dengan opsi `kelompok` di koleksi Mitra.
  */
-export const kelompokMitraLabel: Record<string, string> = {
-  pemerintah: "Mitra Kolaborasi Pemerintah Pusat & Daerah",
-  korporasi: "Mitra Kolaborasi Korporasi & NGO",
-  pendidikan: "Mitra Kolaborasi Pendidikan & Perguruan Tinggi",
+export const kelompokMitraLabel: Record<Locale, Record<string, string>> = {
+  id: {
+    pemerintah: "Mitra Kolaborasi Pemerintah Pusat & Daerah",
+    korporasi: "Mitra Kolaborasi Korporasi & NGO",
+    pendidikan: "Mitra Kolaborasi Pendidikan & Perguruan Tinggi",
+  },
+  en: {
+    pemerintah: "Central & Regional Government Partners",
+    korporasi: "Corporate & NGO Partners",
+    pendidikan: "Education & University Partners",
+  },
 };
 
 /** Urutan kelompok saat ditampilkan berkelompok. */

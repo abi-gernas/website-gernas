@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { HtmlLangSync } from "@/components/HtmlLangSync";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -50,9 +51,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={jakarta.variable}>
       <body>
-        <a href="#main" className="skip-link">
-          Lewati ke konten utama
-        </a>
+        <HtmlLangSync />
         <Navbar />
         <main id="main">{children}</main>
         <Footer />

@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { payloadPromise } from "./payload";
+import { DEFAULT_LOCALE, type Locale } from "./i18n";
 import type { Article as PayloadArticle, Media } from "@/payload-types";
 
 /**
@@ -71,6 +72,7 @@ function toView(doc: PayloadArticle, withContent = false): ArticleView {
 export const getArticles = cache(async function getArticles(
   limit?: number,
   categoryId?: string | number,
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ArticleView[]> {
   const payload = await payloadPromise;
   const res = await payload.find({
@@ -78,6 +80,9 @@ export const getArticles = cache(async function getArticles(
     depth: 1, // populate relasi image & category
     limit: limit ?? 100,
     sort: "-publishedAt",
+    // Judul artikel punya versi Inggris; yang belum diisi jatuh ke Indonesia.
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
     where: {
       _status: { equals: "published" },
       ...(categoryId ? { category: { equals: categoryId } } : {}),
@@ -97,6 +102,7 @@ export const getArticles = cache(async function getArticles(
 export const getArticleBySlug = cache(async function getArticleBySlug(
   slug: string,
   draft = false,
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ArticleView | null> {
   const payload = await payloadPromise;
   const res = await payload.find({
@@ -104,6 +110,8 @@ export const getArticleBySlug = cache(async function getArticleBySlug(
     depth: 2, // gambar di dalam isi ikut ter-populate
     limit: 1,
     draft,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
     where: {
       slug: { equals: slug },
       ...(draft ? {} : { _status: { equals: "published" } }),
@@ -115,7 +123,7 @@ export const getArticleBySlug = cache(async function getArticleBySlug(
 });
 
 /** Slug seluruh artikel terbit — untuk generateStaticParams. */
-export async function getArticleSlugs(): Promise<string[]> {
+export async function getArticleSlugs(locale: Locale = DEFAULT_LOCALE): Promise<string[]> {
   const payload = await payloadPromise;
   const res = await payload.find({
     collection: "articles",

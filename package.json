@@ -18,7 +18,9 @@
     "seed:media": "tsx scripts/seed-media.mts",
     "seed:articles": "tsx scripts/seed-articles.mts",
     "seed:datasitus": "tsx scripts/seed-datasitus.mts",
-    "seed:pages": "tsx scripts/seed-pages.mts"
+    "seed:pages": "tsx scripts/seed-pages.mts",
+    "translate:export": "tsx scripts/i18n/export-translations.mts",
+    "translate:import": "tsx scripts/i18n/import-translations.mts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.86.0",
@@ -42,10 +44,12 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.19",
     "cross-env": "^10.1.0",
+    "pg": "^8.22.0",
     "postcss": "^8.5.23",
     "tailwindcss": "^3.4.6",
     "typescript": "^5.5.3"

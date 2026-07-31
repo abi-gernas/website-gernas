@@ -9,8 +9,8 @@ export const RichTextBlock: Block = {
   imageURL: "/blok/richText.svg",
   imageAltText: "Satu blok tulisan biasa",
   fields: [
-    { name: "heading", type: "text", label: "Judul bagian" },
-    { name: "content", type: "richText", label: "Isi" },
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
+    { name: "content", type: "richText", localized: true, label: "Isi" },
     {
       name: "lebar",
       type: "select",
@@ -56,8 +56,8 @@ export const ValueCardsBlock: Block = {
       labels: { singular: "Kartu", plural: "Kartu" },
       admin: { components: judulBaris },
       fields: [
-        { name: "title", type: "text", required: true, label: "Judul" },
-        { name: "body", type: "textarea", required: true, label: "Isi" },
+        { name: "title", type: "text", required: true, localized: true, label: "Judul" },
+        { name: "body", type: "textarea", required: true, localized: true, label: "Isi" },
         {
           name: "tone",
           type: "select",
@@ -82,7 +82,7 @@ export const ValueCardsBlock: Block = {
               "Dipakai bila kartu perlu beberapa tautan kecil alih-alih satu tombol.",
           },
           fields: [
-            { name: "label", type: "text", label: "Teks" },
+            { name: "label", type: "text", localized: true, label: "Teks" },
             { name: "href", type: "text", label: "Tautan" },
           ],
         },
@@ -98,7 +98,7 @@ export const StatCounterBlock: Block = {
   imageURL: "/blok/statCounter.svg",
   imageAltText: "Deretan angka besar dengan keterangan di bawahnya",
   fields: [
-    { name: "heading", type: "text", label: "Judul bagian" },
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
     statsArrayField(),
   ],
 };
@@ -110,8 +110,8 @@ export const CTABannerBlock: Block = {
   imageURL: "/blok/ctaBanner.svg",
   imageAltText: "Panel lebar bergambar dengan judul dan satu tombol",
   fields: [
-    { name: "title", type: "text", required: true, label: "Judul" },
-    { name: "body", type: "textarea", label: "Isi" },
+    { name: "title", type: "text", required: true, localized: true, label: "Judul" },
+    { name: "body", type: "textarea", localized: true, label: "Isi" },
     {
       name: "image",
       type: "upload",
@@ -132,7 +132,7 @@ export const TimelineBlock: Block = {
   imageURL: "/blok/timeline.svg",
   imageAltText: "Garis waktu menurun dengan tahun di kiri dan kanan",
   fields: [
-    { name: "heading", type: "text", label: "Judul bagian" },
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
     {
       name: "entries",
       type: "array",
@@ -152,7 +152,7 @@ export const TimelineBlock: Block = {
           label: "Tahun",
           admin: { description: "Mis. 2018" },
         },
-        { name: "teks", type: "textarea", required: true, label: "Peristiwa" },
+        { name: "teks", type: "textarea", required: true, localized: true, label: "Peristiwa" },
       ],
     },
   ],
@@ -172,7 +172,7 @@ export const FeatureCardsBlock: Block = {
   imageURL: "/blok/featureCards.svg",
   imageAltText: "Beberapa kartu berisi judul dan paragraf",
   fields: [
-    { name: "heading", type: "text", label: "Judul bagian" },
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
     kolomField("2"),
     {
       name: "gambarSamping",
@@ -189,10 +189,11 @@ export const FeatureCardsBlock: Block = {
           relationTo: "media",
           label: "Gambar",
         },
-        { name: "judul", type: "text", label: "Judul di atas gambar" },
+        { name: "judul", type: "text", localized: true, label: "Judul di atas gambar" },
         {
           name: "judulSorot",
           type: "text",
+          localized: true,
           label: "Bagian judul yang dikuningkan",
           admin: {
             description: "Ditempel di depan judul, mis. “Selalu Ada Ruang”.",
@@ -208,10 +209,11 @@ export const FeatureCardsBlock: Block = {
       labels: { singular: "Kartu", plural: "Kartu" },
       admin: { components: judulBaris },
       fields: [
-        { name: "judul", type: "text", required: true, label: "Judul" },
+        { name: "judul", type: "text", required: true, localized: true, label: "Judul" },
         {
           name: "subjudul",
           type: "text",
+          localized: true,
           label: "Subjudul",
           admin: {
             description:
@@ -221,6 +223,7 @@ export const FeatureCardsBlock: Block = {
         {
           name: "isi",
           type: "richText",
+          localized: true,
           label: "Isi",
           admin: {
             description:
@@ -260,8 +263,8 @@ export const CalloutBlock: Block = {
   imageURL: "/blok/callout.svg",
   imageAltText: "Satu kotak berwarna berisi judul, paragraf, dan tombol",
   fields: [
-    { name: "judul", type: "text", required: true, label: "Judul" },
-    { name: "isi", type: "textarea", label: "Isi" },
+    { name: "judul", type: "text", required: true, localized: true, label: "Judul" },
+    { name: "isi", type: "textarea", localized: true, label: "Isi" },
     {
       name: "warna",
       type: "select",
@@ -298,8 +301,8 @@ export const CalloutBlock: Block = {
           "Tampil sebagai pil putih berjajar, mis. “Shopee” dan “Tokopedia”.",
       },
       fields: [
-        { name: "awalan", type: "text", label: "Teks pembuka", admin: { description: "Mis. “Temukan Kami:”. Cukup diisi pada tautan pertama." } },
-        { name: "label", type: "text", required: true, label: "Teks" },
+        { name: "awalan", type: "text", localized: true, label: "Teks pembuka", admin: { description: "Mis. “Temukan Kami:”. Cukup diisi pada tautan pertama." } },
+        { name: "label", type: "text", required: true, localized: true, label: "Teks" },
         { name: "href", type: "text", label: "Tautan" },
       ],
     },

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getArticleSitemapEntries } from "@/lib/content";
 import { getPageSitemapEntries } from "@/lib/pages";
-import { HOME_SLUG, pagePath } from "@/lib/routes";
+import { HOME_SLUG, articlePath, pagePath } from "@/lib/routes";
 
 const SITE_URL = "https://gernastastaka.org";
 
@@ -29,10 +29,16 @@ const PRIORITAS_BAWAAN = 0.6;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articles = await getArticleSitemapEntries();
   const articleEntries: MetadataRoute.Sitemap = articles.map((a) => ({
-    url: `${SITE_URL}/berita/${a.slug}`,
+    url: `${SITE_URL}${articlePath(a.slug)}`,
     lastModified: new Date(a.publishedAt),
     changeFrequency: "yearly",
     priority: 0.7,
+    alternates: {
+      languages: {
+        id: `${SITE_URL}${articlePath(a.slug)}`,
+        en: `${SITE_URL}${articlePath(a.slug, "en")}`,
+      },
+    },
   }));
 
   // Halaman yang disusun staf dari dasbor. `pagePath` memetakan slug beranda
@@ -43,6 +49,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(updatedAt),
     changeFrequency: slug === HOME_SLUG ? "weekly" : "monthly",
     priority: PRIORITAS[slug] ?? PRIORITAS_BAWAAN,
+    alternates: {
+      languages: {
+        id: `${SITE_URL}${pagePath(slug)}`,
+        en: `${SITE_URL}${pagePath(slug, "en")}`,
+      },
+    },
   }));
 
   return [...pageEntries, ...articleEntries];

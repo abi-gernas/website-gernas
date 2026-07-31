@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { TrainingModuleCard, type ModulTampil } from "./TrainingModuleCard";
 import { giliranTone } from "./warna";
+import { DEFAULT_LOCALE, uiText, type Locale } from "@/lib/i18n";
 
 /**
  * Dua tampilan modul pelatihan yang dipakai halaman Belajar Bersama.
@@ -19,14 +20,22 @@ const GILIRAN_WARNA = [
   "bg-brand-yellow text-brand-navy",
 ] as const;
 
-function KartuRingkas({ modul, i }: { modul: ModulTampil; i: number }) {
+function KartuRingkas({
+  modul,
+  i,
+  locale,
+}: {
+  modul: ModulTampil;
+  i: number;
+  locale: Locale;
+}) {
   const warna = giliranTone(GILIRAN_WARNA, i);
   const judulTerang = warna.includes("yellow") ? "text-brand-navy" : "text-white";
 
   return (
     <div className={`flex flex-col rounded-card p-6 ${warna}`}>
       <span className="text-xs font-semibold uppercase tracking-wide opacity-80">
-        Pelatihan {modul.nomor}
+        {uiText[locale].training} {modul.nomor}
       </span>
       <h3 className={`mt-1 text-lg font-bold ${judulTerang}`}>{modul.judul}</h3>
     </div>
@@ -36,10 +45,12 @@ function KartuRingkas({ modul, i }: { modul: ModulTampil; i: number }) {
 export function TrainingModules({
   modul,
   tampilan,
+  locale = DEFAULT_LOCALE,
   sidebar,
 }: {
   modul: ModulTampil[];
   tampilan: "topik" | "rincian";
+  locale?: Locale;
   sidebar?: {
     teks?: string;
     ajakan?: string;
@@ -48,9 +59,7 @@ export function TrainingModules({
 }) {
   if (modul.length === 0) {
     return (
-      <p className="text-center text-sm text-muted">
-        Modul pelatihan akan segera diperbarui.
-      </p>
+      <p className="text-center text-sm text-muted">{uiText[locale].modulesEmpty}</p>
     );
   }
 
@@ -67,7 +76,7 @@ export function TrainingModules({
   const grid = (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {modul.map((m, i) => (
-        <KartuRingkas key={`${m.nomor}-${i}`} modul={m} i={i} />
+        <KartuRingkas key={`${m.nomor}-${i}`} modul={m} i={i} locale={locale} />
       ))}
     </div>
   );

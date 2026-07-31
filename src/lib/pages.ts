@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { payloadPromise } from "./payload";
+import { DEFAULT_LOCALE, type Locale } from "./i18n";
 import type { Page } from "@/payload-types";
 
 /**
@@ -31,6 +32,7 @@ const DEPTH = 2;
 export const getPageBySlug = cache(async function getPageBySlug(
   slug: string,
   draft = false,
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<Page | null> {
   const payload = await payloadPromise;
   const res = await payload.find({
@@ -38,6 +40,13 @@ export const getPageBySlug = cache(async function getPageBySlug(
     depth: DEPTH,
     limit: 1,
     draft,
+    /**
+     * Field yang ditandai `localized: true` (judul halaman, judul bagian tiap
+     * blok, judul kartu) diambil sesuai bahasa; `fallbackLocale` membuat field
+     * Inggris yang belum diisi staf jatuh ke versi Indonesia alih-alih kosong.
+     */
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
     where: {
       slug: { equals: slug },
       ...(draft ? {} : { _status: { equals: "published" } }),
@@ -48,7 +57,7 @@ export const getPageBySlug = cache(async function getPageBySlug(
 });
 
 /** Slug seluruh halaman terbit — untuk generateStaticParams & sitemap. */
-export async function getPageSlugs(): Promise<string[]> {
+export async function getPageSlugs(locale: Locale = DEFAULT_LOCALE): Promise<string[]> {
   const payload = await payloadPromise;
   const res = await payload.find({
     collection: "pages",

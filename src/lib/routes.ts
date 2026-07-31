@@ -8,6 +8,8 @@
  * ke URL yang berbeda dari yang benar-benar dilayani.
  */
 
+import { localizedPath, type Locale } from "./i18n";
+
 /**
  * Slug dokumen Halaman yang melayani beranda.
  *
@@ -18,13 +20,15 @@
 export const HOME_SLUG = "beranda";
 
 /** Alamat publik satu dokumen Halaman. */
-export function pagePath(slug: string): string {
-  return slug === HOME_SLUG ? "/" : `/${slug}`;
+export function pagePath(slug: string, locale?: Locale): string {
+  const path = slug === HOME_SLUG ? "/" : `/${slug}`;
+  return locale ? localizedPath(path, locale) : path;
 }
 
 /** Alamat publik satu dokumen Artikel. */
-export function articlePath(slug: string): string {
-  return `/berita/${slug}`;
+export function articlePath(slug: string, locale?: Locale): string {
+  const path = `/berita/${slug}`;
+  return locale ? localizedPath(path, locale) : path;
 }
 
 /**
@@ -52,6 +56,7 @@ export type PreviewableCollection = "pages" | "articles";
 export function publicPath(
   collection: PreviewableCollection,
   slug: string,
+  locale?: Locale,
 ): string {
-  return collection === "articles" ? articlePath(slug) : pagePath(slug);
+  return collection === "articles" ? articlePath(slug, locale) : pagePath(slug, locale);
 }

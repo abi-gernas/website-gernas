@@ -9,7 +9,7 @@ export const GalleryBlock: Block = {
   imageURL: "/blok/gallery.svg",
   imageAltText: "Susunan foto rapat dengan tinggi berbeda-beda",
   fields: [
-    { name: "heading", type: "text", label: "Judul bagian" },
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
     {
       name: "images",
       type: "upload",
@@ -33,7 +33,7 @@ export const TestimonialsBlock: Block = {
   imageURL: "/blok/testimonials.svg",
   imageAltText: "Kutipan besar dengan foto dan nama narasumber",
   fields: [
-    { name: "heading", type: "text", label: "Judul bagian" },
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
     {
       name: "items",
       type: "array",
@@ -46,11 +46,12 @@ export const TestimonialsBlock: Block = {
           "Warna latar tiap kutipan berganti kuning–biru–merah otomatis mengikuti urutan.",
       },
       fields: [
-        { name: "kutipan", type: "textarea", required: true, label: "Kutipan" },
+        { name: "kutipan", type: "textarea", required: true, localized: true, label: "Kutipan" },
         { name: "nama", type: "text", required: true, label: "Nama" },
         {
           name: "peran",
           type: "text",
+          localized: true,
           label: "Jabatan / asal",
           admin: { description: "Mis. “Guru SDN 10 Lahat”." },
         },
@@ -72,7 +73,7 @@ export const IndonesiaMapBlock: Block = {
   imageURL: "/blok/indonesiaMap.svg",
   imageAltText: "Peta Indonesia dengan deretan angka di bawahnya",
   fields: [
-    { name: "heading", type: "text", label: "Judul bagian" },
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
     {
       name: "tampilkanPeta",
       type: "checkbox",
@@ -97,6 +98,7 @@ export const ContactFormBlock: Block = {
     {
       name: "heading",
       type: "text",
+      localized: true,
       label: "Judul bagian",
       admin: {
         description:
@@ -119,7 +121,7 @@ export const IdeaCardsBlock: Block = {
   imageURL: "/blok/ideaCards.svg",
   imageAltText: "Kartu tegak bergambar dengan label kelas dan topik",
   fields: [
-    { name: "heading", type: "text", label: "Judul bagian" },
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
     {
       name: "items",
       type: "array",
@@ -127,16 +129,18 @@ export const IdeaCardsBlock: Block = {
       labels: { singular: "Ide", plural: "Ide" },
       admin: { components: judulBaris },
       fields: [
-        { name: "judul", type: "text", required: true, label: "Judul ide" },
+        { name: "judul", type: "text", required: true, localized: true, label: "Judul ide" },
         {
           name: "kelas",
           type: "text",
+          localized: true,
           label: "Label kelas",
           admin: { description: "Mis. “Kelas 1”. Tampil sebagai label kuning." },
         },
         {
           name: "topik",
           type: "text",
+          localized: true,
           label: "Label topik",
           admin: { description: "Mis. “Bilangan” atau “Fonik”. Tampil sebagai label merah." },
         },
@@ -167,7 +171,7 @@ export const DonationCampaignsBlock: Block = {
   imageURL: "/blok/donationCampaigns.svg",
   imageAltText: "Kartu kampanye dengan bilah kemajuan dana",
   fields: [
-    { name: "heading", type: "text", label: "Judul bagian" },
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
     {
       name: "items",
       type: "array",
@@ -175,7 +179,7 @@ export const DonationCampaignsBlock: Block = {
       labels: { singular: "Kampanye", plural: "Kampanye" },
       admin: { components: judulBaris },
       fields: [
-        { name: "judul", type: "text", required: true, label: "Nama kampanye" },
+        { name: "judul", type: "text", required: true, localized: true, label: "Nama kampanye" },
         {
           name: "gambar",
           type: "upload",
@@ -211,13 +215,14 @@ export const DonationTiersBlock: Block = {
   imageURL: "/blok/donationTiers.svg",
   imageAltText: "Teks pengantar di samping deretan tombol nominal",
   fields: [
-    { name: "judul", type: "text", required: true, label: "Judul" },
+    { name: "judul", type: "text", required: true, localized: true, label: "Judul" },
     {
       name: "judulSorot",
       type: "text",
+      localized: true,
       label: "Bagian judul yang dimerahkan",
       admin: { description: "Ditempel di akhir judul, mis. “Bernalar”." },
     },
-    { name: "isi", type: "textarea", label: "Paragraf pengantar" },
+    { name: "isi", type: "textarea", localized: true, label: "Paragraf pengantar" },
   ],
 };

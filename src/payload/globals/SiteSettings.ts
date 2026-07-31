@@ -22,7 +22,7 @@ export const SiteSettings: GlobalConfig = {
           fields: [
             { name: "email", type: "email", label: "Email" },
             { name: "phone", type: "text", label: "Telepon" },
-            { name: "address", type: "textarea", label: "Alamat" },
+            { name: "address", type: "textarea", localized: true, label: "Alamat" },
           ],
         },
         {
@@ -55,7 +55,7 @@ export const SiteSettings: GlobalConfig = {
         {
           label: "Footer",
           fields: [
-            { name: "footerText", type: "textarea", label: "Teks footer" },
+            { name: "footerText", type: "textarea", localized: true, label: "Teks footer" },
           ],
         },
       ],

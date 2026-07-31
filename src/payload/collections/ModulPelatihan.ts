@@ -39,6 +39,7 @@ export const ModulPelatihan: CollectionConfig = {
       name: "judul",
       type: "text",
       required: true,
+      localized: true,
       label: "Judul modul",
       admin: {
         description: "Mis. “Bilangan” atau “Prinsip-Prinsip Dasar Mengajar”.",
@@ -84,6 +85,7 @@ export const ModulPelatihan: CollectionConfig = {
           name: "teks",
           type: "textarea",
           required: true,
+          localized: true,
           label: "Tujuan",
         },
       ],

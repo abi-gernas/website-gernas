@@ -18,7 +18,7 @@ export const LatestNewsBlock: Block = {
   imageURL: "/blok/latestNews.svg",
   imageAltText: "Grid kartu berita bergambar",
   fields: [
-    { name: "heading", type: "text", label: "Judul bagian" },
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
     {
       name: "limit",
       type: "number",
@@ -51,6 +51,7 @@ export const TeamGridBlock: Block = {
     {
       name: "heading",
       type: "text",
+      localized: true,
       label: "Judul bagian",
       admin: {
         description:
@@ -71,6 +72,7 @@ export const PartnerLogosBlock: Block = {
     {
       name: "heading",
       type: "text",
+      localized: true,
       label: "Judul bagian",
       admin: {
         description:
@@ -112,6 +114,7 @@ export const VideoGridBlock: Block = {
     {
       name: "heading",
       type: "text",
+      localized: true,
       label: "Judul bagian",
       admin: {
         description:
@@ -145,6 +148,7 @@ export const TrainingModulesBlock: Block = {
     {
       name: "heading",
       type: "text",
+      localized: true,
       label: "Judul bagian",
       admin: {
         description:
@@ -186,8 +190,8 @@ export const TrainingModulesBlock: Block = {
           "Hanya tampil pada tampilan Ringkas. Kosongkan judul untuk menyembunyikannya.",
       },
       fields: [
-        { name: "teks", type: "textarea", label: "Teks pengantar" },
-        { name: "ajakan", type: "text", label: "Kalimat ajakan", admin: { description: "Mis. “Tertarik untuk belajar?”" } },
+        { name: "teks", type: "textarea", localized: true, label: "Teks pengantar" },
+        { name: "ajakan", type: "text", localized: true, label: "Kalimat ajakan", admin: { description: "Mis. “Tertarik untuk belajar?”" } },
         ctaField("cta", "Tombol"),
       ],
     },

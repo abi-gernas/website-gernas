@@ -14,7 +14,7 @@ export const ctaField = (name = "cta", label = "Tombol"): Field => ({
   type: "group",
   label,
   fields: [
-    { name: "label", type: "text", label: "Teks tombol" },
+    { name: "label", type: "text", localized: true, label: "Teks tombol" },
     {
       name: "href",
       type: "text",
@@ -46,10 +46,11 @@ export const statsArrayField = (): Field => ({
     {
       name: "suffix",
       type: "text",
+      localized: true,
       label: "Akhiran",
       admin: { description: "Mis. “+” atau “ribu”. Boleh dikosongkan." },
     },
-    { name: "label", type: "text", required: true, label: "Keterangan" },
+    { name: "label", type: "text", required: true, localized: true, label: "Keterangan" },
   ],
 });
 

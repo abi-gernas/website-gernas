@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { footerLinks, contact } from "@/lib/nav";
+import { usePathname } from "next/navigation";
+import { getFooterLinks, contact } from "@/lib/nav";
+import { splitLocalePath, uiText } from "@/lib/i18n";
 
 const socials = [
   { label: "Facebook", href: "#", d: "M13.5 9H15V6.5h-1.5c-1.7 0-2.5 1-2.5 2.6V11H9v2.5h2v6h2.5v-6H15l.5-2.5h-2v-1.2c0-.6.2-.8.8-.8z" },
@@ -10,6 +14,11 @@ const socials = [
 ];
 
 export function Footer() {
+  const pathname = usePathname();
+  const { locale } = splitLocalePath(pathname);
+  const footerLinks = getFooterLinks(locale);
+  const text = uiText[locale];
+
   return (
     <footer className="bg-surface">
       <div className="container-page grid grid-cols-2 gap-8 py-14 md:grid-cols-4 lg:grid-cols-5">
@@ -21,10 +30,7 @@ export function Footer() {
             height={124}
             className="h-12 w-auto"
           />
-          <p className="mt-4 max-w-xs text-sm text-muted">
-            Gerakan Nasional Pemberantasan Buta Matematika. Membangun pembelajaran
-            yang bermakna dan bernalar.
-          </p>
+          <p className="mt-4 max-w-xs text-sm text-muted">{text.footerIntro}</p>
         </div>
 
         <div>
@@ -47,7 +53,7 @@ export function Footer() {
 
         <div>
           <h4 className="text-sm font-bold uppercase tracking-wide text-brand-red">
-            Aktivitas
+            {text.footerActivity}
           </h4>
           <ul className="mt-4 space-y-2.5">
             {footerLinks.aktivitas.map((l) => (
@@ -65,7 +71,7 @@ export function Footer() {
 
         <div>
           <h4 className="text-sm font-bold uppercase tracking-wide text-brand-red">
-            Kontak
+            {text.footerContact}
           </h4>
           <ul className="mt-4 space-y-2.5 text-sm text-body">
             <li>{contact.phone}</li>
@@ -79,7 +85,7 @@ export function Footer() {
 
         <div>
           <h4 className="text-sm font-bold uppercase tracking-wide text-brand-red">
-            Alamat
+            {text.footerAddress}
           </h4>
           <p className="mt-4 text-sm text-body">{contact.address}</p>
           <div className="mt-4 flex gap-2.5">
@@ -103,7 +109,7 @@ export function Footer() {
         <div className="container-page flex flex-col items-center justify-between gap-3 py-4 text-xs text-white/80 sm:flex-row">
           <p>© {new Date().getFullYear()} Penggerak Indonesia Cerdas</p>
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1">
-            {["Bernalar", "Kontekstual", "Sederhana", "Mendasar", "Bermakna"].map((w) => (
+            {text.footerValues.map((w) => (
               <span key={w}>{w}</span>
             ))}
           </div>

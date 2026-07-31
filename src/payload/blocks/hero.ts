@@ -21,17 +21,18 @@ export const HeroBlock: Block = {
           "Setiap slide tampil bergantian otomatis. Untuk satu gambar diam, cukup isi satu slide.",
       },
       fields: [
-        { name: "title", type: "text", required: true, label: "Judul" },
+        { name: "title", type: "text", required: true, localized: true, label: "Judul" },
         {
           name: "highlight",
           type: "text",
+          localized: true,
           label: "Teks disorot (kuning)",
           admin: {
             description:
               "Bagian akhir judul yang diberi warna kuning, mis. “Bermakna dan Bernalar”. Ditempel setelah judul, jangan diketik ulang di kolom Judul.",
           },
         },
-        { name: "description", type: "textarea", label: "Deskripsi" },
+        { name: "description", type: "textarea", localized: true, label: "Deskripsi" },
         {
           name: "image",
           type: "upload",
@@ -55,8 +56,8 @@ export const PageHeroBlock: Block = {
   imageURL: "/blok/pageHero.svg",
   imageAltText: "Panel judul halaman di atas satu gambar latar",
   fields: [
-    { name: "title", type: "text", required: true, label: "Judul" },
-    { name: "description", type: "textarea", label: "Deskripsi" },
+    { name: "title", type: "text", required: true, localized: true, label: "Judul" },
+    { name: "description", type: "textarea", localized: true, label: "Deskripsi" },
     {
       name: "image",
       type: "upload",

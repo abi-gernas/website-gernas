@@ -8,3 +8,7 @@ next-env.d.ts
 .env*
 # Kecuali template — file ini justru panduan pengisian env, aman di-commit.
 !.env.example
+
+# Data kerja sementara translate:export/translate:import — hasil generate,
+# bukan kode sumber, dan bisa berisi draf terjemahan yang belum final.
+/scripts/i18n/translations.json

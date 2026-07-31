@@ -87,6 +87,25 @@ export default buildConfig({
   ],
   globals: [SiteSettings],
 
+  /**
+   * Dua bahasa konten (FR i18n): `/` berbahasa Indonesia, `/en` berbahasa
+   * Inggris. Hanya field yang ditandai `localized: true` yang punya dua versi —
+   * judul halaman/artikel, judul bagian tiap blok, dan judul kartu. Isi panjang
+   * (Teks Bebas, isi artikel, kutipan, linimasa) sengaja tidak diduakan.
+   *
+   * `fallback: true` penting: field Inggris yang dibiarkan kosong staf akan
+   * menampilkan versi Indonesia, bukan kosong. Jadi halaman /en tetap utuh
+   * sejak hari pertama dan penerjemahan bisa dikerjakan bertahap.
+   */
+  localization: {
+    locales: [
+      { code: "id", label: "Indonesia" },
+      { code: "en", label: "English" },
+    ],
+    defaultLocale: "id",
+    fallback: true,
+  },
+
   editor: lexicalEditor(),
 
   /**

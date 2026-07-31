@@ -1,14 +1,19 @@
 import Image from "next/image";
+import { DEFAULT_LOCALE, uiText, type Locale } from "@/lib/i18n";
 
 export type Partner = { name: string; logo: string };
 
 /** Static responsive grid of partner logos */
-export function PartnerLogoGrid({ partners }: { partners: Partner[] }) {
+export function PartnerLogoGrid({
+  partners,
+  locale = DEFAULT_LOCALE,
+}: {
+  partners: Partner[];
+  locale?: Locale;
+}) {
   if (partners.length === 0) {
     return (
-      <p className="text-center text-sm text-muted">
-        Daftar mitra akan segera diperbarui.
-      </p>
+      <p className="text-center text-sm text-muted">{uiText[locale].partnersEmpty}</p>
     );
   }
   return (

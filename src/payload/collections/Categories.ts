@@ -15,7 +15,7 @@ export const Categories: CollectionConfig = {
     delete: ({ req }) => req.user?.role === "admin",
   },
   fields: [
-    { name: "title", type: "text", required: true, label: "Nama kategori" },
+    { name: "title", type: "text", required: true, localized: true, label: "Nama kategori" },
     ...slugField(),
   ],
 };

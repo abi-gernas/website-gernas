@@ -33,6 +33,7 @@ export const Video: CollectionConfig = {
       name: "judul",
       type: "text",
       required: true,
+      localized: true,
       label: "Judul video",
     },
     {

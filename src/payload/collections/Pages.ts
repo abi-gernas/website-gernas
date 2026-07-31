@@ -58,6 +58,7 @@ export const Pages: CollectionConfig = {
               name: "title",
               type: "text",
               required: true,
+              localized: true,
               label: "Judul halaman",
             },
             {
