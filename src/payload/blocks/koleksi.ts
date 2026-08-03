@@ -58,6 +58,17 @@ export const TeamGridBlock: Block = {
           "Blok ini menampilkan seluruh isi Data Situs → Penggerak, urut menurut “Urutan tampil”. Untuk menambah atau menghapus orang, sunting koleksinya — bukan blok ini.",
       },
     },
+    {
+      name: "batasAwal",
+      type: "number",
+      label: "Jumlah awal yang tampil",
+      min: 1,
+      defaultValue: 10,
+      admin: {
+        description:
+          "Sisanya disembunyikan di balik tombol “Lihat Semua” supaya grid tidak kepanjangan saat daftar penggerak terus bertambah. Kosongkan untuk menampilkan semua sekaligus.",
+      },
+    },
     anchorField("/tentang-gernas-tastaka#penggerak"),
   ],
 };

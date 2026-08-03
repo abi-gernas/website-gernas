@@ -100,6 +100,20 @@ export const uiText = {
     donationSoonTitle: "Fitur donasi online akan segera hadir",
     donationSoon:
       "Untuk donasi saat ini, silakan hubungi kami langsung. Donasi online akan segera hadir.",
+    visiLabel: "Visi",
+    misiLabel: "Misi",
+    tataNilaiLabel: "Tata Nilai",
+    teamShowMore: "Lihat Semua Penggerak",
+    teamShowLess: "Tampilkan Lebih Sedikit",
+    comingSoonEyebrow: "Segera Hadir",
+    comingSoonTitle: "Halaman ini sedang kami siapkan",
+    comingSoonBody:
+      "Isinya masih dalam penyusunan dan akan tayang dalam waktu dekat. Terima kasih sudah menunggu.",
+    notFoundEyebrow: "Kesalahan 404",
+    notFoundTitle: "Halaman tidak ditemukan",
+    notFoundBody:
+      "Alamat yang dituju tidak ada atau sudah dipindahkan. Silakan kembali ke beranda untuk menelusuri halaman lain.",
+    backHome: "Kembali ke Beranda",
   },
   en: {
     donate: "Donate",
@@ -142,5 +156,19 @@ export const uiText = {
     donationSoonTitle: "Online donations are coming soon",
     donationSoon:
       "For now, please contact us directly to donate. Online donations are coming soon.",
+    visiLabel: "Vision",
+    misiLabel: "Mission",
+    tataNilaiLabel: "Values",
+    teamShowMore: "View All Movers",
+    teamShowLess: "Show Less",
+    comingSoonEyebrow: "Coming Soon",
+    comingSoonTitle: "This page is being prepared",
+    comingSoonBody:
+      "We are still putting this page together and it will be live soon. Thank you for your patience.",
+    notFoundEyebrow: "Error 404",
+    notFoundTitle: "Page not found",
+    notFoundBody:
+      "The address you are looking for does not exist or has been moved. Head back to the home page to explore the rest of the site.",
+    backHome: "Back to Home",
   },
 } satisfies Record<Locale, Record<string, string | string[]>>;

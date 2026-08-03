@@ -403,7 +403,7 @@ export interface Page {
         | {
             heading?: string | null;
             /**
-             * Urutan di sini menentukan urutan dari atas ke bawah. Entri tampil berselang-seling kiri dan kanan secara otomatis.
+             * Urutan di sini menentukan urutan dari atas ke bawah. Entri tampil berselang-seling atas dan bawah secara otomatis.
              */
             entries?:
               | {
@@ -412,12 +412,36 @@ export interface Page {
                    */
                   tahun: string;
                   teks: string;
+                  /**
+                   * Boleh dikosongkan dulu, bisa diisi menyusul.
+                   */
+                  foto?: (number | null) | Media;
                   id?: string | null;
                 }[]
               | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'timeline';
+          }
+        | {
+            heading?: string | null;
+            visi: string;
+            /**
+             * Tampil sebagai daftar bernomor, urut sesuai di sini.
+             */
+            misi?:
+              | {
+                  teks: string;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Boleh dikosongkan bila belum ada.
+             */
+            tataNilai?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'visiMisi';
           }
         | {
             heading?: string | null;
@@ -496,6 +520,10 @@ export interface Page {
              * Blok ini menampilkan seluruh isi Data Situs → Penggerak, urut menurut “Urutan tampil”. Untuk menambah atau menghapus orang, sunting koleksinya — bukan blok ini.
              */
             heading?: string | null;
+            /**
+             * Sisanya disembunyikan di balik tombol “Lihat Semua” supaya grid tidak kepanjangan saat daftar penggerak terus bertambah. Kosongkan untuk menampilkan semua sekaligus.
+             */
+            batasAwal?: number | null;
             /**
              * Membuat bagian ini bisa dituju langsung lewat alamat, mis. “/tentang-gernas-tastaka#penggerak”. Hanya huruf kecil dan tanda hubung. Jangan diubah bila sudah dipakai di menu.
              */
@@ -1305,8 +1333,24 @@ export interface PagesSelect<T extends boolean = true> {
                 | {
                     tahun?: T;
                     teks?: T;
+                    foto?: T;
                     id?: T;
                   };
+              id?: T;
+              blockName?: T;
+            };
+        visiMisi?:
+          | T
+          | {
+              heading?: T;
+              visi?: T;
+              misi?:
+                | T
+                | {
+                    teks?: T;
+                    id?: T;
+                  };
+              tataNilai?: T;
               id?: T;
               blockName?: T;
             };
@@ -1364,6 +1408,7 @@ export interface PagesSelect<T extends boolean = true> {
           | T
           | {
               heading?: T;
+              batasAwal?: T;
               anchor?: T;
               id?: T;
               blockName?: T;

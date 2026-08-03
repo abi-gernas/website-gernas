@@ -6,6 +6,7 @@ import { CTABanner } from "@/components/CTABanner";
 import { NewsCard } from "@/components/NewsCard";
 import { ArticleBody } from "@/components/ArticleBody";
 import { Timeline } from "@/components/Timeline";
+import { VisiMisi } from "@/components/VisiMisi";
 import { TeamGrid } from "@/components/TeamGrid";
 import { Gallery } from "@/components/Gallery";
 import { IdeaCards } from "@/components/IdeaCards";
@@ -135,7 +136,7 @@ async function Penggerak({
 
   return (
     <Section title={block.heading ?? undefined} id={block.anchor ?? undefined}>
-      <TeamGrid anggota={anggota} locale={locale} />
+      <TeamGrid anggota={anggota} locale={locale} batasAwal={block.batasAwal ?? undefined} />
     </Section>
   );
 }
@@ -340,6 +341,21 @@ async function RenderBlock({ block, locale }: { block: Block; locale: Locale }) 
       );
     }
 
+    case "visiMisi": {
+      const misi = (block.misi ?? []).map((m) => m.teks).filter(Boolean);
+      return (
+        <Section>
+          <VisiMisi
+            heading={block.heading ?? undefined}
+            visi={block.visi}
+            misi={misi}
+            tataNilai={block.tataNilai ?? undefined}
+            locale={locale}
+          />
+        </Section>
+      );
+    }
+
     case "activityCards": {
       const kartu = (block.kartu ?? []).map((k) => ({
         judul: k.judul,
@@ -455,6 +471,7 @@ async function RenderBlock({ block, locale }: { block: Block; locale: Locale }) 
       const entries = (block.entries ?? []).map((e) => ({
         tahun: e.tahun,
         teks: e.teks,
+        foto: mediaURL(e.foto),
       }));
       return entries.length > 0 ? (
         <Section title={block.heading ?? undefined} className="bg-surface">

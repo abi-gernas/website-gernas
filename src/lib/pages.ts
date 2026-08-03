@@ -56,6 +56,37 @@ export const getPageBySlug = cache(async function getPageBySlug(
   return res.docs[0] ?? null;
 });
 
+/**
+ * Benar bila slug ini ada di CMS tapi belum diterbitkan.
+ *
+ * Dipakai route publik untuk membedakan dua hal yang dari luar tampak sama:
+ * halaman yang memang belum ada (404 sungguhan) dan halaman yang sudah
+ * disiapkan staf tapi masih draf — yang terakhir ditampilkan sebagai
+ * "Segera Hadir", karena tautannya bisa saja sudah terpasang di menu.
+ *
+ * Local API Payload melewati `access.read`, jadi dokumen draf tetap terbaca
+ * di sini meski pengunjungnya anonim; yang dikembalikan hanya statusnya,
+ * bukan isinya.
+ *
+ * Panggil HANYA setelah `getPageBySlug` mengembalikan null — fungsi ini tidak
+ * memeriksa `_status`, jadi di luar urutan itu ia juga bernilai true untuk
+ * halaman yang sebenarnya sudah terbit.
+ */
+export const halamanBelumTerbit = cache(async function halamanBelumTerbit(
+  slug: string,
+): Promise<boolean> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "pages",
+    depth: 0,
+    limit: 1,
+    where: { slug: { equals: slug } },
+    pagination: false,
+    select: { slug: true },
+  });
+  return res.docs.length > 0;
+});
+
 /** Slug seluruh halaman terbit — untuk generateStaticParams & sitemap. */
 export async function getPageSlugs(locale: Locale = DEFAULT_LOCALE): Promise<string[]> {
   const payload = await payloadPromise;

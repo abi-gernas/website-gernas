@@ -142,7 +142,7 @@ export const TimelineBlock: Block = {
       admin: {
         components: judulBaris,
         description:
-          "Urutan di sini menentukan urutan dari atas ke bawah. Entri tampil berselang-seling kiri dan kanan secara otomatis.",
+          "Urutan di sini menentukan urutan dari atas ke bawah. Entri tampil berselang-seling atas dan bawah secara otomatis.",
       },
       fields: [
         {
@@ -153,7 +153,53 @@ export const TimelineBlock: Block = {
           admin: { description: "Mis. 2018" },
         },
         { name: "teks", type: "textarea", required: true, localized: true, label: "Peristiwa" },
+        {
+          name: "foto",
+          type: "upload",
+          relationTo: "media",
+          label: "Foto (opsional)",
+          admin: { description: "Boleh dikosongkan dulu, bisa diisi menyusul." },
+        },
       ],
+    },
+  ],
+};
+
+/**
+ * Visi, Misi & Tata Nilai — teks polos tanpa kartu berwarna.
+ *
+ * Dipisah dari Kartu Berisi (yang tampilannya kartu berwarna) karena bagian
+ * ini sengaja dibuat sesederhana mungkin: label tebal lalu paragraf/daftar
+ * biasa, supaya enak dibaca meski teksnya panjang.
+ */
+export const VisiMisiBlock: Block = {
+  slug: "visiMisi",
+  labels: { singular: "Visi, Misi & Tata Nilai", plural: "Visi, Misi & Tata Nilai" },
+  imageURL: "/blok/richText.svg",
+  imageAltText: "Teks polos berjudul Visi, Misi, dan Tata Nilai",
+  fields: [
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
+    { name: "visi", type: "textarea", required: true, localized: true, label: "Visi" },
+    {
+      name: "misi",
+      type: "array",
+      label: "Misi",
+      minRows: 1,
+      labels: { singular: "Poin misi", plural: "Poin misi" },
+      admin: {
+        components: judulBaris,
+        description: "Tampil sebagai daftar bernomor, urut sesuai di sini.",
+      },
+      fields: [
+        { name: "teks", type: "textarea", required: true, localized: true, label: "Isi poin" },
+      ],
+    },
+    {
+      name: "tataNilai",
+      type: "textarea",
+      localized: true,
+      label: "Tata Nilai (opsional)",
+      admin: { description: "Boleh dikosongkan bila belum ada." },
     },
   ],
 };

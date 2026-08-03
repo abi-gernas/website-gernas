@@ -11,6 +11,7 @@ import {
   StatCounterBlock,
   TimelineBlock,
   ValueCardsBlock,
+  VisiMisiBlock,
 } from "./konten";
 import {
   LatestNewsBlock,
@@ -58,6 +59,7 @@ export const pageBlocks: Block[] = [
   CalloutBlock,
   CTABannerBlock,
   TimelineBlock,
+  VisiMisiBlock,
   StatCounterBlock,
   ProgramIntensifBlock,
 
@@ -102,4 +104,5 @@ export {
   TrainingModulesBlock,
   ValueCardsBlock,
   VideoGridBlock,
+  VisiMisiBlock,
 };

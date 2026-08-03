@@ -4,9 +4,10 @@ import type { Metadata } from "next";
 import { RenderBlocks } from "@/components/RenderBlocks";
 import { LivePreviewListener } from "@/components/LivePreviewListener";
 import { PreviewBadge } from "@/components/PreviewBadge";
-import { getPageBySlug } from "@/lib/pages";
+import { StatusHalaman } from "@/components/StatusHalaman";
+import { getPageBySlug, halamanBelumTerbit } from "@/lib/pages";
 import { HOME_SLUG, pagePath } from "@/lib/routes";
-import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
+import { DEFAULT_LOCALE, uiText, type Locale } from "@/lib/i18n";
 
 /**
  * Isi halaman catch-all, dipakai bersama oleh `[...slug]/page.tsx` (id) dan
@@ -23,7 +24,18 @@ export async function PageContent({
 
   const { isEnabled: draft } = await draftMode();
   const page = await getPageBySlug(slug, draft, locale);
-  if (!page) notFound();
+
+  /**
+   * Halaman yang ada di CMS tapi belum diterbitkan ditampilkan sebagai
+   * "Segera Hadir", bukan 404 — tautannya bisa saja sudah dipasang di menu
+   * (mis. Donasi), dan 404 di situ terbaca seperti situs yang rusak.
+   */
+  if (!page) {
+    if (await halamanBelumTerbit(slug)) {
+      return <StatusHalaman varian="segeraHadir" locale={locale} />;
+    }
+    notFound();
+  }
 
   return (
     <>
@@ -44,7 +56,16 @@ export async function pageMetadata(
 ): Promise<Metadata> {
   const { isEnabled: draft } = await draftMode();
   const page = await getPageBySlug(slug, draft, locale);
-  if (!page) return {};
+  if (!page) {
+    // Halaman "Segera Hadir" tetap dilayani, tapi jangan sampai terindeks.
+    if (await halamanBelumTerbit(slug)) {
+      return {
+        title: uiText[locale].comingSoonEyebrow,
+        robots: { index: false, follow: true },
+      };
+    }
+    return {};
+  }
 
   const title = page.meta?.title || page.title;
   const description = page.meta?.description || undefined;
