@@ -577,12 +577,6 @@ const halaman: Halaman[] = [
       },
       {
         blockType: "trainingModules",
-        heading: "Rincian Modul Pelatihan",
-        program: "matematika",
-        tampilan: "rincian",
-      },
-      {
-        blockType: "trainingModules",
         heading: "Topik Pelatihan Membaca",
         program: "membaca",
         tampilan: "topik",
@@ -593,17 +587,88 @@ const halaman: Halaman[] = [
         },
       },
       {
-        blockType: "trainingModules",
-        heading: "Rincian Modul Pelatihan Membaca",
-        program: "membaca",
-        tampilan: "rincian",
+        blockType: "activityCards",
+        heading: "Kegiatan Gernas",
+        kolom: "4",
+        kartu: [
+          {
+            judul: "Bincang Gernas",
+            ikon: "diskusi",
+            deskripsi:
+              "Bincang Gernas adalah forum diskusi intensif yang menghadirkan pengalaman nyata para guru, tinjauan pakar, dan perspektif para praktisi. Kegiatan ini secara bergantian membahas topik matematika dan membaca, memberikan ruang refleksi sekaligus inspirasi bagi sekolah dan pemangku kebijakan untuk memahami praktik terbaik dan tantangan nyata di lapangan.",
+          },
+          {
+            judul: "Bincang BAJIK",
+            ikon: "komunitas",
+            deskripsi:
+              "Bincang BAJIK merupakan forum diskusi yang berfokus pada kebijakan pendidikan dasar yang ditetapkan pemerintah. Bahan diskusi bersumber dari temuan Tim Riset BAJIK maupun berbagai permasalahan dan dinamika pendidikan dasar yang tengah menjadi perhatian luas.",
+          },
+          {
+            judul: "Bincang PRPIC",
+            ikon: "riset",
+            deskripsi:
+              "Bincang PRPIC merupakan forum diskusi yang membahas temuan dan hasil penelitian terkait pendidikan dasar. Topik yang diangkat bersumber dari kajian dan riset yang telah dibaca serta dibahas bersama dalam forum ini, guna memperkaya pemahaman dan refleksi terhadap praktik pendidikan dasar.",
+          },
+          {
+            judul: "Klub Baca",
+            ikon: "buku",
+            deskripsi:
+              "Klub Baca adalah forum diskusi buku bagi guru Sekolah Dasar dan pemerhati pendidikan yang membahas buku-buku anak dari berbagai perspektif. Kegiatan ini bertujuan memperkuat literasi serta mendukung penerapan pembelajaran yang bermakna di sekolah dasar.",
+          },
+          {
+            judul: "Kelas Gernas",
+            ikon: "rumah",
+            deskripsi:
+              "Kelas Gernas merupakan kelas yang dirancang secara khusus berdasarkan topik pembelajaran yang dibutuhkan oleh penerima manfaat. Setiap pelaksanaan Kelas Gernas berlangsung selama tiga jam dan bisa mencakup materi yang selaras dengan program Gernas Tastaka maupun Gernas Tastaba.",
+          },
+          {
+            // Deskripsi belum tersedia di sumber rujukan — kalimat sementara.
+            judul: "Idea Room",
+            ikon: "ide",
+            deskripsi:
+              "Idea Room adalah ruang berbagi gagasan dan praktik pembelajaran bagi guru serta pemerhati pendidikan.",
+          },
+          {
+            judul: "Festival Belajar",
+            ikon: "penghargaan",
+            deskripsi:
+              "Festival Belajar merupakan kegiatan perayaan hasil belajar guru yang diselenggarakan melalui beragam medium, seperti talk show, webinar, dan pameran karya. Kegiatan ini menjadi ruang apresiasi, berbagi praktik baik, serta penguatan ekosistem pembelajaran bagi guru dan pemerhati pendidikan.",
+          },
+        ],
+      },
+      {
+        blockType: "programIntensif",
+        heading: "Program Intensif",
+        isi: "Program Intensif Gernas Tastaka memberikan pendampingan terstruktur yang memastikan pelatihan terimplementasi menjadi praktik nyata di kelas. Bersama mitra, kami mendukung guru melalui diskusi terarah, coaching, mentoring, micro-teaching, dan kelas percontohan yang mudah direplikasi. Program ini dirancang untuk membantu sekolah dan pemerintah daerah mencapai peningkatan mutu pembelajaran secara berkelanjutan dan terukur.",
+        programs: [
+          {
+            judul: "Program Gernas Tastaka Muara Enim",
+            warna: "navy",
+            deskripsi:
+              "Program Intensif Gernas Tastaka di Kabupaten Muara Enim menyasar 160 guru dari 70 SD Negeri dengan potensi murid terdampak sebanyak 3.052 orang. Program berlangsung dari 13 Agustus 2021 hingga 26 November 2022, dimulai dengan pelatihan dalam enam pertemuan (48 jam pelatihan). Pelatihan meliputi topik prinsip-prinsip belajar dan mengajar matematika, bilangan, geometri, pengukuran, probabilitas, dan statistika, serta asesmen di kelas matematika. Program dilanjutkan dengan kelas percontohan dan pendampingan untuk memastikan implementasi materi pelatihan di ruang-ruang kelas.",
+          },
+          {
+            judul: "Program Gernas Tastaka Lahat",
+            warna: "merah",
+            deskripsi:
+              "Program Intensif Gernas Tastaka di Kabupaten Lahat menyasar 163 guru dari 104 SD Negeri dengan potensi murid terdampak sebanyak 3.273 orang. Program berlangsung dari 22 Agustus 2023 hingga 4 Oktober 2024, dimulai dengan pelatihan dari tim Gernas Tastaka dalam enam pertemuan (48 jam pelatihan). Pelatihan meliputi topik prinsip-prinsip belajar dan mengajar matematika, bilangan, geometri, pengukuran, probabilitas, dan statistika, serta asesmen di kelas matematika. Setelah pelatihan, program dilanjutkan dengan penyelenggaraan kelas percontohan dan pendampingan.",
+          },
+          {
+            judul: "Tadris Matematika PT Paragon",
+            warna: "kuning",
+            deskripsi:
+              "Program Tadris Matematika PT Paragon Tbk. telah menyasar 1.030 guru dari 375 SD/MI dengan potensi murid terdampak sebanyak 17.964 orang. Program berlangsung dari 11 September 2021 hingga 27 Desember 2024, dimulai dengan pelatihan dari tim Gernas Tastaka dalam enam pertemuan (48 jam pelatihan). Pelatihan meliputi topik prinsip-prinsip belajar dan mengajar matematika, bilangan, geometri, pengukuran, probabilitas, dan statistika, serta asesmen di kelas matematika.",
+          },
+        ],
+        // Foto & logo kolaborator belum diunggah — staf melengkapi lewat dasbor.
       },
       {
         blockType: "callout",
-        judul: "Program Intensif",
-        isi: "Program Intensif Gernas Tastaka memberikan pendampingan terstruktur yang memastikan pelatihan terimplementasi menjadi praktik nyata di kelas. Bersama mitra, kami mendukung guru melalui diskusi terarah, coaching, mentoring, micro-teaching, dan kelas percontohan yang mudah direplikasi. Program ini dirancang untuk membantu sekolah dan pemerintah daerah mencapai peningkatan mutu pembelajaran secara berkelanjutan dan terukur.",
-        warna: "navy",
-        cta: { label: "Jadi Mitra Program", href: "/mitra#hubungi" },
+        judul: "Jadilah Bagian Dari Upaya Peningkatan Mutu Pendidikan Dasar Indonesia",
+        isi: "Kemajuan pendidikan dasar hanya dapat terwujud melalui kolaborasi yang kuat. Gernas Tastaka membuka peluang kerja sama bagi institusi, organisasi, perusahaan, dan individu yang memiliki visi yang sama: mencerdaskan generasi bangsa. Bersama, kita dapat menghadirkan perubahan nyata — perubahan dari ruang kelas hari ini hingga masa depan anak-anak Indonesia.",
+        warna: "abu",
+        rataTengah: true,
+        cta: { label: "Kerja Sama", href: "/mitra#hubungi" },
       },
     ],
   },

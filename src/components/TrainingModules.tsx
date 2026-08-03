@@ -1,47 +1,17 @@
 import Link from "next/link";
 import { TrainingModuleCard, type ModulTampil } from "./TrainingModuleCard";
-import { giliranTone } from "./warna";
+import { TrainingTopicGrid } from "./TrainingTopicGrid";
 import { DEFAULT_LOCALE, uiText, type Locale } from "@/lib/i18n";
 
 /**
  * Dua tampilan modul pelatihan yang dipakai halaman Belajar Bersama.
  *
  * "Ringkas" — kartu berwarna berisi nomor + nama modul, dengan kotak
- * pengantar opsional di kolom kiri.
+ * pengantar opsional di kolom kiri. Kartunya tertutup secara bawaan dan bisa
+ * diklik untuk memunculkan tujuan pembelajaran di bawahnya, jadi bagian ini
+ * sudah memuat rincian modul tanpa perlu blok "Rincian" terpisah.
  * "Rincian" — kartu yang bisa dibuka untuk melihat tujuan pembelajaran.
- *
- * Warna kartu bergilir merah–biru–kuning mengikuti posisi, bukan pilihan staf,
- * supaya pola warnanya tidak bisa rusak saat modul ditambah atau diurutkan
- * ulang.
  */
-const GILIRAN_WARNA = [
-  "bg-brand-red text-white",
-  "bg-brand-navy text-white",
-  "bg-brand-yellow text-brand-navy",
-] as const;
-
-function KartuRingkas({
-  modul,
-  i,
-  locale,
-}: {
-  modul: ModulTampil;
-  i: number;
-  locale: Locale;
-}) {
-  const warna = giliranTone(GILIRAN_WARNA, i);
-  const judulTerang = warna.includes("yellow") ? "text-brand-navy" : "text-white";
-
-  return (
-    <div className={`flex flex-col rounded-card p-6 ${warna}`}>
-      <span className="text-xs font-semibold uppercase tracking-wide opacity-80">
-        {uiText[locale].training} {modul.nomor}
-      </span>
-      <h3 className={`mt-1 text-lg font-bold ${judulTerang}`}>{modul.judul}</h3>
-    </div>
-  );
-}
-
 export function TrainingModules({
   modul,
   tampilan,
@@ -73,13 +43,7 @@ export function TrainingModules({
     );
   }
 
-  const grid = (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {modul.map((m, i) => (
-        <KartuRingkas key={`${m.nomor}-${i}`} modul={m} i={i} locale={locale} />
-      ))}
-    </div>
-  );
+  const grid = <TrainingTopicGrid modul={modul} locale={locale} />;
 
   const adaSidebar = Boolean(sidebar?.teks || sidebar?.cta);
   if (!adaSidebar) return grid;

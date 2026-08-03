@@ -29,30 +29,44 @@ export function TrainingModuleCard({ modul }: { modul: ModulTampil }) {
       type="button"
       onClick={() => setOpen((o) => !o)}
       aria-expanded={open}
-      className="rounded-card bg-surface p-6 text-left"
+      className="rounded-card bg-surface p-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2"
     >
-      <span className="flex items-center justify-between gap-3 text-base font-bold text-brand-navy">
+      <span className="flex items-start justify-between gap-3 text-base font-bold text-brand-navy">
         <span>
           Modul {modul.nomor}: {modul.judul}
         </span>
-        <span
+        <svg
           aria-hidden="true"
-          className={`shrink-0 text-brand-red transition-transform ${
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`h-5 w-5 shrink-0 text-brand-red transition-transform duration-300 ease-out motion-reduce:transition-none ${
             open ? "rotate-180" : ""
           }`}
         >
-          ▾
-        </span>
+          <path d="M5 7.5 10 12.5 15 7.5" />
+        </svg>
       </span>
-      {open && modul.tujuan.length > 0 && (
-        <ol className="mt-3 space-y-2 text-sm text-body">
-          {modul.tujuan.map((p, i) => (
-            <li key={i} className="flex gap-2">
-              <span className="font-semibold text-brand-red">{i + 1}.</span>
-              <span>{p}</span>
-            </li>
-          ))}
-        </ol>
+      {modul.tujuan.length > 0 && (
+        <span
+          className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none ${
+            open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          }`}
+        >
+          <span className="min-h-0">
+            <ol className="mt-3 space-y-2 text-sm text-body">
+              {modul.tujuan.map((p, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="font-semibold text-brand-red">{i + 1}.</span>
+                  <span>{p}</span>
+                </li>
+              ))}
+            </ol>
+          </span>
+        </span>
       )}
     </button>
   );

@@ -2,9 +2,11 @@ import type { Block } from "payload";
 
 import { HeroBlock, PageHeroBlock } from "./hero";
 import {
+  ActivityCardsBlock,
   CTABannerBlock,
   CalloutBlock,
   FeatureCardsBlock,
+  ProgramIntensifBlock,
   RichTextBlock,
   StatCounterBlock,
   TimelineBlock,
@@ -52,10 +54,12 @@ export const pageBlocks: Block[] = [
   RichTextBlock,
   FeatureCardsBlock,
   ValueCardsBlock,
+  ActivityCardsBlock,
   CalloutBlock,
   CTABannerBlock,
   TimelineBlock,
   StatCounterBlock,
+  ProgramIntensifBlock,
 
   // Isi dari koleksi Data Situs
   LatestNewsBlock,
@@ -75,6 +79,7 @@ export const pageBlocks: Block[] = [
 ];
 
 export {
+  ActivityCardsBlock,
   CTABannerBlock,
   CalloutBlock,
   ContactFormBlock,
@@ -88,6 +93,7 @@ export {
   LatestNewsBlock,
   PageHeroBlock,
   PartnerLogosBlock,
+  ProgramIntensifBlock,
   RichTextBlock,
   StatCounterBlock,
   TeamGridBlock,

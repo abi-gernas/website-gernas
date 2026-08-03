@@ -5,6 +5,8 @@ import * as migration_20260727_163901_tambah_blok_halaman from './20260727_16390
 import * as migration_20260730_091756_tambah_localization from './20260730_091756_tambah_localization';
 import * as migration_20260730_161555_tambah_localized_tombol from './20260730_161555_tambah_localized_tombol';
 import * as migration_20260730_164524_bilingual_penuh from './20260730_164524_bilingual_penuh';
+import * as migration_20260803_044210_tambah_blok_kegiatan from './20260803_044210_tambah_blok_kegiatan';
+import * as migration_20260803_061935_tambah_blok_program_intensif from './20260803_061935_tambah_blok_program_intensif';
 
 export const migrations = [
   {
@@ -40,6 +42,16 @@ export const migrations = [
   {
     up: migration_20260730_164524_bilingual_penuh.up,
     down: migration_20260730_164524_bilingual_penuh.down,
-    name: '20260730_164524_bilingual_penuh'
+    name: '20260730_164524_bilingual_penuh',
+  },
+  {
+    up: migration_20260803_044210_tambah_blok_kegiatan.up,
+    down: migration_20260803_044210_tambah_blok_kegiatan.down,
+    name: '20260803_044210_tambah_blok_kegiatan',
+  },
+  {
+    up: migration_20260803_061935_tambah_blok_program_intensif.up,
+    down: migration_20260803_061935_tambah_blok_program_intensif.down,
+    name: '20260803_061935_tambah_blok_program_intensif'
   },
 ];

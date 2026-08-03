@@ -95,6 +95,24 @@ export const kolomField = (defaultValue: "2" | "3" | "4" = "3"): Field => ({
   },
 });
 
+/**
+ * Ikon yang bisa dipilih staf untuk blok Kartu Kegiatan.
+ *
+ * Daftar tertutup, bukan unggahan gambar, supaya tebal garis semua ikon
+ * seragam. Nilai `value` WAJIB sama dengan `NamaIkon` di
+ * `src/components/ikon.tsx`.
+ */
+export const ikonOptions = [
+  { label: "Balon percakapan — forum diskusi", value: "diskusi" },
+  { label: "Sekelompok orang — komunitas", value: "komunitas" },
+  { label: "Rumah — ruang/kelas", value: "rumah" },
+  { label: "Atom — riset & kajian", value: "riset" },
+  { label: "Bola lampu — ide & gagasan", value: "ide" },
+  { label: "Buku terbuka — literasi & bacaan", value: "buku" },
+  { label: "Medali — apresiasi & perayaan", value: "penghargaan" },
+  { label: "Daun — pertumbuhan", value: "daun" },
+];
+
 /** Warna latar kotak/kartu, mengikuti palet Design System v2.0. */
 export const warnaOptions = [
   { label: "Putih", value: "putih" },

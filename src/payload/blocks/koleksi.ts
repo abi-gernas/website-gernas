@@ -173,12 +173,12 @@ export const TrainingModulesBlock: Block = {
       label: "Tampilan",
       defaultValue: "topik",
       options: [
-        { label: "Ringkas — hanya nama modul", value: "topik" },
-        { label: "Rincian — beserta tujuan pembelajaran", value: "rincian" },
+        { label: "Ringkas — kartu berwarna, klik untuk melihat tujuan", value: "topik" },
+        { label: "Rincian — daftar modul yang bisa dibuka-tutup", value: "rincian" },
       ],
       admin: {
         description:
-          "Halaman Belajar Bersama memakai keduanya: “Ringkas” di bagian Topik Pelatihan, “Rincian” di bagian Rincian Modul.",
+          "“Ringkas” sudah memuat tujuan pembelajaran: kartunya tertutup dan terbuka saat diklik, jadi satu blok ini cukup untuk bagian Topik Pelatihan. “Rincian” adalah tampilan lama berupa daftar putih — pakai hanya bila memang ingin dua bagian terpisah.",
       },
     },
     {

@@ -10,11 +10,13 @@ import { TeamGrid } from "@/components/TeamGrid";
 import { Gallery } from "@/components/Gallery";
 import { IdeaCards } from "@/components/IdeaCards";
 import { FeatureCards } from "@/components/FeatureCards";
+import { ActivityCards } from "@/components/ActivityCards";
 import { Callout } from "@/components/Callout";
 import { DonationCampaigns } from "@/components/DonationCampaigns";
 import { DonationTierButtons } from "@/components/DonationTierButtons";
 import { TrainingModules } from "@/components/TrainingModules";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
+import { ProgramIntensifCarousel } from "@/components/ProgramIntensifCarousel";
 import { IndonesiaMap } from "@/components/IndonesiaMap";
 import { ContactForm } from "@/components/ContactForm";
 import { PartnerLogoGrid, PartnerMarquee } from "@/components/PartnerLogoGrid";
@@ -32,6 +34,7 @@ import {
   urutanKelompokMitra,
 } from "@/lib/datasitus";
 import { kolomKe } from "@/components/warna";
+import { asNamaIkon } from "@/components/ikon";
 import type { Page } from "@/payload-types";
 
 /**
@@ -337,6 +340,21 @@ async function RenderBlock({ block, locale }: { block: Block; locale: Locale }) 
       );
     }
 
+    case "activityCards": {
+      const kartu = (block.kartu ?? []).map((k) => ({
+        judul: k.judul,
+        deskripsi: k.deskripsi,
+        ikon: asNamaIkon(k.ikon),
+      }));
+      if (kartu.length === 0) return null;
+
+      return (
+        <Section title={block.heading ?? undefined}>
+          <ActivityCards kartu={kartu} kolom={block.kolom ?? undefined} />
+        </Section>
+      );
+    }
+
     case "valueCards": {
       const cards = (block.cards ?? []).map((c) => ({
         title: c.title,
@@ -386,6 +404,40 @@ async function RenderBlock({ block, locale }: { block: Block; locale: Locale }) 
           />
         </Section>
       );
+
+    case "programIntensif": {
+      const items = (block.programs ?? []).map((p) => ({
+        gambar: mediaURL(p.gambar),
+        judul: p.judul,
+        deskripsi: p.deskripsi,
+        warna: p.warna,
+        kolaborator: (p.kolaborator ?? []).flatMap((k) => {
+          const url = mediaURL(k);
+          return url ? [url] : [];
+        }),
+      }));
+      if (items.length === 0) return null;
+
+      return (
+        <Section>
+          {(block.heading || block.isi) && (
+            <div className="mx-auto mb-10 max-w-3xl">
+              {block.heading && (
+                <h2 className="text-xl font-bold text-brand-red sm:text-2xl">
+                  {block.heading}
+                </h2>
+              )}
+              {block.isi && (
+                <p className="mt-4 text-sm leading-relaxed text-body sm:text-base">
+                  {block.isi}
+                </p>
+              )}
+            </div>
+          )}
+          <ProgramIntensifCarousel items={items} />
+        </Section>
+      );
+    }
 
     case "ctaBanner":
       return (

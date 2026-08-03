@@ -322,6 +322,30 @@ export interface Page {
             blockType: 'valueCards';
           }
         | {
+            heading?: string | null;
+            /**
+             * Di layar ponsel semua blok tetap turun menjadi satu kolom.
+             */
+            kolom?: ('2' | '3' | '4') | null;
+            /**
+             * Urutan di sini menentukan urutan kartu. Hanya satu kartu yang terbuka dalam satu waktu.
+             */
+            kartu?:
+              | {
+                  judul: string;
+                  /**
+                   * Tampil setelah kartu diklik. Cukup satu paragraf.
+                   */
+                  deskripsi: string;
+                  ikon?: ('diskusi' | 'komunitas' | 'rumah' | 'riset' | 'ide' | 'buku' | 'penghargaan' | 'daun') | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'activityCards';
+          }
+        | {
             judul: string;
             isi?: string | null;
             warna?: ('putih' | 'abu' | 'navy' | 'merah' | 'kuning') | null;
@@ -417,6 +441,26 @@ export interface Page {
           }
         | {
             heading?: string | null;
+            isi?: string | null;
+            /**
+             * Pengunjung menggeser satu-per-satu dengan tombol panah. Kosongkan logo kolaborator bila belum ada.
+             */
+            programs?:
+              | {
+                  gambar?: (number | null) | Media;
+                  judul: string;
+                  deskripsi: string;
+                  warna: 'putih' | 'abu' | 'navy' | 'merah' | 'kuning';
+                  kolaborator?: (number | Media)[] | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'programIntensif';
+          }
+        | {
+            heading?: string | null;
             /**
              * Artikel terbaru diambil lebih dulu.
              */
@@ -507,7 +551,7 @@ export interface Page {
             heading?: string | null;
             program: 'matematika' | 'membaca';
             /**
-             * Halaman Belajar Bersama memakai keduanya: “Ringkas” di bagian Topik Pelatihan, “Rincian” di bagian Rincian Modul.
+             * “Ringkas” sudah memuat tujuan pembelajaran: kartunya tertutup dan terbuka saat diklik, jadi satu blok ini cukup untuk bagian Topik Pelatihan. “Rincian” adalah tampilan lama berupa daftar putih — pakai hanya bila memang ingin dua bagian terpisah.
              */
             tampilan: 'topik' | 'rincian';
             /**
@@ -1196,6 +1240,22 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        activityCards?:
+          | T
+          | {
+              heading?: T;
+              kolom?: T;
+              kartu?:
+                | T
+                | {
+                    judul?: T;
+                    deskripsi?: T;
+                    ikon?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
         callout?:
           | T
           | {
@@ -1260,6 +1320,24 @@ export interface PagesSelect<T extends boolean = true> {
                     value?: T;
                     suffix?: T;
                     label?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        programIntensif?:
+          | T
+          | {
+              heading?: T;
+              isi?: T;
+              programs?:
+                | T
+                | {
+                    gambar?: T;
+                    judul?: T;
+                    deskripsi?: T;
+                    warna?: T;
+                    kolaborator?: T;
                     id?: T;
                   };
               id?: T;

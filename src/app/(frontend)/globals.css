@@ -128,6 +128,39 @@
   .article-body blockquote {
     @apply border-l-4 border-brand-yellow pl-4 italic text-body;
   }
+
+  /**
+   * Panel rincian kartu yang bisa dibuka — Topik Pelatihan & Kegiatan Gernas.
+   *
+   * Panel ini hanya dirender saat kartunya terbuka, jadi tidak memakai trik
+   * collapse `grid-rows-[0fr]` → `[1fr]` yang lazim dipakai accordion. Dua
+   * alasan trik itu justru tidak jalan di sini:
+   *
+   *  1. Panel adalah grid item selebar satu baris (`col-span-full`). Di dalam
+   *     konteks itu `1fr` diselesaikan terhadap ruang bebas yang nol, sehingga
+   *     `grid-template-rows: 1fr` terhitung `0px` — panelnya tidak pernah
+   *     benar-benar terbuka.
+   *  2. Panel yang selalu dirender, meski tingginya nol, tetap memakan satu
+   *     lajur grid beserta `gap`-nya sehingga menyisakan ruang mati di antara
+   *     baris kartu.
+   *
+   * Karena elemennya baru muncul saat dibuka, tingginya alami dan yang perlu
+   * dianimasikan hanya kemunculannya.
+   */
+  .panel-rincian {
+    animation: panel-rincian-buka 260ms ease-out;
+  }
+
+  @keyframes panel-rincian-buka {
+    from {
+      opacity: 0;
+      transform: translateY(-0.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }
 
 /* Hide scrollbars on horizontal scroll rows */

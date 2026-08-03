@@ -1,6 +1,6 @@
 import type { Block } from "payload";
 import { judulBaris } from "../fields/rowLabel";
-import { ctaField, kolomField, statsArrayField, warnaOptions } from "./shared";
+import { ctaField, ikonOptions, kolomField, statsArrayField, warnaOptions } from "./shared";
 
 /** Blok teks bebas untuk isi halaman yang tidak berpola. */
 export const RichTextBlock: Block = {
@@ -245,6 +245,126 @@ export const FeatureCardsBlock: Block = {
           options: warnaOptions,
         },
         ctaField(),
+      ],
+    },
+  ],
+};
+
+/**
+ * Kartu jenis kegiatan — bagian "Kegiatan Gernas".
+ *
+ * Bedanya dengan Kartu Berisi: kartu di sini sengaja kecil dan seragam, hanya
+ * ikon + nama kegiatan, karena jumlahnya banyak dan yang dicari pengunjung
+ * adalah daftar lengkapnya. Penjelasan tiap kegiatan disembunyikan sampai
+ * kartunya diklik, lalu tampil melebar penuh satu baris di bawah barisnya.
+ */
+export const ActivityCardsBlock: Block = {
+  slug: "activityCards",
+  labels: { singular: "Kartu Kegiatan", plural: "Kartu Kegiatan" },
+  imageURL: "/blok/featureCards.svg",
+  imageAltText: "Deretan kartu kecil berikon yang bisa dibuka satu per satu",
+  fields: [
+    { name: "heading", type: "text", localized: true, label: "Judul bagian" },
+    kolomField("4"),
+    {
+      name: "kartu",
+      type: "array",
+      label: "Kegiatan",
+      minRows: 1,
+      labels: { singular: "Kegiatan", plural: "Kegiatan" },
+      admin: {
+        components: judulBaris,
+        description:
+          "Urutan di sini menentukan urutan kartu. Hanya satu kartu yang terbuka dalam satu waktu.",
+      },
+      fields: [
+        { name: "judul", type: "text", required: true, localized: true, label: "Nama kegiatan" },
+        {
+          name: "deskripsi",
+          type: "textarea",
+          required: true,
+          localized: true,
+          label: "Penjelasan",
+          admin: {
+            description: "Tampil setelah kartu diklik. Cukup satu paragraf.",
+          },
+        },
+        {
+          name: "ikon",
+          type: "select",
+          label: "Ikon",
+          defaultValue: "diskusi",
+          options: ikonOptions,
+        },
+      ],
+    },
+  ],
+};
+
+/**
+ * Deretan kartu Program Intensif per daerah/mitra — bisa digeser dengan panah.
+ *
+ * Beda dengan Kotak Sorot: blok itu cukup untuk kotak "Program Intensif" versi
+ * teks saja, tapi bagian ini butuh satu kartu per program (foto, angka
+ * capaian, logo kolaborator) yang bisa berganti-ganti tanpa menumpuk tinggi
+ * halaman. Judul & pengantar tetap terpisah dari kartunya supaya teksnya bisa
+ * dipakai ulang meski daftar programnya berubah.
+ */
+export const ProgramIntensifBlock: Block = {
+  slug: "programIntensif",
+  labels: { singular: "Program Intensif (kartu bergeser)", plural: "Program Intensif" },
+  imageURL: "/blok/featureCards.svg",
+  imageAltText: "Kartu foto dan penjelasan program yang bisa digeser dengan panah",
+  fields: [
+    {
+      name: "heading",
+      type: "text",
+      localized: true,
+      label: "Judul bagian",
+      defaultValue: "Program Intensif",
+    },
+    { name: "isi", type: "textarea", localized: true, label: "Pengantar" },
+    {
+      name: "programs",
+      type: "array",
+      label: "Kartu program",
+      minRows: 1,
+      labels: { singular: "Kartu Program", plural: "Kartu Program" },
+      admin: {
+        components: judulBaris,
+        description:
+          "Pengunjung menggeser satu-per-satu dengan tombol panah. Kosongkan logo kolaborator bila belum ada.",
+      },
+      fields: [
+        {
+          name: "gambar",
+          type: "upload",
+          relationTo: "media",
+          label: "Foto",
+        },
+        { name: "judul", type: "text", required: true, localized: true, label: "Judul kartu" },
+        {
+          name: "deskripsi",
+          type: "textarea",
+          required: true,
+          localized: true,
+          label: "Penjelasan",
+        },
+        {
+          name: "warna",
+          type: "select",
+          required: true,
+          defaultValue: "navy",
+          label: "Warna kartu",
+          options: warnaOptions,
+        },
+        {
+          name: "kolaborator",
+          type: "upload",
+          relationTo: "media",
+          hasMany: true,
+          label: "Logo kolaborator (opsional)",
+        },
       ],
     },
   ],
