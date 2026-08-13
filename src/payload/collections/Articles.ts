@@ -1,8 +1,16 @@
-import type { CollectionConfig } from "payload";
+import type { CollectionBeforeChangeHook, CollectionConfig } from "payload";
 import { terapkanReferensiLokal } from "../fields/localeReference";
 import { slugField } from "../fields/slug";
 import { revalidateArticle, revalidateArticleAfterDelete } from "../hooks/revalidate";
 import { previewURL } from "../utils/preview";
+
+/** Saat artikel baru dibuat tanpa penulis dipilih, pakai akun yang sedang login. */
+const isiPenulisDefault: CollectionBeforeChangeHook = ({ data, req, operation }) => {
+  if (operation === "create" && !data.authorRef && !data.authorNama && req.user) {
+    data.authorRef = { relationTo: "users", value: req.user.id };
+  }
+  return data;
+};
 
 /**
  * Artikel berita/publikasi — US-003: staf membuat & menerbitkan artikel
@@ -26,6 +34,7 @@ export const Articles: CollectionConfig = {
     drafts: true,
   },
   hooks: {
+    beforeChange: [isiPenulisDefault],
     afterChange: [revalidateArticle],
     afterDelete: [revalidateArticleAfterDelete],
   },
@@ -96,6 +105,42 @@ export const Articles: CollectionConfig = {
       relationTo: "categories",
       label: "Kategori",
       admin: { position: "sidebar" },
+    },
+    {
+      name: "authorRef",
+      type: "relationship",
+      relationTo: ["users", "penggerak"],
+      label: "Penulis (akun/penggerak)",
+      admin: {
+        position: "sidebar",
+        description:
+          "Kosongkan agar otomatis terisi akun yang membuat artikel ini. Bisa juga pilih penggerak sebagai penulis.",
+      },
+    },
+    {
+      name: "authorNama",
+      type: "text",
+      label: "Nama penulis (isi manual, opsional)",
+      admin: {
+        position: "sidebar",
+        description: "Isi untuk menimpa nama penulis di atas dengan nama bebas.",
+      },
+    },
+    {
+      name: "editorRef",
+      type: "relationship",
+      relationTo: ["users", "penggerak"],
+      label: "Editor (akun/penggerak)",
+      admin: { position: "sidebar" },
+    },
+    {
+      name: "editorNama",
+      type: "text",
+      label: "Nama editor (isi manual, opsional)",
+      admin: {
+        position: "sidebar",
+        description: "Isi untuk menimpa nama editor di atas, atau isi langsung bila editor bukan akun/penggerak terdaftar.",
+      },
     },
   ]),
 };

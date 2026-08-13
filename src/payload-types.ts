@@ -875,9 +875,68 @@ export interface Article {
   slug: string;
   publishedAt: string;
   category?: (number | null) | Category;
+  /**
+   * Kosongkan agar otomatis terisi akun yang membuat artikel ini. Bisa juga pilih penggerak sebagai penulis.
+   */
+  authorRef?:
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'penggerak';
+        value: number | Penggerak;
+      } | null);
+  /**
+   * Isi untuk menimpa nama penulis di atas dengan nama bebas.
+   */
+  authorNama?: string | null;
+  editorRef?:
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'penggerak';
+        value: number | Penggerak;
+      } | null);
+  /**
+   * Isi untuk menimpa nama editor di atas, atau isi langsung bila editor bukan akun/penggerak terdaftar.
+   */
+  editorNama?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name: string;
+  /**
+   * Admin dapat mengelola pengguna lain. Editor hanya mengelola konten.
+   */
+  role: 'admin' | 'editor';
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * Daftar penggerak yang tampil pada blok “Penggerak”. Menambah orang di sini otomatis menambahkannya di halaman yang memakai blok itu.
@@ -998,36 +1057,6 @@ export interface ModulPelatihan {
   urutan?: number | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name: string;
-  /**
-   * Admin dapat mengelola pengguna lain. Editor hanya mengelola konten.
-   */
-  role: 'admin' | 'editor';
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1588,6 +1617,10 @@ export interface ArticlesSelect<T extends boolean = true> {
   slug?: T;
   publishedAt?: T;
   category?: T;
+  authorRef?: T;
+  authorNama?: T;
+  editorRef?: T;
+  editorNama?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
