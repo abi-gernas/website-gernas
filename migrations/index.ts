@@ -13,6 +13,8 @@ import * as migration_20260803_175956_tambah_batas_awal_penggerak from './202608
 import * as migration_20260813_024849 from './20260813_024849';
 import * as migration_20260815_090623_navigation from './20260815_090623_navigation';
 import * as migration_20260815_091655_navigation_hidden from './20260815_091655_navigation_hidden';
+import * as migration_20260815_092907_navigation_link_type from './20260815_092907_navigation_link_type';
+import * as migration_20260815_092958_navigation_drop_href from './20260815_092958_navigation_drop_href';
 
 export const migrations = [
   {
@@ -88,6 +90,16 @@ export const migrations = [
   {
     up: migration_20260815_091655_navigation_hidden.up,
     down: migration_20260815_091655_navigation_hidden.down,
-    name: '20260815_091655_navigation_hidden'
+    name: '20260815_091655_navigation_hidden',
+  },
+  {
+    up: migration_20260815_092907_navigation_link_type.up,
+    down: migration_20260815_092907_navigation_link_type.down,
+    name: '20260815_092907_navigation_link_type',
+  },
+  {
+    up: migration_20260815_092958_navigation_drop_href.up,
+    down: migration_20260815_092958_navigation_drop_href.down,
+    name: '20260815_092958_navigation_drop_href'
   },
 ];

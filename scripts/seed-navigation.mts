@@ -124,7 +124,21 @@ if (isiSekarang.length > 0) {
   process.exit(0);
 }
 
-await payload.updateGlobal({ slug: "navigation", locale: "all", data: { items } });
+/** `href` -> field Tautan Kustom (linkType/preset/custom) yang dipakai skema saat ini. */
+function withLink<T extends { href?: string }>(node: T) {
+  const { href, ...rest } = node;
+  return {
+    ...rest,
+    ...(href ? { linkType: "custom" as const, preset: "__custom__", custom: href } : {}),
+  };
+}
+
+const itemsUntukPayload = items.map((item) => ({
+  ...withLink(item),
+  children: item.children?.map(withLink),
+}));
+
+await payload.updateGlobal({ slug: "navigation", locale: "all", data: { items: itemsUntukPayload } });
 
 console.log(`✅ navigation — ${items.length} menu utama diisi (id + en)`);
 process.exit(0);

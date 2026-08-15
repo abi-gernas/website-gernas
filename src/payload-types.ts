@@ -1860,10 +1860,25 @@ export interface Navigation {
   items?:
     | {
         label: string;
+        linkType?: ('page' | 'custom') | null;
+        page?: (number | null) | Page;
+        preset?:
+          | (
+              | '/'
+              | '/tentang-gernas-tastaka'
+              | '/galeri'
+              | '/mitra'
+              | '/donatur'
+              | '/tumbuh-bersama'
+              | '/belajar-bersama'
+              | '/publikasi'
+              | '__custom__'
+            )
+          | null;
         /**
-         * Path relatif (mis. /mitra) atau URL penuh. Kosongkan bila menu ini punya submenu.
+         * Path relatif (mis. /mitra#anchor) atau URL penuh.
          */
-        href?: string | null;
+        custom?: string | null;
         /**
          * Menu tetap tersimpan di sini, hanya tidak ditampilkan di navbar.
          */
@@ -1871,7 +1886,25 @@ export interface Navigation {
         children?:
           | {
               label: string;
-              href: string;
+              linkType?: ('page' | 'custom') | null;
+              page?: (number | null) | Page;
+              preset?:
+                | (
+                    | '/'
+                    | '/tentang-gernas-tastaka'
+                    | '/galeri'
+                    | '/mitra'
+                    | '/donatur'
+                    | '/tumbuh-bersama'
+                    | '/belajar-bersama'
+                    | '/publikasi'
+                    | '__custom__'
+                  )
+                | null;
+              /**
+               * Path relatif (mis. /mitra#anchor) atau URL penuh.
+               */
+              custom?: string | null;
               desc?: string | null;
               /**
                * Submenu tetap tersimpan di sini, hanya tidak ditampilkan di navbar.
@@ -1915,13 +1948,19 @@ export interface NavigationSelect<T extends boolean = true> {
     | T
     | {
         label?: T;
-        href?: T;
+        linkType?: T;
+        page?: T;
+        preset?: T;
+        custom?: T;
         hidden?: T;
         children?:
           | T
           | {
               label?: T;
-              href?: T;
+              linkType?: T;
+              page?: T;
+              preset?: T;
+              custom?: T;
               desc?: T;
               hidden?: T;
               id?: T;

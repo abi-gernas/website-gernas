@@ -1,6 +1,78 @@
-import type { GlobalConfig } from "payload";
+import type { Field, GlobalConfig } from "payload";
 import { terapkanReferensiLokal } from "../fields/localeReference";
 import { judulBaris } from "../fields/rowLabel";
+
+/**
+ * Rute tetap di kode (bukan dokumen Payload) yang sering dijadikan tujuan
+ * menu — ditawarkan sebagai pilihan cepat di field Tautan Kustom supaya staf
+ * tidak perlu mengetik atau menyalin path secara manual.
+ */
+const RUTE_TETAP = [
+  { label: "Beranda", value: "/" },
+  { label: "Tentang Gernas Tastaka", value: "/tentang-gernas-tastaka" },
+  { label: "Galeri", value: "/galeri" },
+  { label: "Mitra", value: "/mitra" },
+  { label: "Donatur", value: "/donatur" },
+  { label: "Tumbuh Bersama", value: "/tumbuh-bersama" },
+  { label: "Belajar Bersama", value: "/belajar-bersama" },
+  { label: "Publikasi", value: "/publikasi" },
+];
+
+const LAINNYA = "__custom__";
+
+/**
+ * Field tujuan tautan: pilih halaman dari koleksi Pages (selalu akurat, tidak
+ * mungkin salah ketik) atau isi tautan kustom untuk rute tetap di kode,
+ * anchor (#...), atau URL eksternal.
+ */
+function tautanFields(): Field[] {
+  return [
+    {
+      name: "linkType",
+      type: "radio",
+      label: "Jenis Tautan",
+      defaultValue: "custom",
+      options: [
+        { label: "Halaman CMS (Pages)", value: "page" },
+        { label: "Tautan Kustom", value: "custom" },
+      ],
+      admin: { layout: "horizontal" },
+    },
+    {
+      name: "page",
+      type: "relationship",
+      relationTo: "pages",
+      label: "Pilih Halaman",
+      admin: {
+        condition: (_data, siblingData) => siblingData?.linkType === "page",
+      },
+    },
+    {
+      name: "preset",
+      type: "select",
+      label: "Rute Cepat",
+      defaultValue: LAINNYA,
+      options: [
+        ...RUTE_TETAP.map((r) => ({ label: `${r.label} (${r.value})`, value: r.value })),
+        { label: "Lainnya / isi manual…", value: LAINNYA },
+      ],
+      admin: {
+        condition: (_data, siblingData) => siblingData?.linkType === "custom",
+      },
+    },
+    {
+      name: "custom",
+      type: "text",
+      label: "Path / URL",
+      admin: {
+        description: "Path relatif (mis. /mitra#anchor) atau URL penuh.",
+        condition: (_data, siblingData) =>
+          siblingData?.linkType === "custom" &&
+          (!siblingData?.preset || siblingData.preset === LAINNYA),
+      },
+    },
+  ];
+}
 
 /**
  * Struktur menu navbar — menggantikan daftar statis di src/lib/nav.ts agar
@@ -22,15 +94,7 @@ export const Navigation: GlobalConfig = {
       admin: { components: judulBaris },
       fields: [
         { name: "label", type: "text", localized: true, required: true, label: "Label" },
-        {
-          name: "href",
-          type: "text",
-          label: "Tautan",
-          admin: {
-            description:
-              "Path relatif (mis. /mitra) atau URL penuh. Kosongkan bila menu ini punya submenu.",
-          },
-        },
+        ...tautanFields(),
         {
           name: "hidden",
           type: "checkbox",
@@ -47,7 +111,7 @@ export const Navigation: GlobalConfig = {
           admin: { components: judulBaris },
           fields: [
             { name: "label", type: "text", localized: true, required: true, label: "Label" },
-            { name: "href", type: "text", required: true, label: "Tautan" },
+            ...tautanFields(),
             { name: "desc", type: "text", localized: true, label: "Deskripsi singkat" },
             {
               name: "hidden",

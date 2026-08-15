@@ -4,38 +4,55 @@ import { payloadPromise } from "./payload";
 import { DEFAULT_LOCALE, LOCALES, localizedPath, type Locale } from "./i18n";
 import type { NavChild, NavItem } from "./nav";
 
-type RawChild = {
+type RawLink = {
+  linkType?: "page" | "custom" | null;
+  page?: { slug?: string | null } | number | string | null;
+  preset?: string | null;
+  custom?: string | null;
+};
+type RawChild = RawLink & {
   label?: string | null;
-  href?: string | null;
   desc?: string | null;
   hidden?: boolean | null;
 };
-type RawItem = {
+type RawItem = RawLink & {
   label?: string | null;
-  href?: string | null;
   children?: RawChild[] | null;
   hidden?: boolean | null;
 };
 type NavigationDoc = { items?: RawItem[] | null };
 
+/** Jenis Tautan "Halaman CMS" -> slug Pages; "Tautan Kustom" -> Rute Cepat atau teks manual. */
+function resolveHref(raw: RawLink): string | null {
+  if (raw.linkType === "page") {
+    const page = raw.page;
+    if (page && typeof page === "object" && page.slug) return `/${page.slug}`;
+    return null;
+  }
+  if (raw.preset && raw.preset !== "__custom__") return raw.preset;
+  return raw.custom?.trim() || null;
+}
+
 function toChild(child: RawChild, locale: Locale): NavChild | null {
-  if (child.hidden || !child.label || !child.href) return null;
+  const href = resolveHref(child);
+  if (child.hidden || !child.label || !href) return null;
   return {
     label: child.label,
-    href: localizedPath(child.href, locale),
+    href: localizedPath(href, locale),
     ...(child.desc ? { desc: child.desc } : {}),
   };
 }
 
 function toItem(item: RawItem, locale: Locale): NavItem | null {
   if (item.hidden || !item.label) return null;
+  const href = resolveHref(item);
   const children = (item.children ?? [])
     .map((child) => toChild(child, locale))
     .filter((child): child is NavChild => child !== null);
 
   return {
     label: item.label,
-    ...(item.href ? { href: localizedPath(item.href, locale) } : {}),
+    ...(href ? { href: localizedPath(href, locale) } : {}),
     ...(children.length ? { children } : {}),
   };
 }
@@ -52,6 +69,7 @@ export const getNavigationItems = cache(async function getNavigationItems(
     slug: "navigation",
     locale,
     fallbackLocale: DEFAULT_LOCALE,
+    depth: 1, // perlu 1 untuk mengambil slug dari relasi "page"
   })) as NavigationDoc;
 
   return (doc.items ?? [])
