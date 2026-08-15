@@ -28,7 +28,21 @@ export type ArticleView = {
     description: string | null;
     image: { url: string; width?: number; height?: number } | null;
   };
+  author: string | null;
+  editor: string | null;
 };
+
+/** Nama tampilan penulis/editor: teks manual > akun/penggerak terpilih > tidak ada. */
+function toPersonName(
+  manual: string | null | undefined,
+  ref: PayloadArticle["authorRef"],
+): string | null {
+  if (manual) return manual;
+  if (ref && typeof ref.value === "object") {
+    return ref.relationTo === "users" ? ref.value.name : ref.value.nama;
+  }
+  return null;
+}
 
 /** Ambil URL & dimensi dari relasi Media yang sudah ter-populate. */
 function toImage(value: unknown): ArticleView["image"] {
@@ -54,6 +68,8 @@ function toView(doc: PayloadArticle, withContent = false): ArticleView {
     category,
     image: toImage(doc.image),
     excerpt: doc.excerpt ?? "",
+    author: toPersonName(doc.authorNama, doc.authorRef),
+    editor: toPersonName(doc.editorNama, doc.editorRef),
     seo: {
       title: doc.meta?.title ?? null,
       description: doc.meta?.description ?? null,

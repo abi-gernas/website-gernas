@@ -66,6 +66,13 @@ export async function ArticleContent({
           <time className="mt-3 block text-sm text-muted">
             {formatDate(article.date, locale)}
           </time>
+          {(article.author || article.editor) && (
+            <p className="mt-1 text-sm text-muted">
+              {article.author && `${text.writtenBy}: ${article.author}`}
+              {article.author && article.editor && " · "}
+              {article.editor && `${text.editedBy}: ${article.editor}`}
+            </p>
+          )}
         </div>
       </div>
 
