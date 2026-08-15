@@ -32,6 +32,15 @@ export const Navigation: GlobalConfig = {
           },
         },
         {
+          name: "hidden",
+          type: "checkbox",
+          label: "Sembunyikan",
+          defaultValue: false,
+          admin: {
+            description: "Menu tetap tersimpan di sini, hanya tidak ditampilkan di navbar.",
+          },
+        },
+        {
           name: "children",
           type: "array",
           label: "Submenu",
@@ -40,6 +49,15 @@ export const Navigation: GlobalConfig = {
             { name: "label", type: "text", localized: true, required: true, label: "Label" },
             { name: "href", type: "text", required: true, label: "Tautan" },
             { name: "desc", type: "text", localized: true, label: "Deskripsi singkat" },
+            {
+              name: "hidden",
+              type: "checkbox",
+              label: "Sembunyikan",
+              defaultValue: false,
+              admin: {
+                description: "Submenu tetap tersimpan di sini, hanya tidak ditampilkan di navbar.",
+              },
+            },
           ],
         },
       ],

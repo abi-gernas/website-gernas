@@ -4,12 +4,22 @@ import { payloadPromise } from "./payload";
 import { DEFAULT_LOCALE, LOCALES, localizedPath, type Locale } from "./i18n";
 import type { NavChild, NavItem } from "./nav";
 
-type RawChild = { label?: string | null; href?: string | null; desc?: string | null };
-type RawItem = { label?: string | null; href?: string | null; children?: RawChild[] | null };
+type RawChild = {
+  label?: string | null;
+  href?: string | null;
+  desc?: string | null;
+  hidden?: boolean | null;
+};
+type RawItem = {
+  label?: string | null;
+  href?: string | null;
+  children?: RawChild[] | null;
+  hidden?: boolean | null;
+};
 type NavigationDoc = { items?: RawItem[] | null };
 
 function toChild(child: RawChild, locale: Locale): NavChild | null {
-  if (!child.label || !child.href) return null;
+  if (child.hidden || !child.label || !child.href) return null;
   return {
     label: child.label,
     href: localizedPath(child.href, locale),
@@ -18,7 +28,7 @@ function toChild(child: RawChild, locale: Locale): NavChild | null {
 }
 
 function toItem(item: RawItem, locale: Locale): NavItem | null {
-  if (!item.label) return null;
+  if (item.hidden || !item.label) return null;
   const children = (item.children ?? [])
     .map((child) => toChild(child, locale))
     .filter((child): child is NavChild => child !== null);

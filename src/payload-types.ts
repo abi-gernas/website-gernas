@@ -1864,11 +1864,19 @@ export interface Navigation {
          * Path relatif (mis. /mitra) atau URL penuh. Kosongkan bila menu ini punya submenu.
          */
         href?: string | null;
+        /**
+         * Menu tetap tersimpan di sini, hanya tidak ditampilkan di navbar.
+         */
+        hidden?: boolean | null;
         children?:
           | {
               label: string;
               href: string;
               desc?: string | null;
+              /**
+               * Submenu tetap tersimpan di sini, hanya tidak ditampilkan di navbar.
+               */
+              hidden?: boolean | null;
               id?: string | null;
             }[]
           | null;
@@ -1908,12 +1916,14 @@ export interface NavigationSelect<T extends boolean = true> {
     | {
         label?: T;
         href?: T;
+        hidden?: T;
         children?:
           | T
           | {
               label?: T;
               href?: T;
               desc?: T;
+              hidden?: T;
               id?: T;
             };
         id?: T;
