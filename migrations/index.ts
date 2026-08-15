@@ -11,6 +11,7 @@ import * as migration_20260803_174351_tambah_foto_timeline from './20260803_1743
 import * as migration_20260803_175420_tambah_blok_visi_misi from './20260803_175420_tambah_blok_visi_misi';
 import * as migration_20260803_175956_tambah_batas_awal_penggerak from './20260803_175956_tambah_batas_awal_penggerak';
 import * as migration_20260813_024849 from './20260813_024849';
+import * as migration_20260815_090623_navigation from './20260815_090623_navigation';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20260813_024849.up,
     down: migration_20260813_024849.down,
-    name: '20260813_024849'
+    name: '20260813_024849',
+  },
+  {
+    up: migration_20260815_090623_navigation.up,
+    down: migration_20260815_090623_navigation.down,
+    name: '20260815_090623_navigation'
   },
 ];

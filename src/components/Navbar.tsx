@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { getNavItems, type NavItem } from "@/lib/nav";
+import type { NavItem } from "@/lib/nav";
 import {
   DEFAULT_LOCALE,
   LOCALES,
@@ -117,10 +117,10 @@ function LanguageSwitcher({
   );
 }
 
-export function Navbar() {
+export function Navbar({ navByLocale }: { navByLocale: Record<Locale, NavItem[]> }) {
   const pathname = usePathname();
   const { locale } = splitLocalePath(pathname);
-  const navItems = getNavItems(locale);
+  const navItems = navByLocale[locale];
   const text = uiText[locale];
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);

@@ -19,6 +19,7 @@
     "seed:articles": "tsx scripts/seed-articles.mts",
     "seed:datasitus": "tsx scripts/seed-datasitus.mts",
     "seed:pages": "tsx scripts/seed-pages.mts",
+    "seed:navigation": "tsx scripts/seed-navigation.mts",
     "translate:export": "tsx scripts/i18n/export-translations.mts",
     "translate:import": "tsx scripts/i18n/import-translations.mts"
   },

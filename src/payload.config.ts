@@ -21,6 +21,7 @@ import { Mitra } from "./payload/collections/Mitra";
 import { Video } from "./payload/collections/Video";
 import { ModulPelatihan } from "./payload/collections/ModulPelatihan";
 import { SiteSettings } from "./payload/globals/SiteSettings";
+import { Navigation } from "./payload/globals/Navigation";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -85,7 +86,7 @@ export default buildConfig({
     ModulPelatihan,
     Users,
   ],
-  globals: [SiteSettings],
+  globals: [SiteSettings, Navigation],
 
   /**
    * Dua bahasa konten (FR i18n): `/` berbahasa Indonesia, `/en` berbahasa

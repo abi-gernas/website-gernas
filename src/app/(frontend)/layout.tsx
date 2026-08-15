@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { HtmlLangSync } from "@/components/HtmlLangSync";
+import { getNavigationByLocale } from "@/lib/navigation";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -43,16 +44,18 @@ export const viewport: Viewport = {
   themeColor: "#1B2A63",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const navByLocale = await getNavigationByLocale();
+
   return (
     <html lang="id" className={jakarta.variable}>
       <body>
         <HtmlLangSync />
-        <Navbar />
+        <Navbar navByLocale={navByLocale} />
         <main id="main">{children}</main>
         <Footer />
       </body>
