@@ -41,6 +41,11 @@ export function NewsCard({
             {article.title}
           </Link>
         </h3>
+        {article.author && (
+          <p className="mt-1 text-xs text-muted">
+            {text.writtenBy}: {article.author}
+          </p>
+        )}
         <p className="mt-2 line-clamp-2 flex-1 text-sm text-muted">{article.excerpt}</p>
         <Link
           href={href}

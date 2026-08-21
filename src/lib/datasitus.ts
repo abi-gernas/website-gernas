@@ -1,7 +1,7 @@
 import "server-only";
 import { payloadPromise } from "./payload";
 import { DEFAULT_LOCALE, type Locale } from "./i18n";
-import type { Media, ModulPelatihan, Penggerak, Mitra, Video } from "@/payload-types";
+import type { Media, ModulPelatihan, Penggerak, Mitra, Video, SiteSetting } from "@/payload-types";
 
 /**
  * Akses koleksi "Data Situs" — daftar berulang yang dipakai blok halaman.
@@ -109,3 +109,13 @@ export const kelompokMitraLabel: Record<Locale, Record<string, string>> = {
 
 /** Urutan kelompok saat ditampilkan berkelompok. */
 export const urutanKelompokMitra = ["pemerintah", "korporasi", "pendidikan"];
+
+export async function getSiteSettings(locale: Locale = DEFAULT_LOCALE): Promise<SiteSetting> {
+  const payload = await payloadPromise;
+  return payload.findGlobal({
+    slug: "site-settings",
+    depth: 0,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+  });
+}

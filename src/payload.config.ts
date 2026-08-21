@@ -20,6 +20,7 @@ import { Penggerak } from "./payload/collections/Penggerak";
 import { Mitra } from "./payload/collections/Mitra";
 import { Video } from "./payload/collections/Video";
 import { ModulPelatihan } from "./payload/collections/ModulPelatihan";
+import { Leads } from "./payload/collections/Leads";
 import { SiteSettings } from "./payload/globals/SiteSettings";
 import { Navigation } from "./payload/globals/Navigation";
 
@@ -84,6 +85,7 @@ export default buildConfig({
     Mitra,
     Video,
     ModulPelatihan,
+    Leads,
     Users,
   ],
   globals: [SiteSettings, Navigation],

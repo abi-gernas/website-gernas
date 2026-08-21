@@ -75,6 +75,7 @@ export interface Config {
     mitra: Mitra;
     video: Video;
     'modul-pelatihan': ModulPelatihan;
+    leads: Lead;
     users: User;
     redirects: Redirect;
     'payload-kv': PayloadKv;
@@ -92,6 +93,7 @@ export interface Config {
     mitra: MitraSelect<false> | MitraSelect<true>;
     video: VideoSelect<false> | VideoSelect<true>;
     'modul-pelatihan': ModulPelatihanSelect<false> | ModulPelatihanSelect<true>;
+    leads: LeadsSelect<false> | LeadsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -1061,6 +1063,24 @@ export interface ModulPelatihan {
   createdAt: string;
 }
 /**
+ * Pesan yang masuk lewat formulir Hubungi Kami di situs.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads".
+ */
+export interface Lead {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+  subject?: string | null;
+  message?: string | null;
+  locale?: ('id' | 'en') | null;
+  status?: ('baru' | 'ditindaklanjuti') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -1138,6 +1158,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'modul-pelatihan';
         value: number | ModulPelatihan;
+      } | null)
+    | ({
+        relationTo: 'leads';
+        value: number | Lead;
       } | null)
     | ({
         relationTo: 'users';
@@ -1748,6 +1772,21 @@ export interface ModulPelatihanSelect<T extends boolean = true> {
         id?: T;
       };
   urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads_select".
+ */
+export interface LeadsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  subject?: T;
+  message?: T;
+  locale?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -29,11 +29,13 @@ import {
   getMitra,
   getModulPelatihan,
   getPenggerak,
+  getSiteSettings,
   getVideo,
   kelompokMitraLabel,
   mediaURL,
   urutanKelompokMitra,
 } from "@/lib/datasitus";
+import { contact as fallbackContact } from "@/lib/nav";
 import { kolomKe } from "@/components/warna";
 import { asNamaIkon } from "@/components/ikon";
 import type { Page } from "@/payload-types";
@@ -572,16 +574,23 @@ async function RenderBlock({ block, locale }: { block: Block; locale: Locale }) 
       ) : null;
     }
 
-    case "contactForm":
+    case "contactForm": {
+      const settings = await getSiteSettings(locale);
+      const contact = {
+        email: settings.email || fallbackContact.email,
+        phone: settings.phone || fallbackContact.phone,
+        address: settings.address || fallbackContact.address,
+      };
       return (
         <Section
           title={block.heading ?? uiText[locale].contactUs}
           id={block.anchor ?? undefined}
           className="bg-surface"
         >
-          <ContactForm locale={locale} />
+          <ContactForm locale={locale} contact={contact} />
         </Section>
       );
+    }
 
     case "donationTiers":
       return (

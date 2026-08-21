@@ -1,29 +1,50 @@
 "use client";
 
 import { useState } from "react";
-import { contact } from "@/lib/nav";
+import { contact as fallbackContact } from "@/lib/nav";
 import { DEFAULT_LOCALE, uiText, type Locale } from "@/lib/i18n";
 
-/**
- * Contact form — front-end only (Sprint 1). Tidak ada backend submit dalam
- * cakupan PRD ini; aksi mengarahkan ke mailto sebagai fallback aman.
- */
-export function ContactForm({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
+type ContactInfo = {
+  email: string;
+  phone: string;
+  address: string;
+};
+
+type Status = "idle" | "sending" | "success" | "error";
+
+/** Formulir kontak — mengirim pesan ke koleksi "leads" di Payload. */
+export function ContactForm({
+  locale = DEFAULT_LOCALE,
+  contact = fallbackContact,
+}: {
+  locale?: Locale;
+  contact?: ContactInfo;
+}) {
   const text = uiText[locale];
   const [f, setF] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
+  const [status, setStatus] = useState<Status>("idle");
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setF({ ...f, [k]: e.target.value });
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const body = `${text.mailName}: ${f.name}%0D%0A${text.mailPhone}: ${f.phone}%0D%0A%0D%0A${f.message}`;
-    window.location.href = `mailto:${contact.email}?subject=${encodeURIComponent(
-      f.subject || text.mailSubject
-    )}&body=${body}`;
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...f, locale }),
+      });
+      if (!res.ok) throw new Error("submit failed");
+      setStatus("success");
+      setF({ name: "", email: "", phone: "", subject: "", message: "" });
+    } catch {
+      setStatus("error");
+    }
   };
 
   const fieldDark =
-    "w-full min-h-[44px] border-0 border-b border-brand-navy/20 bg-transparent py-2 text-sm text-brand-navy placeholder-muted outline-none focus:border-brand-navy";
+    "w-full min-h-[44px] border-0 border-b border-brand-navy/20 bg-transparent py-2 text-sm text-brand-navy placeholder-muted outline-none focus:border-brand-navy disabled:opacity-60";
 
   return (
     <div className="grid overflow-hidden rounded-card shadow-card md:grid-cols-[0.9fr_1.1fr]">
@@ -66,6 +87,7 @@ export function ContactForm({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
               placeholder={text.namePlaceholder}
               value={f.name}
               onChange={set("name")}
+              disabled={status === "sending"}
               required
             />
           </div>
@@ -83,6 +105,7 @@ export function ContactForm({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
               placeholder="+62 …"
               value={f.phone}
               onChange={set("phone")}
+              disabled={status === "sending"}
             />
           </div>
           <div>
@@ -100,6 +123,7 @@ export function ContactForm({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
               placeholder="nama@email.com"
               value={f.email}
               onChange={set("email")}
+              disabled={status === "sending"}
               required
             />
           </div>
@@ -115,6 +139,7 @@ export function ContactForm({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
               placeholder={text.subjectPlaceholder}
               value={f.subject}
               onChange={set("subject")}
+              disabled={status === "sending"}
             />
           </div>
         </div>
@@ -129,11 +154,22 @@ export function ContactForm({ locale = DEFAULT_LOCALE }: { locale?: Locale }) {
             placeholder={text.messagePlaceholder}
             value={f.message}
             onChange={set("message")}
+            disabled={status === "sending"}
           />
         </div>
-        <button type="submit" className="btn-red">
-          {text.submitMessage}
+        <button type="submit" className="btn-red disabled:opacity-60" disabled={status === "sending"}>
+          {status === "sending" ? text.sendingMessage : text.submitMessage}
         </button>
+        {status === "success" && (
+          <p role="status" className="text-sm text-green-700">
+            {text.sendSuccess}
+          </p>
+        )}
+        {status === "error" && (
+          <p role="alert" className="text-sm text-brand-red">
+            {text.sendError}
+          </p>
+        )}
       </form>
     </div>
   );
