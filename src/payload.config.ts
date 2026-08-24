@@ -20,6 +20,10 @@ import { Penggerak } from "./payload/collections/Penggerak";
 import { Mitra } from "./payload/collections/Mitra";
 import { Video } from "./payload/collections/Video";
 import { ModulPelatihan } from "./payload/collections/ModulPelatihan";
+import { Produk } from "./payload/collections/Produk";
+import { AlatPeraga } from "./payload/collections/AlatPeraga";
+import { VideoPembelajaran } from "./payload/collections/VideoPembelajaran";
+import { MediaInteraktif } from "./payload/collections/MediaInteraktif";
 import { Leads } from "./payload/collections/Leads";
 import { SiteSettings } from "./payload/globals/SiteSettings";
 import { Navigation } from "./payload/globals/Navigation";
@@ -85,6 +89,10 @@ export default buildConfig({
     Mitra,
     Video,
     ModulPelatihan,
+    Produk,
+    AlatPeraga,
+    VideoPembelajaran,
+    MediaInteraktif,
     Leads,
     Users,
   ],

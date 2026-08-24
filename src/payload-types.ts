@@ -75,6 +75,10 @@ export interface Config {
     mitra: Mitra;
     video: Video;
     'modul-pelatihan': ModulPelatihan;
+    produk: Produk;
+    'alat-peraga': AlatPeraga;
+    'video-pembelajaran': VideoPembelajaran;
+    'media-interaktif': MediaInteraktif;
     leads: Lead;
     users: User;
     redirects: Redirect;
@@ -93,6 +97,10 @@ export interface Config {
     mitra: MitraSelect<false> | MitraSelect<true>;
     video: VideoSelect<false> | VideoSelect<true>;
     'modul-pelatihan': ModulPelatihanSelect<false> | ModulPelatihanSelect<true>;
+    produk: ProdukSelect<false> | ProdukSelect<true>;
+    'alat-peraga': AlatPeragaSelect<false> | AlatPeragaSelect<true>;
+    'video-pembelajaran': VideoPembelajaranSelect<false> | VideoPembelajaranSelect<true>;
+    'media-interaktif': MediaInteraktifSelect<false> | MediaInteraktifSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -1063,6 +1071,165 @@ export interface ModulPelatihan {
   createdAt: string;
 }
 /**
+ * Katalog Buku, Bahan Ajar & Modul. Materi gratis diunduh lewat tautan Google Drive (perlu form isi data pengunjung dulu — lihat koleksi Pesan Masuk); materi berbayar masih menunggu keputusan mekanisme pembayaran (lihat PRD Fase 2 v1.2, OI-105).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "produk".
+ */
+export interface Produk {
+  id: number;
+  judul: string;
+  /**
+   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
+   */
+  slug: string;
+  /**
+   * Menentukan kartu kategori mana di halaman katalog yang memuat produk ini.
+   */
+  kategoriProduk: 'modul' | 'buku' | 'bahan-ajar' | 'lks';
+  jenjang: ('paud' | 'tk' | 'sd' | 'smp' | 'sma')[];
+  /**
+   * Sama seperti field Program di Modul Pelatihan — tambah opsi di sini bila nanti ada mapel baru.
+   */
+  mapel: ('matematika' | 'membaca')[];
+  cover: number | Media;
+  /**
+   * Tampil di kartu katalog dan sebagai deskripsi SEO bila belum diisi manual.
+   */
+  ringkasan?: string | null;
+  /**
+   * Poin bertanda bintang di halaman detail, mis. “40 kegiatan bertahap”.
+   */
+  fiturUnggulan?:
+    | {
+        teks: string;
+        id?: string | null;
+      }[]
+    | null;
+  format: ('pdf' | 'cetak')[];
+  status: 'gratis' | 'berbayar';
+  /**
+   * Wajib diisi bila status Berbayar.
+   */
+  harga?: number | null;
+  /**
+   * Alamat berkas/folder Drive (akses “siapa saja yang punya tautan”) sampai OAuth resmi (OI-108) selesai dibuat. Untuk produk berbayar, ini bisa dikosongkan dan dikirim manual setelah pembayaran dikonfirmasi.
+   */
+  tautanDrive?: string | null;
+  /**
+   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
+   */
+  urutan?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Katalog Alat Peraga. Tanpa unduhan atau pembelian online — cuma halaman detail informasi produk.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "alat-peraga".
+ */
+export interface AlatPeraga {
+  id: number;
+  judul: string;
+  /**
+   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
+   */
+  slug: string;
+  /**
+   * Teks kecil di bawah judul kartu, mis. “untuk SD Kelas 1–3”.
+   */
+  subjudul?: string | null;
+  jenjang: ('paud' | 'tk' | 'sd' | 'smp' | 'sma')[];
+  mapel: ('matematika' | 'membaca')[];
+  cover: number | Media;
+  galeriFoto?:
+    | {
+        gambar: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Tampil di halaman detail produk.
+   */
+  deskripsi?: string | null;
+  /**
+   * Daftar isi 1 paket, mis. “5 bentuk bangun ruang”.
+   */
+  isiPaket?:
+    | {
+        teks: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
+   */
+  urutan?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Katalog Video Pembelajaran per jenjang/mapel. Berbeda dari koleksi Video (rekaman Bincang Gernas).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "video-pembelajaran".
+ */
+export interface VideoPembelajaran {
+  id: number;
+  judul: string;
+  thumbnail: number | Media;
+  jenjang: ('paud' | 'tk' | 'sd' | 'smp' | 'sma')[];
+  mapel: ('matematika' | 'membaca')[];
+  sumberTipe: 'youtube' | 'upload';
+  /**
+   * Mis. https://www.youtube.com/watch?v=…
+   */
+  tautanYoutube?: string | null;
+  /**
+   * Belum bisa dipakai sampai koleksi Media menerima video/* — lihat catatan di atas berkas ini.
+   */
+  berkasVideo?: (number | null) | Media;
+  /**
+   * Mis. “12:30”, opsional.
+   */
+  durasi?: string | null;
+  /**
+   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
+   */
+  urutan?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Katalog Media Digital Interaktif — daftar tautan aktivitas/media pembelajaran eksternal.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-interaktif".
+ */
+export interface MediaInteraktif {
+  id: number;
+  judul: string;
+  deskripsi?: string | null;
+  thumbnail: number | Media;
+  tags?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Alamat lengkap tujuan tombol “Buka Link”.
+   */
+  tautan: string;
+  /**
+   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
+   */
+  urutan?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Pesan yang masuk lewat formulir Hubungi Kami di situs.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1070,9 +1237,15 @@ export interface ModulPelatihan {
  */
 export interface Lead {
   id: number;
+  /**
+   * Menentukan formulir asal: Hubungi Kami atau gated-download Library.
+   */
+  jenis: 'kontak' | 'unduhan-materi';
   name: string;
   email: string;
   phone?: string | null;
+  asalInstansi?: string | null;
+  produkRef?: (number | null) | Produk;
   subject?: string | null;
   message?: string | null;
   locale?: ('id' | 'en') | null;
@@ -1158,6 +1331,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'modul-pelatihan';
         value: number | ModulPelatihan;
+      } | null)
+    | ({
+        relationTo: 'produk';
+        value: number | Produk;
+      } | null)
+    | ({
+        relationTo: 'alat-peraga';
+        value: number | AlatPeraga;
+      } | null)
+    | ({
+        relationTo: 'video-pembelajaran';
+        value: number | VideoPembelajaran;
+      } | null)
+    | ({
+        relationTo: 'media-interaktif';
+        value: number | MediaInteraktif;
       } | null)
     | ({
         relationTo: 'leads';
@@ -1777,12 +1966,105 @@ export interface ModulPelatihanSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "produk_select".
+ */
+export interface ProdukSelect<T extends boolean = true> {
+  judul?: T;
+  slug?: T;
+  kategoriProduk?: T;
+  jenjang?: T;
+  mapel?: T;
+  cover?: T;
+  ringkasan?: T;
+  fiturUnggulan?:
+    | T
+    | {
+        teks?: T;
+        id?: T;
+      };
+  format?: T;
+  status?: T;
+  harga?: T;
+  tautanDrive?: T;
+  urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "alat-peraga_select".
+ */
+export interface AlatPeragaSelect<T extends boolean = true> {
+  judul?: T;
+  slug?: T;
+  subjudul?: T;
+  jenjang?: T;
+  mapel?: T;
+  cover?: T;
+  galeriFoto?:
+    | T
+    | {
+        gambar?: T;
+        id?: T;
+      };
+  deskripsi?: T;
+  isiPaket?:
+    | T
+    | {
+        teks?: T;
+        id?: T;
+      };
+  urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "video-pembelajaran_select".
+ */
+export interface VideoPembelajaranSelect<T extends boolean = true> {
+  judul?: T;
+  thumbnail?: T;
+  jenjang?: T;
+  mapel?: T;
+  sumberTipe?: T;
+  tautanYoutube?: T;
+  berkasVideo?: T;
+  durasi?: T;
+  urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media-interaktif_select".
+ */
+export interface MediaInteraktifSelect<T extends boolean = true> {
+  judul?: T;
+  deskripsi?: T;
+  thumbnail?: T;
+  tags?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  tautan?: T;
+  urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "leads_select".
  */
 export interface LeadsSelect<T extends boolean = true> {
+  jenis?: T;
   name?: T;
   email?: T;
   phone?: T;
+  asalInstansi?: T;
+  produkRef?: T;
   subject?: T;
   message?: T;
   locale?: T;
