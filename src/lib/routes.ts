@@ -31,6 +31,16 @@ export function articlePath(slug: string, locale?: Locale): string {
   return locale ? localizedPath(path, locale) : path;
 }
 
+/** Alamat publik daftar/detail Alat Peraga — lihat `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §2.1. */
+export function alatPeragaListPath(locale?: Locale): string {
+  return locale ? localizedPath("/alat-peraga", locale) : "/alat-peraga";
+}
+
+export function alatPeragaPath(slug: string, locale?: Locale): string {
+  const path = `/alat-peraga/${slug}`;
+  return locale ? localizedPath(path, locale) : path;
+}
+
 /**
  * Benar bila `path` menunjuk ke alamat di situs ini sendiri.
  *
