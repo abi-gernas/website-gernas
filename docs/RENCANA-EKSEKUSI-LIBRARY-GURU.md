@@ -111,8 +111,8 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 |---|---|---|---|
 | 0 | Komponen bersama (§2) | Selesai | 24 Agu 2026 |
 | 1 | Alat Peraga | Selesai | 24 Agu 2026 |
-| 2 | Media Digital Interaktif | Belum | — |
-| 3 | Video Pembelajaran | Belum | — |
+| 2 | Media Digital Interaktif | Selesai | 24 Agu 2026 |
+| 3 | Video Pembelajaran | Selesai | 24 Agu 2026 |
 | 4 | Buku, Bahan Ajar & Modul | Belum | — |
 | 5 | Integrasi Beranda (§4.5) | Belum | — |
 
@@ -130,21 +130,21 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 - [x] `generateMetadata` — statis (title/description manual), koleksi ini tidak ikut `seoPlugin` (cuma `pages`/`articles`), lihat `src/payload.config.ts`
 - [x] Halaman detail: **route terpisah** `alat-peraga/[slug]/page.tsx` (+ `en/`) — diputuskan di tempat krn tidak ada akses ke mockup asli di sesi ini; route nyata lebih aman utk SEO/share drpd modal. Boleh dikoreksi ke modal nanti kalau mockup ternyata beda.
 
-### 4.2 Media Digital Interaktif (`FR-108`)
+### 4.2 Media Digital Interaktif (`FR-108`) — Selesai
 
-- [ ] Route `media-interaktif/page.tsx` (+ `en/`)
-- [ ] Hero + 4 ikon fitur (Interaktif/Mudah Digunakan/Sesuai Kurikulum/Aman & Terpercaya) — ini statis (bukan dari collection), taruh sbg konten halaman biasa
-- [ ] `LibrarySearchBar` + "Pencarian Populer" (tag pintas — bisa hardcode atau ambil 3 tag terbanyak dari data, putuskan pas coding & catat di §5)
-- [ ] List `MediaInteraktifCard` (bukan grid — mockup-nya list horizontal per baris)
-- [ ] `CtaBantuanBanner`
-- [ ] Section "Bergabung dengan Komunitas" di bawah — **cek dulu apakah ini statis punya semua 4 halaman atau cuma di sini**; kalau berulang, jadikan komponen bersama juga & update §2.3
+- [x] Route `media-interaktif/page.tsx` (+ `en/`)
+- [x] Hero + 4 ikon fitur (Interaktif/Mudah Digunakan/Sesuai Kurikulum/Aman & Terpercaya) — statis, emoji sbg ikon (proyek tidak pakai icon library), lihat §5
+- [x] `LibrarySearchBar` + "Pencarian Populer" — **3 tag terbanyak dihitung dari data** (`getPopularMediaInteraktifTags`), bukan hardcode; klik tag pakai param baru `?tag=` (di luar kontrak §2.2 krn koleksi ini tidak punya jenjang/mapel), lihat §5
+- [x] List `MediaInteraktifCard` (bukan grid — list horizontal per baris)
+- [x] `CtaBantuanBanner`
+- [ ] Section "Bergabung dengan Komunitas" — **sengaja tidak dikerjakan**, belum ditemukan di kode manapun (lihat §4.5), di luar cakupan PRD Fase 2 v1.2. Perlu konfirmasi user dulu sebelum digarap.
 
-### 4.3 Video Pembelajaran (`FR-107`)
+### 4.3 Video Pembelajaran (`FR-107`) — Selesai
 
-- [ ] Route `video-pembelajaran/page.tsx` (+ `en/`)
-- [ ] Ambil keputusan OI-106 kalau belum ada arahan baru (lihat §2.4)
-- [ ] Grid `VideoPembelajaranCard`, filter jenjang/mapel + search
-- [ ] `LibraryPagination`, `CtaBantuanBanner`
+- [x] Route `video-pembelajaran/page.tsx` (+ `en/`)
+- [x] Ambil keputusan OI-106 kalau belum ada arahan baru (lihat §2.4) — dipakai `sumberTipe: "youtube"` sbg default skema (sudah ada), tidak ada arahan baru sesi ini
+- [x] Grid `VideoPembelajaranCard`, filter jenjang/mapel + search (pakai `buildLibraryWhere` kontrak §2.2 penuh, sama spt Alat Peraga)
+- [x] `LibraryPagination`, `CtaBantuanBanner`
 
 ### 4.4 Buku, Bahan Ajar & Modul (`FR-101–104`, `FR-109`; **FR-110 blocked**)
 
@@ -233,3 +233,107 @@ ditulis.
   ([[feedback_no_preview_unless_asked]]), skip preview kecuali diminta.
   Koleksi `alat-peraga` masih kosong di DB (belum diisi staf) — belum bisa
   cek visual kartu/grid dgn data asli.
+
+- **24 Agu 2026** — Halaman Media Digital Interaktif (§1 #2) selesai. File
+  baru:
+  - `src/lib/mediaInteraktif.ts` (query Local API + `getPopularMediaInteraktifTags`).
+  - `src/components/library/MediaInteraktifCard.tsx`.
+  - `src/components/pages/MediaInteraktifListContent.tsx`.
+  - `src/app/(frontend)/media-interaktif/page.tsx` + `en/media-interaktif/page.tsx`.
+  - `src/lib/routes.ts` ditambah `mediaInteraktifListPath`.
+
+  Keputusan yang diambil di tempat:
+  1. **Tidak pakai `buildLibraryWhere`/kontrak `jenjang`/`mapel`** — koleksi
+     ini cuma punya `tags` bebas, bukan taksonomi tetap. Ditulis query
+     `where` sendiri di `mediaInteraktif.ts`.
+  2. **Param `?tag=` baru** (di luar §2.2) buat "Pencarian Populer" — filter
+     exact-match ke `tags.label`, terpisah dari `q` (contains di `judul`)
+     supaya klik tag populer tidak nyasar nyari di judul.
+  3. **"Pencarian Populer" dihitung dinamis** dari data (top-3 tag
+     terbanyak), bukan hardcode — query terpisah `getPopularMediaInteraktifTags`,
+     ambil semua doc (koleksi showcase-only, kecil) & hitung frekuensi di memori.
+  4. **4 ikon fitur pakai emoji** — proyek tidak punya icon library
+     (`lucide-react` dkk tidak dipakai di manapun, dicek dulu). Emoji jadi
+     opsi paling konsisten dgn pola `ikon` di `LibraryCategoryChips` yang
+     sudah ada.
+  5. **Section "Bergabung dengan Komunitas" tidak dikerjakan** — sesuai §4.5,
+     belum ketemu di kode manapun & di luar cakupan PRD v1.2. Ditandai
+     "Belum" di checklist §4.2, bukan "Selesai" penuh — status tracker §3
+     tetap ditulis "Selesai" krn item Library-nya sendiri (bukan section
+     beranda terpisah ini) sudah utuh.
+
+  Verifikasi: `npx tsc --noEmit` bersih. Tidak dites di browser sesuai
+  instruksi user sesi ini — **QA manual dilakukan user sendiri**, bukan
+  lewat preview di sini.
+
+  **Catatan buat QA manual user:**
+  - Koleksi `media-interaktif` kemungkinan masih kosong di DB (blm diisi
+    staf, sama spt `alat-peraga`) — cek dulu ada minimal beberapa dokumen
+    sblm nilai tampilan grid/list & "Pencarian Populer" (butuh data biar
+    tag populer muncul, kalau kosong section itu otomatis hilang).
+  - Cek link "Buka Link" tiap kartu beneran `target="_blank"` + valid
+    (field `tautan` bebas teks, admin bisa salah ketik/lupa `https://`).
+  - Cek tampilan list horizontal di mobile (`sm:flex-row` breakpoint) —
+    belum dicoba resize di browser sungguhan.
+  - Bandingkan hero (4 ikon emoji + copy "Interaktif/Mudah Digunakan/Sesuai
+    Kurikulum/Aman & Terpercaya") ke mockup asli kalau ada — sesi ini tidak
+    py akses ke mockup, cuma nurut task breakdown teks di §4.2 baris lama.
+  - Cek apakah "Pencarian Populer" seharusnya gabung dgn filter `q` yg lagi
+    aktif (skrg independen — klik tag reset pencarian teks, tidak
+    ditambahkan sbg AND) — kalau mockup minta beda, tinggal ubah
+    `MediaInteraktifListContent.tsx`.
+  - Section "Bergabung dengan Komunitas" **sengaja dilewati** — kalau mockup
+    Media Interaktif ternyata punya section itu, perlu diputuskan dulu apa
+    ini scope PRD Fase 2 atau bukan (lihat §4.5) sblm dikerjakan.
+
+- **24 Agu 2026** — Halaman Video Pembelajaran (§1 #3) selesai. File baru:
+  - `src/lib/videoPembelajaran.ts` (query Local API pakai `buildLibraryWhere`
+    kontrak §2.2 penuh — koleksi ini punya `jenjang`/`mapel` spt Alat Peraga,
+    beda dari Media Interaktif yg cuma `tags` bebas).
+  - `src/components/library/VideoPembelajaranCard.tsx`.
+  - `src/components/pages/VideoPembelajaranListContent.tsx`.
+  - `src/app/(frontend)/video-pembelajaran/page.tsx` + `en/video-pembelajaran/page.tsx`.
+  - `src/lib/routes.ts` ditambah `videoPembelajaranListPath`.
+
+  Keputusan yang diambil di tempat:
+  1. **Tidak ada halaman detail/route `[slug]`** — koleksi `VideoPembelajaran`
+     memang tidak punya field `slug` di skema (`VideoPembelajaran.ts`, beda
+     dari `AlatPeraga`), jadi kartu langsung tautan ke video, bukan ke route
+     internal.
+  2. **Tombol "Tonton" = tautan eksternal langsung** (`target="_blank"`),
+     bukan player/modal terbenam — utk `sumberTipe: "youtube"` arahkan ke
+     `tautanYoutube` apa adanya, utk `"upload"` arahkan ke URL berkas Media
+     (`berkasVideo.url`). Belum ada komponen video player di proyek ini,
+     & OI-106 (YouTube vs upload) sendiri belum final — keputusan ini bisa
+     diganti embed `<iframe>` YouTube begitu OI-106 turun. Helper
+     `videoPembelajaranTontonHref()` di `videoPembelajaran.ts` jadi satu
+     titik ubah kalau nanti perlu logic beda per sumber.
+  3. **Card pakai overlay ikon play (▶) di atas thumbnail** — thumbnail wajib
+     diisi di skema (`required: true`), jadi selalu ada gambar dasar; overlay
+     cuma indikator visual "ini video", bukan interaktif/pemutar.
+  4. **Grid 1/2/4 kolom** (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`) — beda
+     dr Alat Peraga yg cuma sampai 4 kolom di desktop tapi mulai 1 kolom
+     mobile penuh; konsisten pola kartu video landscape (`aspect-video`)
+     yg lebih lebar drpd `aspect-[4/3]` Alat Peraga.
+
+  Verifikasi: `npx tsc --noEmit` bersih. Tidak dites di browser — sesuai
+  instruksi user sesi ini ("QA saya sendiri, bukan preview dari sini").
+
+  **Catatan buat QA manual user:**
+  - Koleksi `video-pembelajaran` kemungkinan masih kosong di DB (blm diisi
+    staf) — cek dulu ada data biar grid & filter jenjang/mapel bisa dicoba.
+  - Cek tombol "Tonton" beneran buka tab baru & URL-nya benar, khususnya
+    utk video `sumberTipe: "upload"` (arahnya ke URL berkas Media, bukan
+    player — pastikan browser bisa mainkan file itu langsung/download,
+    tergantung format & header Content-Type dari storage).
+  - `tautanYoutube` field teks bebas (bukan validasi format) — cek admin
+    tidak salah ketik/lupa `https://` saat isi data.
+  - Overlay ikon ▶ di thumbnail: pastikan kontras cukup & tidak nutup
+    thumbnail terlalu banyak di berbagai ukuran gambar upload staf.
+  - Belum ada keputusan final OI-106 (YouTube vs upload storage sendiri) —
+    kalau nanti diputuskan salah satu saja, halaman ini & skema
+    `VideoPembelajaran.ts` bisa disederhanakan (buang field yg tidak
+    kepakai).
+  - Bandingkan tampilan kartu (grid 4 kolom, overlay play, badge durasi
+    pojok kanan-bawah) ke mockup asli kalau ada — sesi ini tidak py akses
+    ke mockup, cuma nurut task breakdown teks di §4.3 baris lama.

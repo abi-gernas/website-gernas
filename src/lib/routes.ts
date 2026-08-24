@@ -41,6 +41,16 @@ export function alatPeragaPath(slug: string, locale?: Locale): string {
   return locale ? localizedPath(path, locale) : path;
 }
 
+/** Alamat publik daftar Media Digital Interaktif — tidak ada halaman detail, lihat `MediaInteraktif.ts`. */
+export function mediaInteraktifListPath(locale?: Locale): string {
+  return locale ? localizedPath("/media-interaktif", locale) : "/media-interaktif";
+}
+
+/** Alamat publik daftar Video Pembelajaran — tidak ada halaman detail, tonton lewat tautan eksternal (YouTube/berkas), lihat `VideoPembelajaran.ts`. */
+export function videoPembelajaranListPath(locale?: Locale): string {
+  return locale ? localizedPath("/video-pembelajaran", locale) : "/video-pembelajaran";
+}
+
 /**
  * Benar bila `path` menunjuk ke alamat di situs ini sendiri.
  *
