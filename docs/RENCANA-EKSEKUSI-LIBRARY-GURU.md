@@ -112,7 +112,7 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 | 0 | Komponen bersama (§2) | Selesai | 24 Agu 2026 |
 | 1 | Alat Peraga | Selesai | 24 Agu 2026 |
 | 2 | Media Digital Interaktif | Selesai | 24 Agu 2026 |
-| 3 | Video Pembelajaran | Selesai | 24 Agu 2026 |
+| 3 | Video Pembelajaran | Selesai | 26 Agu 2026 |
 | 4 | Buku, Bahan Ajar & Modul | Selesai (tampilan) | 26 Agu 2026 |
 | 5 | Integrasi Beranda (§4.5) | Belum | — |
 
@@ -148,6 +148,19 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 - [x] Ambil keputusan OI-106 kalau belum ada arahan baru (lihat §2.4) — dipakai `sumberTipe: "youtube"` sbg default skema (sudah ada), tidak ada arahan baru sesi ini
 - [x] Grid `VideoPembelajaranCard`, filter jenjang/mapel + search (pakai `buildLibraryWhere` kontrak §2.2 penuh, sama spt Alat Peraga)
 - [x] `LibraryPagination`, `CtaBantuanBanner`
+- [x] **Revisi tata letak ke mockup Figma** (26 Agu 2026) — hero 2 kolom (teks +
+  gambar promo) dgn search `variant="kotak"`, korsel "Video Pilihan" di antara
+  hero & daftar, judul "Semua Video" + teks "Menampilkan…" di atas grid, grid 3
+  kolom, kartu disusun ulang (thumbnail membulat → tag → judul, tanpa tombol).
+  Menuntaskan temuan QA #1 halaman ini, lihat §5
+- [x] **Halaman detail per video dgn pemutar tersemat** (26 Agu 2026,
+  menuntaskan temuan QA #2) — field `slug` + `deskripsi` ditambah ke skema
+  (migrasi `20260826_161929_video_pembelajaran_slug`), route
+  `video-pembelajaran/[slug]` (+ `en/`), komponen `VideoPembelajaranPlayer`
+  (iframe YouTube / `<video>` utk berkas unggahan). Tombol "Tonton" keluar ke
+  YouTube sudah dihapus — `videoPembelajaranTontonHref()` diganti
+  `videoPembelajaranSumberHref()` yang kini cuma dipakai sbg tautan sekunder di
+  halaman detail
 
 ### 4.4 Buku, Bahan Ajar & Modul (`FR-101–104`, `FR-109`; **FR-110 blocked**)
 
@@ -666,10 +679,11 @@ Ringkas per halaman:
 - **Media Interaktif**: ~~layout belum sesuai Figma~~ → **sudah diperbaiki**
   26 Agu 2026. Sisa yang terbuka: PR soal tombol "Buka Link" (tautan keluar
   vs embed) — **butuh konfirmasi klien**.
-- **Video Pembelajaran**: layout belum sesuai Figma. **Keputusan baru**:
-  tombol "Tonton" harus jadi halaman detail dgn video ter-embed di website
-  kita, bukan redirect ke YouTube — perlu field `slug` baru + komponen
-  player baru, cukup besar buat sesi tersendiri.
+- **Video Pembelajaran**: ~~layout belum sesuai Figma~~ + ~~tombol "Tonton"
+  harus jadi halaman detail dgn video ter-embed~~ → **keduanya sudah
+  dikerjakan** 26 Agu 2026 (lihat entri §5 terakhir). Sisa yang terbuka: isi
+  halaman detail belum ditinjau ke mockup (mockup yang ada baru halaman
+  katalog), sama spt PR terbuka halaman detail Alat Peraga & Buku.
 
 **Untuk sesi perbaikan berikutnya**: kemungkinan butuh akses langsung ke
 file Figma (bukan cuma task breakdown teks di §4) supaya perbaikan layout
@@ -685,3 +699,86 @@ berikutnya (termasuk nanti utk halaman ke-4, Buku/Bahan Ajar/Modul, kalau
 sudah dikerjakan). Cara hapus: filter/cari judul `[QA] ` di tiap koleksi di
 dasbor, hapus manual — skrip aman dijalankan ulang (idempotent) kalau nanti
 butuh data dummy lagi.
+
+- **26 Agu 2026** — **Revisi tampilan halaman Video Pembelajaran ke mockup
+  Figma + halaman detail per video** (menutup temuan QA #1 & #2 halaman itu).
+
+  Perubahan skema + migrasi (`migrations/20260826_161929_video_pembelajaran_slug.ts`,
+  **sudah dijalankan ke DB yang dipakai sekarang**):
+  - `slug` (wajib, unik) & `deskripsi` (localized) ditambah ke
+    `src/payload/collections/VideoPembelajaran.ts`.
+  - Migrasi hasil `migrate:create` **ditulis ulang manual**: mentahnya
+    `ADD COLUMN "slug" varchar NOT NULL` yang pasti gagal krn tabelnya sudah
+    berisi 18 dokumen QA. Urutan yang dipakai: kolom nullable → isi dari
+    `judul` locale `id` (aturan slugify disalin dari `src/payload/fields/slug.ts`
+    ke SQL) → tambal yang kosong/kembar dgn id → baru NOT NULL + indeks unik.
+    Dicek setelahnya: 18/18 dokumen punya slug (`qa-video-pembelajaran-dummy-01`, dst.).
+
+  File baru:
+  - `src/components/library/VideoPilihanCarousel.tsx` — korsel mendatar
+    (client component, `scrollBy` + scroll-snap).
+  - `src/components/library/VideoPembelajaranPlayer.tsx` — pemutar: iframe
+    `youtube-nocookie.com/embed/…` utk `sumberTipe: "youtube"`, `<video controls>`
+    utk `"upload"`, dan penampung thumbnail+tautan kalau tautannya tidak dikenali.
+  - `src/components/pages/VideoPembelajaranDetailContent.tsx` + route
+    `video-pembelajaran/[slug]/page.tsx` & `en/video-pembelajaran/[slug]/page.tsx`.
+
+  File yang diubah:
+  - `src/components/pages/VideoPembelajaranListContent.tsx` — hero 2 kolom (teks
+    rata kiri + gambar promo kanan, eyebrow "Library Materi Guru" dihapus krn
+    tidak ada di mockup), search `variant="kotak"`, section "Video Pilihan",
+    judul "Semua Video" + teks "Menampilkan X–Y dari Z video" di atas grid,
+    pagination sendirian di bawah grid, grid 3 kolom (dari 4).
+  - `src/components/library/VideoPembelajaranCard.tsx` — thumbnail membulat di
+    dalam kartu → tag jenjang/mapel → judul; tombol "Tonton" dihapus, seluruh
+    kartu menautkan ke halaman detail. Ikon ▶ sekarang cuma muncul saat hover.
+  - `src/lib/videoPembelajaran.ts` — `slug`/`deskripsi` di view,
+    `getVideoPembelajaranBySlug`, `getVideoPembelajaranSlugs`,
+    `getVideoPembelajaranPilihan`, `youtubeVideoId()`, dan
+    `videoPembelajaranTontonHref()` → `videoPembelajaranSumberHref()`.
+  - `src/lib/routes.ts` — `videoPembelajaranPath()`.
+  - Metadata `description` 2 route katalog diselaraskan dgn teks hero baru.
+  - `scripts/seed-library-dummy.mts` — `deskripsi` untuk video dummy, plus
+    penambal dokumen `[QA] ` lama (pola sama spt penyeragaman sampul `produk`).
+    Sudah dijalankan: 18/18 dokumen punya deskripsi.
+
+  Keputusan yang diambil di tempat:
+  1. **Section di antara hero & "Semua Video" ditafsirkan sbg korsel "Video
+     Pilihan"** — di mockup bidang itu kosong (gambarnya tidak ikut ter-render),
+     yang terlihat cuma tombol panah bundar di tepi kanan. Isinya diambil dari
+     video dgn `urutan` terkecil (pola sematan yang sama spt "Produk Terbaru" &
+     hero Alat Peraga), 6 item. **Perlu dikonfirmasi ke mockup asli** — kalau
+     ternyata bukan korsel video, bagian ini tinggal diganti/dihapus, sisanya
+     tidak terpengaruh.
+  2. **Teks deskripsi hero tidak disalin mentah dari mockup** — mockup halaman
+     ini memakai kalimat halaman Buku ("Kumpulan buku, modul dan bahan ajar…"),
+     sisa salin-tempel yang sama spt di mockup Alat Peraga. Dipakai kalimat
+     seirama tapi menyebut video.
+  3. **Gambar promo hero = thumbnail video sematan** — belum ada aset promo
+     khusus di Media, alasan & pola sama dgn Alat Peraga/Buku.
+  4. **`deskripsi` ikut ditambahkan ke skema** (bukan cuma `slug`) — tanpa itu
+     halaman detail nyaris kosong: koleksi ini tidak punya field teks lain
+     selain judul/durasi. Sekalian satu migrasi, tidak perlu migrasi kedua.
+  5. **Embed pakai `youtube-nocookie.com`**, bukan `youtube.com` — tidak
+     memasang cookie pelacak sampai videonya benar-benar diputar.
+  6. **Isi halaman detail belum ditinjau ke mockup** (pemutar → tag → judul →
+     durasi/tautan sumber → deskripsi → "Video Lainnya" → banner CTA) — mockup
+     yang tersedia sesi ini cuma halaman katalog, sama spt PR terbuka isi
+     halaman detail Alat Peraga (temuan QA #4 halaman itu) & Buku.
+
+  Verifikasi: `npx tsc --noEmit` bersih; migrasi & skrip seed dijalankan sukses
+  (error `[revalidate] gagal menyegarkan halaman publik` di log skrip tetap
+  noise CLI yang sama spt sesi sebelumnya). **Tidak dites di browser** — sesuai
+  preferensi tersimpan, preview hanya dijalankan kalau user minta.
+
+  **Catatan buat QA manual user:**
+  - Alamat: `/video-pembelajaran` & `/video-pembelajaran/<slug>` (+ `en/`).
+  - Data dummy semuanya menunjuk ke satu tautan YouTube yang sama — pemutar di
+    halaman detail akan menampilkan video itu; ganti/isi data asli untuk menilai
+    beneran. `sumberTipe: "upload"` **belum pernah dites** krn koleksi Media
+    masih menolak `video/*` (lihat catatan di `Media.ts`/`VideoPembelajaran.ts`).
+  - Cek korsel "Video Pilihan" (poin 1 di atas) — bentuk & isinya asumsi.
+  - **Temuan baru (belum dikerjakan, di luar cakupan sesi ini):** 4 route
+    Library tidak ada satu pun di `src/app/(frontend)/sitemap.ts` — sitemap
+    masih cuma memuat `pages` + `articles`. Berlaku juga utk Alat Peraga &
+    Buku/Bahan Ajar/Modul, bukan cuma halaman ini.

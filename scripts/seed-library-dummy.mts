@@ -198,6 +198,7 @@ for (let i = 0; i < 18; i++) {
     collection: "video-pembelajaran",
     data: {
       judul,
+      deskripsi: `Deskripsi dummy video pembelajaran #${i + 1} untuk keperluan QA halaman detail (pemutar video, tag, dan video lainnya).`,
       thumbnail: mediaAt(i + 10),
       jenjang,
       mapel: pickMapel(i),
@@ -208,6 +209,31 @@ for (let i = 0; i < 18; i++) {
     },
   });
   dibuatVideoPembelajaran++;
+}
+
+// Tambal dokumen video lama: `deskripsi` baru ditambahkan ke skema 26 Agu
+// 2026 (bersama `slug`), jadi 18 dokumen QA yang sudah ada belum punya isinya
+// dan halaman detailnya tampil tanpa teks apa pun.
+let ditambalVideoPembelajaran = 0;
+{
+  const lama = await payload.find({
+    collection: "video-pembelajaran",
+    where: { judul: { like: PREFIX } },
+    limit: 100,
+    pagination: false,
+    depth: 0,
+  });
+  for (const doc of lama.docs) {
+    if (doc.deskripsi) continue;
+    await payload.update({
+      collection: "video-pembelajaran",
+      id: doc.id,
+      data: {
+        deskripsi: `Deskripsi dummy untuk ${doc.judul} — keperluan QA halaman detail (pemutar video, tag, dan video lainnya).`,
+      },
+    });
+    ditambalVideoPembelajaran++;
+  }
 }
 
 // ── 4. Buku, Bahan Ajar & Modul / `produk` (18 dokumen) ─────────────────────
@@ -282,7 +308,7 @@ console.log(
   `Media Interaktif: dibuat ${dibuatMediaInteraktif} (lewati ${18 - dibuatMediaInteraktif} sudah ada)`,
 );
 console.log(
-  `Video Pembelajaran: dibuat ${dibuatVideoPembelajaran} (lewati ${18 - dibuatVideoPembelajaran} sudah ada)`,
+  `Video Pembelajaran: dibuat ${dibuatVideoPembelajaran} (lewati ${18 - dibuatVideoPembelajaran} sudah ada), deskripsi ditambal ${ditambalVideoPembelajaran}`,
 );
 console.log(
   `Produk (Buku/Bahan Ajar/Modul): dibuat ${dibuatProduk} (lewati ${18 - dibuatProduk} sudah ada, sampul ditambal ke logo ${sampulProdukDiperbarui})`,

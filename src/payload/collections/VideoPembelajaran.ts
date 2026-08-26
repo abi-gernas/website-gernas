@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { terapkanReferensiLokal } from "../fields/localeReference";
+import { slugField } from "../fields/slug";
 import { urutanField } from "../fields/urutan";
 import { revalidateSemua, revalidateSemuaAfterDelete } from "../hooks/revalidate";
 
@@ -43,6 +44,14 @@ export const VideoPembelajaran: CollectionConfig = {
       required: true,
       localized: true,
       label: "Judul video",
+    },
+    ...slugField("judul"),
+    {
+      name: "deskripsi",
+      type: "textarea",
+      localized: true,
+      label: "Deskripsi",
+      admin: { description: "Tampil di halaman detail video, di bawah pemutar." },
     },
     {
       name: "thumbnail",

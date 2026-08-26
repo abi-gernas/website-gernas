@@ -46,9 +46,14 @@ export function mediaInteraktifListPath(locale?: Locale): string {
   return locale ? localizedPath("/media-interaktif", locale) : "/media-interaktif";
 }
 
-/** Alamat publik daftar Video Pembelajaran — tidak ada halaman detail, tonton lewat tautan eksternal (YouTube/berkas), lihat `VideoPembelajaran.ts`. */
+/** Alamat publik daftar/detail Video Pembelajaran — videonya diputar di halaman detail kita sendiri, bukan dilempar ke YouTube. */
 export function videoPembelajaranListPath(locale?: Locale): string {
   return locale ? localizedPath("/video-pembelajaran", locale) : "/video-pembelajaran";
+}
+
+export function videoPembelajaranPath(slug: string, locale?: Locale): string {
+  const path = `/video-pembelajaran/${slug}`;
+  return locale ? localizedPath(path, locale) : path;
 }
 
 /** Alamat publik daftar/detail Buku, Bahan Ajar & Modul — lihat `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §2.1. */

@@ -6,7 +6,7 @@ import type { LibrarySearchParams } from "@/lib/library";
 
 export const metadata: Metadata = {
   title: "Video Pembelajaran",
-  description: "Kumpulan video pembelajaran per jenjang dan mapel untuk mendukung kegiatan belajar mengajar.",
+  description: "Kumpulan video pembelajaran berkualitas yang siap digunakan untuk mendukung pembelajaran di kelas.",
 };
 
 export default async function VideoPembelajaranPage({

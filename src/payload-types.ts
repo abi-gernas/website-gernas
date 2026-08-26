@@ -1178,6 +1178,14 @@ export interface AlatPeraga {
 export interface VideoPembelajaran {
   id: number;
   judul: string;
+  /**
+   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
+   */
+  slug: string;
+  /**
+   * Tampil di halaman detail video, di bawah pemutar.
+   */
+  deskripsi?: string | null;
   thumbnail: number | Media;
   jenjang: ('paud' | 'tk' | 'sd' | 'smp' | 'sma')[];
   mapel: ('matematika' | 'membaca')[];
@@ -2024,6 +2032,8 @@ export interface AlatPeragaSelect<T extends boolean = true> {
  */
 export interface VideoPembelajaranSelect<T extends boolean = true> {
   judul?: T;
+  slug?: T;
+  deskripsi?: T;
   thumbnail?: T;
   jenjang?: T;
   mapel?: T;

@@ -6,7 +6,7 @@ import type { LibrarySearchParams } from "@/lib/library";
 
 export const metadata: Metadata = {
   title: "Learning Videos",
-  description: "A collection of learning videos by grade level and subject to support your teaching.",
+  description: "A collection of quality learning videos ready to support learning in the classroom.",
 };
 
 export default async function VideoPembelajaranPageEN({
