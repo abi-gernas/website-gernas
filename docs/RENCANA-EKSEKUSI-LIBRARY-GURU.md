@@ -136,6 +136,7 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 - [x] Hero + 4 ikon fitur (Interaktif/Mudah Digunakan/Sesuai Kurikulum/Aman & Terpercaya) — statis, emoji sbg ikon (proyek tidak pakai icon library), lihat §5
 - [x] `LibrarySearchBar` + "Pencarian Populer" — **3 tag terbanyak dihitung dari data** (`getPopularMediaInteraktifTags`), bukan hardcode; klik tag pakai param baru `?tag=` (di luar kontrak §2.2 krn koleksi ini tidak punya jenjang/mapel), lihat §5
 - [x] List `MediaInteraktifCard` (bukan grid — list horizontal per baris)
+- [x] **Revisi tata letak ke mockup Figma** (26 Agu 2026) — hero 2 kolom + ilustrasi, 4 keunggulan berikon SVG + keterangan, panel putih "Cari Kebutuhan Anda!" yang memuat pencarian sekaligus daftar media, baris daftar dgn panel "Buka Link" beralamat. Menuntaskan temuan QA #1 halaman ini, lihat §5
 - [x] `CtaBantuanBanner`
 - [ ] Section "Bergabung dengan Komunitas" — **sengaja tidak dikerjakan**, belum ditemukan di kode manapun (lihat §4.5), di luar cakupan PRD Fase 2 v1.2. Perlu konfirmasi user dulu sebelum digarap.
 
@@ -532,6 +533,65 @@ ditulis.
     mendatar) — kalau itu terlihat lebih buruk dari sebelumnya, catat sbg
     temuan, gampang dikembalikan.
 
+
+- **26 Agu 2026** — **Revisi tampilan halaman Media Digital Interaktif ke
+  mockup Figma** (menutup temuan QA #1 halaman itu) + penyeragaman sampul data
+  dummy halaman Buku/Bahan Ajar/Modul. File baru:
+  - `src/components/library/IkonMediaInteraktif.tsx` — 4 ikon keunggulan (SVG
+    garis, menggantikan emoji dari sesi 24 Agu) + `IlustrasiMediaInteraktif`.
+
+  File yang diubah:
+  - `src/components/pages/MediaInteraktifListContent.tsx` — hero jadi 2 kolom
+    (teks + ilustrasi, rata kiri, bukan center), 4 keunggulan kini berikon
+    bulat + keterangan satu kalimat, pencarian & daftar dipindah ke SATU panel
+    putih berjudul "Cari Kebutuhan Anda!", search bar pakai `variant="kotak"`.
+  - `src/components/library/MediaInteraktifCard.tsx` — baris daftar (dipisah
+    garis tipis `divide-y` dari induknya, bukan kartu putih sendiri-sendiri),
+    tag pindah ke bawah deskripsi, tombol jadi panel "Buka Link" + alamat
+    ringkas + tombol bulat panah.
+  - `src/components/library/CtaBantuanBanner.tsx` — tata letak mendatar (teks
+    kiri, tombol kanan) sesuai mockup. **Dipakai keempat halaman Library**,
+    jadi 3 halaman lain ikut berubah — mockup masing-masing memperlihatkan
+    banner yang sama, tapi tetap perlu dilihat lagi saat sesi Figma halaman itu.
+  - `scripts/seed-library-dummy.mts` — sampul dummy `produk`.
+
+  Keputusan yang diambil di tempat:
+  1. **Teks "Menampilkan X–Y dari Z media" dihapus** dari halaman ini —
+     mockup tidak memuatnya (beda dari halaman Buku, lihat §5 entri
+     sebelumnya poin 7). Pagination tetap ada, muncul hanya kalau >1 halaman.
+  2. **Ilustrasi hero digambar inline sbg SVG penampung sementara**, bukan
+     `next/image` — ilustrasi 3D di mockup belum diunggah ke koleksi Media
+     (masalah yang sama bikin hero Alat Peraga kosong, §5 entri 24 Agu poin 4).
+     Ganti isi `IlustrasiMediaInteraktif` begitu aset finalnya ada.
+  3. **Ilustrasi di banner CTA dilewati** (mockup memperlihatkan ilustrasi
+     orang ber-headset) — alasan sama: asetnya belum ada. Bannernya tetap
+     rapi tanpa itu.
+  4. **Ikon tombol banner = gelembung obrolan, bukan logo WhatsApp** spt
+     mockup: tidak ada nomor WhatsApp resmi di mana pun (dicek `SiteSettings`
+     & seluruh `src/`), jadi tombol masih mendarat di `/mitra`. Ganti ikon +
+     href sekaligus begitu nomornya tersedia.
+  5. **Section "Bergabung dengan Komunitas" tetap tidak dikerjakan** meski
+     ada di mockup — user sudah menyatakan section itu di luar scope permanen
+     (§5 entri 24 Agu, sesi recap poin 5). Perlu konfirmasi ulang kalau
+     mockup ini mengubah keputusan tsb.
+  6. **Tombol "Buka Link" masih tautan keluar** (`target="_blank"`) — PR soal
+     embed/modal (temuan QA #2 halaman ini) belum diputuskan, masih menunggu
+     konfirmasi klien. Tidak diasumsikan sepihak di sesi ini.
+
+  **Sampul data dummy `produk` diseragamkan** atas permintaan user: ke-18
+  dokumen `[QA] ` di koleksi `produk` sekarang memakai satu berkas Media
+  `cropped-Logo_GernasTastaka-01-300x124.webp` (id 110), bukan round-robin
+  dokumen Media acak seperti 3 koleksi lain. Skrip seed dicari-berdasarkan-
+  nama-berkas (bukan id keras) dan **menambal dokumen lama juga** — dokumen
+  `[QA] ` yang sudah ada sampulnya di-`update` ke logo itu, supaya aturan baru
+  tidak cuma berlaku di DB kosong. Sudah dijalankan: 18 dokumen ditambal,
+  dijalankan ulang melaporkan 0 (idempotent). Cuma field `cover` yang di-
+  `update` (tidak dilokalkan), judul/ringkasan EN dicek masih utuh setelahnya.
+
+  Verifikasi: `npx tsc --noEmit` bersih. Skrip seed jalan sukses (error
+  `[revalidate] gagal menyegarkan halaman publik` di log tetap noise CLI yang
+  sama spt sesi sebelumnya). **Tidak dites di browser** — sesuai preferensi
+  tersimpan, preview hanya dijalankan kalau user minta.
 
 ---
 

@@ -54,6 +54,41 @@ function mediaAt(i: number) {
   return mediaIds[i % mediaIds.length];
 }
 
+// Sampul dummy koleksi `produk` (Buku, Bahan Ajar & Modul) dikecualikan dari
+// round-robin di atas: sejak 26 Agu 2026 semuanya dipaksa memakai satu berkas
+// logo Gernas Tastaka atas permintaan user, supaya sampul data QA seragam dan
+// jelas terbaca sbg dummy — bukan foto acak yang bisa disalahsangka konten asli.
+const LOGO_DUMMY_FILENAME = "cropped-Logo_GernasTastaka-01-300x124.webp";
+
+const logoDocs = await payload.find({
+  collection: "media",
+  where: { filename: { equals: LOGO_DUMMY_FILENAME } },
+  limit: 1,
+  pagination: false,
+  depth: 0,
+});
+
+if (logoDocs.docs.length === 0) {
+  console.error(
+    `Dokumen Media "${LOGO_DUMMY_FILENAME}" tidak ditemukan di DB — sampul dummy produk butuh berkas itu. Unggah dulu lewat dasbor.`,
+  );
+  process.exit(1);
+}
+
+const coverProduk = logoDocs.docs[0].id;
+
+/** Sama seperti `sudahAda`, tapi mengembalikan dokumennya supaya bisa ditambal. */
+async function cariDoc(collection: string, judul: string) {
+  const res = await payload.find({
+    collection: collection as never,
+    where: { judul: { equals: judul } },
+    limit: 1,
+    pagination: false,
+    depth: 0,
+  });
+  return res.docs[0] as { id: number | string; cover?: unknown } | undefined;
+}
+
 const JENJANG = ["paud", "tk", "sd", "smp", "sma"] as const;
 const MAPEL = ["matematika", "membaca"] as const;
 
@@ -189,11 +224,22 @@ const JUDUL_PRODUK: Record<(typeof KATEGORI)[number], string[]> = {
 };
 
 let dibuatProduk = 0;
+let sampulProdukDiperbarui = 0;
 for (let i = 0; i < 18; i++) {
   const kategori = KATEGORI[i % KATEGORI.length];
   const daftarJudul = JUDUL_PRODUK[kategori];
   const judul = `${PREFIX}${daftarJudul[i % daftarJudul.length]} #${String(i + 1).padStart(2, "0")}`;
-  if (await sudahAda("produk", judul)) continue;
+
+  // Dokumen dummy yang sudah ada dari sesi sebelumnya tetap ditambal sampulnya
+  // ke logo — kalau tidak, aturan sampul baru cuma berlaku di DB yang kosong.
+  const lama = await cariDoc("produk", judul);
+  if (lama) {
+    if (lama.cover !== coverProduk) {
+      await payload.update({ collection: "produk", id: lama.id, data: { cover: coverProduk } });
+      sampulProdukDiperbarui++;
+    }
+    continue;
+  }
 
   const jenjang = pickJenjang(i);
   // i === 0 dipaksa berbayar: itu produk sematan yang tampil di panel "Produk
@@ -208,7 +254,7 @@ for (let i = 0; i < 18; i++) {
       kategoriProduk: kategori,
       jenjang,
       mapel: pickMapel(i),
-      cover: mediaAt(i + 15),
+      cover: coverProduk,
       ringkasan: `untuk jenjang ${jenjang.map((j) => JENJANG_LABEL[j]).join("/")} — deskripsi dummy produk #${i + 1} untuk QA tampilan katalog.`,
       // Cuma produk sematan (urutan terkecil) yang butuh daftar fitur: itu
       // satu-satunya yang tampil di panel "Produk Terbaru".
@@ -238,7 +284,9 @@ console.log(
 console.log(
   `Video Pembelajaran: dibuat ${dibuatVideoPembelajaran} (lewati ${18 - dibuatVideoPembelajaran} sudah ada)`,
 );
-console.log(`Produk (Buku/Bahan Ajar/Modul): dibuat ${dibuatProduk} (lewati ${18 - dibuatProduk} sudah ada)`);
+console.log(
+  `Produk (Buku/Bahan Ajar/Modul): dibuat ${dibuatProduk} (lewati ${18 - dibuatProduk} sudah ada, sampul ditambal ke logo ${sampulProdukDiperbarui})`,
+);
 console.log("\nSelesai. Hapus data ini kapan saja lewat dasbor — cari judul berawalan “[QA] ”.");
 
 process.exit(0);
