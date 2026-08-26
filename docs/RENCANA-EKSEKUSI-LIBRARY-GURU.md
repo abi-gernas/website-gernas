@@ -466,3 +466,14 @@ Ringkas per halaman:
 **Untuk sesi perbaikan berikutnya**: kemungkinan butuh akses langsung ke
 file Figma (bukan cuma task breakdown teks di §4) supaya perbaikan layout
 match betul, terutama utk 3 temuan layout di atas.
+
+**TODO housekeeping — jangan lupa dibersihkan sebelum rilis produksi:**
+18×3 dokumen dummy (judul berawalan `[QA] `, dibuat `scripts/seed-library-dummy.mts`)
+di koleksi `alat-peraga`/`media-interaktif`/`video-pembelajaran` harus
+dihapus lewat dasbor sebelum situs ini dianggap siap tayang ke publik.
+**Belum dihapus** — sengaja dipertahankan dulu krn skrip seed ini masih
+dipakai ulang tiap kali perlu re-test setelah sesi perbaikan layout/Figma
+berikutnya (termasuk nanti utk halaman ke-4, Buku/Bahan Ajar/Modul, kalau
+sudah dikerjakan). Cara hapus: filter/cari judul `[QA] ` di tiap koleksi di
+dasbor, hapus manual — skrip aman dijalankan ulang (idempotent) kalau nanti
+butuh data dummy lagi.
