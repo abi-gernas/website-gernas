@@ -6,6 +6,13 @@ const nextConfig = {
   // Stray lockfiles exist in parent directories; pin the trace root to this app
   // so Next doesn't infer the wrong workspace root.
   outputFileTracingRoot: import.meta.dirname,
+  // sharp punya binary native (.node/.so) per-platform. Tanpa ini, bundler
+  // (Turbopack) mencoba men-trace/bundle sharp seperti modul JS biasa dan
+  // gagal menyalin binary linux-x64-nya ke output serverless — muncul sbg
+  // "ERR_DLOPEN_FAILED: libvips-cpp.so.8.18.3" di runtime Vercel. Menjadikan
+  // sharp "external" membuat Next memakai node_modules/sharp apa adanya saat
+  // runtime, termasuk binary native-nya.
+  serverExternalPackages: ["sharp"],
   images: {
     /**
      * Batasi jumlah varian yang dihasilkan optimizer Vercel.
