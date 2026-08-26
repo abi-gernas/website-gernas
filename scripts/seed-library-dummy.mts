@@ -1,15 +1,15 @@
 /**
- * Isi data dummy untuk QA visual 3 koleksi Library Materi Guru yang masih
- * kosong di DB: `alat-peraga`, `media-interaktif`, `video-pembelajaran`.
- * (`produk`/Buku-Bahan Ajar-Modul belum punya halaman, jadi belum diseed.)
+ * Isi data dummy untuk QA visual 4 koleksi Library Materi Guru yang masih
+ * kosong di DB: `alat-peraga`, `media-interaktif`, `video-pembelajaran`,
+ * dan `produk` (Buku, Bahan Ajar & Modul).
  *
  * Jalankan:  npm run seed:library-dummy
  *   (jalankan seed:media dulu — skrip ini pakai dokumen Media yang sudah ada
  *   sbg cover/thumbnail, bukan upload berkas baru)
  *
  * Tujuan: 18 dokumen per koleksi (>12, biar `LibraryPagination` ke-test ke
- * halaman 2) dengan variasi jenjang/mapel/tags supaya filter & "Pencarian
- * Populer" bisa dicoba dgn data asli. Lihat catatan TODO di
+ * halaman 2) dengan variasi jenjang/mapel/tags/kategori supaya filter,
+ * "Pencarian Populer", dan kartu kategori bisa dicoba dgn data asli. Lihat catatan TODO di
  * docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md §5 (entri 24 Agu 2026, poin 6).
  *
  * Aman diulang: tiap dokumen dummy ditandai judul berawalan "[QA] " dan
@@ -175,6 +175,62 @@ for (let i = 0; i < 18; i++) {
   dibuatVideoPembelajaran++;
 }
 
+// ── 4. Buku, Bahan Ajar & Modul / `produk` (18 dokumen) ─────────────────────
+// Variasi kategori (4 kartu kategori), format, dan gratis/berbayar supaya
+// kartu katalog & filter `?kategori=` di halaman Buku ke-test semua cabangnya.
+
+const KATEGORI = ["modul", "buku", "bahan-ajar", "lks"] as const;
+
+const JUDUL_PRODUK: Record<(typeof KATEGORI)[number], string[]> = {
+  modul: ["Modul Numerasi Dasar", "Modul Literasi Awal", "Modul Pembelajaran Bermakna"],
+  buku: ["Buku Aku Seorang Qari", "Buku Panduan Guru Tastaka", "Buku Cerita Bergambar"],
+  "bahan-ajar": ["Bahan Ajar Pecahan", "Bahan Ajar Fonik", "Bahan Ajar Bangun Datar"],
+  lks: ["LKS Fonik", "LKS Operasi Hitung", "Worksheet Membaca Nyaring"],
+};
+
+let dibuatProduk = 0;
+for (let i = 0; i < 18; i++) {
+  const kategori = KATEGORI[i % KATEGORI.length];
+  const daftarJudul = JUDUL_PRODUK[kategori];
+  const judul = `${PREFIX}${daftarJudul[i % daftarJudul.length]} #${String(i + 1).padStart(2, "0")}`;
+  if (await sudahAda("produk", judul)) continue;
+
+  const jenjang = pickJenjang(i);
+  // i === 0 dipaksa berbayar: itu produk sematan yang tampil di panel "Produk
+  // Terbaru", dan mockup memperlihatkan tombol "Beli Sekarang!" di sana.
+  const berbayar = i === 0 || i % 3 !== 0;
+  const format = i % 2 === 0 ? ["pdf"] : ["pdf", "cetak"];
+
+  await payload.create({
+    collection: "produk",
+    data: {
+      judul,
+      kategoriProduk: kategori,
+      jenjang,
+      mapel: pickMapel(i),
+      cover: mediaAt(i + 15),
+      ringkasan: `untuk jenjang ${jenjang.map((j) => JENJANG_LABEL[j]).join("/")} — deskripsi dummy produk #${i + 1} untuk QA tampilan katalog.`,
+      // Cuma produk sematan (urutan terkecil) yang butuh daftar fitur: itu
+      // satu-satunya yang tampil di panel "Produk Terbaru".
+      fiturUnggulan:
+        i === 0
+          ? [
+              { teks: "40 kegiatan bertahap" },
+              { teks: "Panduan guru lengkap" },
+              { teks: "Ilustrasi menarik & berwarna" },
+              { teks: "Siap digunakan di kelas" },
+            ]
+          : [],
+      format,
+      status: berbayar ? "berbayar" : "gratis",
+      harga: berbayar ? 20000 + (i % 5) * 5000 : undefined,
+      tautanDrive: berbayar ? undefined : `https://drive.google.com/drive/folders/dummy-produk-${i + 1}`,
+      urutan: i,
+    },
+  });
+  dibuatProduk++;
+}
+
 console.log(`Alat Peraga: dibuat ${dibuatAlatPeraga} (lewati ${18 - dibuatAlatPeraga} sudah ada)`);
 console.log(
   `Media Interaktif: dibuat ${dibuatMediaInteraktif} (lewati ${18 - dibuatMediaInteraktif} sudah ada)`,
@@ -182,6 +238,7 @@ console.log(
 console.log(
   `Video Pembelajaran: dibuat ${dibuatVideoPembelajaran} (lewati ${18 - dibuatVideoPembelajaran} sudah ada)`,
 );
+console.log(`Produk (Buku/Bahan Ajar/Modul): dibuat ${dibuatProduk} (lewati ${18 - dibuatProduk} sudah ada)`);
 console.log("\nSelesai. Hapus data ini kapan saja lewat dasbor — cari judul berawalan “[QA] ”.");
 
 process.exit(0);

@@ -113,7 +113,7 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 | 1 | Alat Peraga | Selesai | 24 Agu 2026 |
 | 2 | Media Digital Interaktif | Selesai | 24 Agu 2026 |
 | 3 | Video Pembelajaran | Selesai | 24 Agu 2026 |
-| 4 | Buku, Bahan Ajar & Modul | Belum | — |
+| 4 | Buku, Bahan Ajar & Modul | Selesai (tampilan) | 26 Agu 2026 |
 | 5 | Integrasi Beranda (§4.5) | Belum | — |
 
 ## 4. Task per Halaman
@@ -148,14 +148,14 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 
 ### 4.4 Buku, Bahan Ajar & Modul (`FR-101–104`, `FR-109`; **FR-110 blocked**)
 
-- [ ] Route `buku-bahan-ajar-modul/page.tsx` (+ `en/`)
-- [ ] Section "Produk Terbaru" (featured, 1 produk manual/pinned — cek apakah butuh field `unggulan: checkbox` baru di `Produk.ts`, atau cukup ambil produk `urutan` terkecil)
-- [ ] `LibraryCategoryChips` 4 kartu: Modul/Buku/Bahan Ajar/LKS → href `?kategori=...`
-- [ ] Grid `ProdukCard` — tampilkan `format` (gabungan label), `status`/`harga` ("Gratis" atau "Rp20.000")
-- [ ] Tombol "Beli Sekarang" → **jangan bangun checkout**, arahkan ke fallback (lihat §2.4)
-- [ ] Alur unduh gratis (FR-104): klik unduh → form gated (nama + `asalInstansi`) → submit ke `leads` (`jenis: "unduhan-materi"`, `produkRef`) → baru tampilkan `tautanDrive`. **Ini bagian paling besar di halaman ini**, mungkin perlu dipecah jadi sesi sendiri kalau kepanjangan (update tracker jadi `Sebagian` kalau begitu).
-- [ ] `LibraryPagination` (mockup nunjukin sampai 68 halaman, pastikan pagination-nya handle angka besar dgn elipsis "...")
-- [ ] `CtaBantuanBanner`
+- [x] Route `buku-bahan-ajar-modul/page.tsx` (+ `en/`) — plus detail `[slug]` (+ `en/`) supaya tombol "Detail" punya tujuan nyata
+- [x] Section "Produk Terbaru" (featured) — **tanpa field `unggulan` baru**: dipakai produk dengan `urutan` terkecil, jadi tidak perlu ubah skema + migrasi (lihat §5)
+- [x] `LibraryCategoryChips` 4 kartu: Modul/Buku/Bahan Ajar/LKS → href `?kategori=...`
+- [x] Grid `ProdukCard` — tampilkan `format` (gabungan label), `status`/`harga` ("Gratis" atau "Rp20.000")
+- [x] Tombol "Beli Sekarang" → **checkout tidak dibangun**, diarahkan ke `/mitra` sbg fallback "Hubungi Kami" (lihat §2.4)
+- [ ] Alur unduh gratis (FR-104): klik unduh → form gated (nama + `asalInstansi`) → submit ke `leads` (`jenis: "unduhan-materi"`, `produkRef`) → baru tampilkan `tautanDrive`. **Belum dikerjakan** — sesi ini fokus tampilan/layout atas permintaan user, integrasi Drive (OI-108) ditunda. Halaman detail sementara menampilkan `tautanDrive` apa adanya tanpa form pendataan.
+- [x] `LibraryPagination` (mockup nunjukin sampai 68 halaman, pastikan pagination-nya handle angka besar dgn elipsis "...")
+- [x] `CtaBantuanBanner`
 
 ### 4.5 Integrasi Beranda
 
@@ -439,6 +439,100 @@ ditulis.
        tombol jadi link internal ke `[slug]`, bukan href eksternal langsung
        — cek ulang saat pengerjaan.
 
+- **26 Agu 2026** — Halaman **Buku, Bahan Ajar & Modul** (§1 #4) dibangun,
+  dikerjakan lebih awal dari urutan yang disepakati (harusnya setelah #5
+  Integrasi Beranda) atas permintaan user: **fokus tampilan & layout dulu,
+  integrasi Google Drive/OAuth (OI-108) tetap ditunda**. File baru:
+  - `src/lib/produk.ts` — query Local API (`getProdukList`,
+    `getProdukTerbaru`, `getProdukBySlug`, `getProdukSlugs`) + label/format
+    helper (`KATEGORI_PRODUK_LABELS`, `FORMAT_LABELS`,
+    `FORMAT_LABELS_PENDEK`, `formatLabelPendek`, `formatHarga`).
+  - `src/components/library/{ProdukCard,ProdukTerbaru,IkonKategoriProduk}.tsx`.
+  - `src/components/pages/{ProdukListContent,ProdukDetailContent}.tsx`.
+  - 4 route: `buku-bahan-ajar-modul/page.tsx`, `.../[slug]/page.tsx`, dan
+    kembarannya di `en/`.
+  - `src/lib/routes.ts` ditambah `produkListPath`/`produkPath`.
+  - `scripts/seed-library-dummy.mts` ditambah 18 dokumen `produk` dummy
+    (kategori/format/gratis-berbayar bervariasi; `i === 0` dipaksa berbayar
+    krn dia produk sematan yang tampil di panel "Produk Terbaru" dan mockup
+    menunjukkan tombol "Beli Sekarang!" di sana). Sudah dijalankan: 18
+    dokumen ter-create di DB.
+
+  Komponen bersama yang **diubah** (bukan file baru) — perlu diperhatikan
+  sesi berikutnya karena dipakai 3 halaman lama juga:
+  - `LibrarySearchBar` dapat prop `variant`: `"pill"` (bawaan, 3 halaman lama
+    tidak berubah) dan `"kotak"` (input kotak + tombol persegi berikon kaca
+    pembesar) yang dipakai halaman ini sesuai mockup. Sengaja tidak mengganti
+    bawaannya: mockup 3 halaman lain belum ditinjau (temuan QA di atas).
+  - `LibraryCategoryChips` ditata ulang jadi mendatar (ikon kiri, teks kanan)
+    + prop `warna` (tint latar) & `ikon` sekarang `ReactNode` (bukan cuma
+    emoji). Kartu Alat Peraga tidak mengoper ikon/warna, jadi tampil sbg
+    teks di kartu putih — nyaris sama seperti sebelumnya.
+
+  Keputusan yang diambil di tempat:
+  1. **"Produk Terbaru" = produk dengan `urutan` terkecil**, bukan field
+     `unggulan: checkbox` baru — menghindari ubah `payload.config` + migrasi
+     ke DB yang sedang dipakai. Konsekuensi: "terbaru" berarti "yang
+     disematkan staf lewat kolom Urutan", bukan dokumen termuda. Kalau nanti
+     maunya benar-benar otomatis (`createdAt` terbaru), tinggal ganti `sort`
+     di `getProdukTerbaru()`.
+  2. **Gambar promo di hero = sampul produk sematan itu juga**, bukan aset
+     terpisah — mockup memperlihatkan mockup buku yang sama di hero & panel
+     "Produk Terbaru", dan belum ada berkas promo khusus di Media (masalah
+     yang sama bikin hero Alat Peraga kosong, lihat entri 24 Agu poin 4).
+  3. **Ada halaman detail `[slug]`** (ikut pola Alat Peraga) supaya tombol
+     "Detail"/"Detail Produk" tidak jadi tautan mati. Isinya masih ringkas
+     (sampul, tag, ringkasan, harga, format, fitur unggulan) — susunan
+     informasinya belum ditinjau ke mockup, sama seperti PR terbuka soal isi
+     halaman detail Alat Peraga.
+  4. **Tombol aksi belum menyentuh transaksi**: produk berbayar → "Beli
+     Sekarang" ke `/mitra` (OI-105 belum diputuskan); produk gratis → panel
+     "Produk Terbaru" mengarah ke halaman detail, dan di detail `tautanDrive`
+     ditampilkan apa adanya **tanpa form pendataan pengunjung (FR-104)**.
+     Form gated + `leads` itu masih pekerjaan tersisa di §4.4.
+  5. **`ProdukCard` pakai `object-contain`** (beda dari `AlatPeragaCard` yang
+     `object-cover`) — sampulnya mockup buku tegak, kalau dipangkas judul
+     bukunya ikut terpotong.
+  6. **Ikon 4 kartu kategori ditaruh di file sendiri**
+     (`IkonKategoriProduk.tsx`), bukan menambah `src/components/ikon.tsx`:
+     set di sana terikat kontrak dengan `ikonOptions` di
+     `src/payload/blocks/shared.ts` (pilihan staf di dasbor), sedangkan
+     keempat ikon ini ditentukan kode dari `kategoriProduk`.
+  7. **Teks "Menampilkan X–Y dari Z produk" ditaruh di bawah judul
+     "Semua Buku, Bahan Ajar & Modul" (rata kiri, di atas grid)**, pagination
+     sendirian di bawah grid — mengikuti mockup. Ini beda dari Alat Peraga
+     yang menaruh keduanya menumpuk di bawah grid (temuan QA #2 halaman itu);
+     halaman lama belum ikut diubah.
+
+  Verifikasi: `npx tsc --noEmit` bersih. Skrip seed dijalankan sukses (error
+  `[revalidate] gagal menyegarkan halaman publik` di log tetap cuma noise CLI,
+  sama seperti sesi sebelumnya). **Tidak dites di browser** — sesuai preferensi
+  tersimpan, preview hanya dijalankan kalau user minta.
+
+  **Catatan buat QA manual user:**
+  - Alamat halaman: `/buku-bahan-ajar-modul` (ID) & `/en/buku-bahan-ajar-modul`
+    (EN). Belum ditautkan dari menu/beranda mana pun — itu bagian §4.5 yang
+    masih "Belum".
+  - Bandingkan ke mockup: hero (judul + deskripsi + search kotak + gambar
+    promo kanan), panel "Produk Terbaru" (sampul kiri, judul/ringkasan/
+    checklist format/2 tombol di tengah, daftar bintang fitur unggulan di
+    kanan dgn garis pemisah), 4 kartu kategori berwarna, grid 4 kolom, teks
+    "Menampilkan…", pagination, banner CTA.
+  - Data dummy produk sengaja bervariasi: ada yang `PDF` saja & ada
+    `PDF+Cetak`, ada "Gratis" (hijau) & ada harga (merah) — pastikan keduanya
+    tampil benar di kartu.
+  - Klik satu kartu kategori (mis. Modul) → cek `?kategori=modul` menyaring
+    grid, dan pagination tetap membawa filter itu saat pindah halaman.
+  - Halaman detail: cek tombol "Beli Sekarang" (produk berbayar) mendarat di
+    `/mitra`, dan produk gratis menampilkan tautan Drive dummy
+    (`https://drive.google.com/drive/folders/dummy-produk-N` — memang tidak
+    bisa dibuka, itu data QA).
+  - 3 halaman Library lama **tidak diubah tampilannya** sesi ini kecuali efek
+    sampingan `LibraryCategoryChips` di Alat Peraga (kartu kategori kini
+    mendatar) — kalau itu terlihat lebih buruk dari sebelumnya, catat sbg
+    temuan, gampang dikembalikan.
+
+
 ---
 
 ## 6. Ringkasan Sesi QA 26 Agu 2026
@@ -468,9 +562,9 @@ file Figma (bukan cuma task breakdown teks di §4) supaya perbaikan layout
 match betul, terutama utk 3 temuan layout di atas.
 
 **TODO housekeeping — jangan lupa dibersihkan sebelum rilis produksi:**
-18×3 dokumen dummy (judul berawalan `[QA] `, dibuat `scripts/seed-library-dummy.mts`)
-di koleksi `alat-peraga`/`media-interaktif`/`video-pembelajaran` harus
-dihapus lewat dasbor sebelum situs ini dianggap siap tayang ke publik.
+18×4 dokumen dummy (judul berawalan `[QA] `, dibuat `scripts/seed-library-dummy.mts`)
+di koleksi `alat-peraga`/`media-interaktif`/`video-pembelajaran`/`produk`
+harus dihapus lewat dasbor sebelum situs ini dianggap siap tayang ke publik.
 **Belum dihapus** — sengaja dipertahankan dulu krn skrip seed ini masih
 dipakai ulang tiap kali perlu re-test setelah sesi perbaikan layout/Figma
 berikutnya (termasuk nanti utk halaman ke-4, Buku/Bahan Ajar/Modul, kalau

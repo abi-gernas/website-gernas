@@ -51,6 +51,16 @@ export function videoPembelajaranListPath(locale?: Locale): string {
   return locale ? localizedPath("/video-pembelajaran", locale) : "/video-pembelajaran";
 }
 
+/** Alamat publik daftar/detail Buku, Bahan Ajar & Modul — lihat `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §2.1. */
+export function produkListPath(locale?: Locale): string {
+  return locale ? localizedPath("/buku-bahan-ajar-modul", locale) : "/buku-bahan-ajar-modul";
+}
+
+export function produkPath(slug: string, locale?: Locale): string {
+  const path = `/buku-bahan-ajar-modul/${slug}`;
+  return locale ? localizedPath(path, locale) : path;
+}
+
 /**
  * Benar bila `path` menunjuk ke alamat di situs ini sendiri.
  *
