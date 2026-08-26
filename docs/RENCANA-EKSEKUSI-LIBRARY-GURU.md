@@ -337,3 +337,45 @@ ditulis.
   - Bandingkan tampilan kartu (grid 4 kolom, overlay play, badge durasi
     pojok kanan-bawah) ke mockup asli kalau ada — sesi ini tidak py akses
     ke mockup, cuma nurut task breakdown teks di §4.3 baris lama.
+
+- **24 Agu 2026** — Sesi recap (tanpa kode). Media Interaktif + Video
+  Pembelajaran di-commit (`e0573c6`). Keputusan/konfirmasi dari user:
+  1. **Urutan #4 (Buku/Bahan Ajar/Modul) dikerjakan PALING TERAKHIR**,
+     setelah #5 Integrasi Beranda — beda dari urutan §1 asli ("nilai
+     terbesar duluan"). Alasan: perlu setup Google Drive OAuth + API key
+     dulu (OI-108), belum siap. Baris urutan §1/§3 belum diubah fisik,
+     tapi acuan eksekusi sebenarnya: 1 Alat Peraga → 2 Media Interaktif →
+     3 Video Pembelajaran → 5 Integrasi Beranda → 4 Buku/Bahan Ajar/Modul.
+  2. **OI-106** dikonfirmasi: nanti pakai embed YouTube (bukan link keluar
+     doang spt keputusan sementara di sesi Video Pembelajaran) — belum
+     dikerjakan, nunggu sesi lanjutan `VideoPembelajaranCard`/
+     `videoPembelajaranTontonHref()`.
+  3. **OI-105** (checkout) masih belum diputuskan — tetap fallback
+     "Hubungi Kami" spt rencana semula.
+  4. **OI-108** (OAuth Drive) dikonfirmasi dikerjakan paling terakhir
+     banget, sejalan dgn poin 1.
+  5. **"Bergabung dengan Komunitas"** dikonfirmasi user: gaada hubungannya
+     sama pengembangan Library Materi Guru ini — di luar scope permanen,
+     bukan cuma "belum ada arahan".
+  6. **TODO seed dummy data buat QA** — koleksi `alat-peraga`,
+     `media-interaktif`, `video-pembelajaran` masih kosong di DB (demo &
+     production pakai DB yg sama), jadi QA visual (grid, pagination
+     >1 halaman, "Pencarian Populer") belum pernah dites data asli. Rencana:
+     bikin `scripts/seed-library-dummy.mts` (pola sama `scripts/seed-pages.mts`),
+     isi tiap koleksi ~15-20 dokumen dummy dgn variasi jenjang/mapel/tags
+     biar filter & `LibraryPagination` (>12 item) ke-test. **Belum dibuat**
+     — dikerjakan di sesi terpisah nanti oleh user sendiri.
+
+- **26 Agu 2026** — Skrip `scripts/seed-library-dummy.mts` (`npm run
+  seed:library-dummy`) dibuat & dijalankan, menuntaskan TODO poin 6 di atas.
+  18 dokumen per koleksi (`alat-peraga`, `media-interaktif`,
+  `video-pembelajaran`) — sengaja >12 biar `LibraryPagination` ke-test sampai
+  halaman 2. Tidak upload berkas baru: cover/thumbnail pakai ulang dokumen
+  Media yang sudah ada (round-robin). Idempotent — ditandai judul berawalan
+  `[QA] `, dicek dulu sblm create, aman dijalankan ulang. Dihapus kapan saja
+  lewat dasbor dgn cari prefiks itu. `npx tsc --noEmit` bersih, skrip
+  dijalankan sukses (error `[revalidate] gagal menyegarkan halaman publik`
+  yang muncul di log itu cuma noise — hook revalidate memang gagal di luar
+  context Next request saat dipanggil dari CLI, bukan bug baru, data tetap
+  ter-create). Selanjutnya: QA manual halaman Alat Peraga, Media Interaktif,
+  Video Pembelajaran oleh user di `dev.gernastastaka.org` (branch `preview`).
