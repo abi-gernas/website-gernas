@@ -129,6 +129,8 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 - [x] `CtaBantuanBanner`
 - [x] `generateMetadata` — statis (title/description manual), koleksi ini tidak ikut `seoPlugin` (cuma `pages`/`articles`), lihat `src/payload.config.ts`
 - [x] Halaman detail: **route terpisah** `alat-peraga/[slug]/page.tsx` (+ `en/`) — diputuskan di tempat krn tidak ada akses ke mockup asli di sesi ini; route nyata lebih aman utk SEO/share drpd modal. Boleh dikoreksi ke modal nanti kalau mockup ternyata beda.
+- [x] **Revisi tata letak ke mockup Figma** (26 Agu 2026) — hero 2 kolom (teks + gambar promo, rata kiri) dgn search `variant="kotak"`, 2 kartu kategori varian `lebar` berikon & bertombol panah, judul "Semua Alat Peraga" + teks "Menampilkan…" di atas grid, grid 3 kolom, kartu disusun ulang (judul → subjudul → tag → tombol Detail rata kanan). Menuntaskan temuan QA #1–#3 halaman ini, lihat §5
+- [ ] Isi halaman detail (`alat-peraga/[slug]`) — **masih temuan QA #4 yang terbuka**, perlu didiskusikan informasi apa saja yang ditampilkan. Belum disentuh di sesi revisi Figma.
 
 ### 4.2 Media Digital Interaktif (`FR-108`) — Selesai
 
@@ -593,6 +595,56 @@ ditulis.
   sama spt sesi sebelumnya). **Tidak dites di browser** — sesuai preferensi
   tersimpan, preview hanya dijalankan kalau user minta.
 
+- **26 Agu 2026** — **Revisi tampilan halaman Alat Peraga ke mockup Figma**
+  (menutup temuan QA #1, #2, #3 halaman itu). File baru:
+  - `src/components/library/IkonAlatPeraga.tsx` — 2 ikon kartu kategori
+    (bangun ruang utk Gernas Tastaka, tumpukan buku utk Gernas Tastaba),
+    SVG berwarna inline sbg penampung sementara.
+
+  File yang diubah:
+  - `src/components/pages/AlatPeragaListContent.tsx` — hero jadi 2 kolom (teks
+    rata kiri + gambar promo kanan, eyebrow "Library Materi Guru" dihapus krn
+    tidak ada di mockup), search bar pakai `variant="kotak"`, kartu kategori
+    pakai varian `lebar`, section daftar dapat judul "Semua Alat Peraga" dgn
+    teks "Menampilkan X–Y dari Z produk" di bawahnya (rata kiri, di atas grid)
+    & pagination sendirian di bawah grid, grid jadi 3 kolom (dari 4).
+  - `src/components/library/AlatPeragaCard.tsx` — susunan mengikuti mockup:
+    gambar → judul → subjudul → tag jenjang/mapel → tombol "Detail" rata kanan
+    (sebelumnya tag di atas judul & tombol rata kiri). Tag pakai tint biru,
+    tombol Detail jadi pil abu.
+  - `src/components/library/LibraryCategoryChips.tsx` — prop `variant` baru:
+    `"ringkas"` (bawaan, halaman Buku/Bahan Ajar/Modul **tidak berubah**) dan
+    `"lebar"` (2 kolom, kartu lebih lapang, judul ikut warna aksen, tombol
+    panah bundar di ujung kanan) yang dipakai halaman ini.
+  - `src/lib/alatPeraga.ts` — `getAlatPeragaSematan()` baru (urutan terkecil,
+    `limit: 1`) utk gambar promo hero.
+  - `src/app/(frontend)/alat-peraga/page.tsx` + `en/` — `description` metadata
+    diselaraskan dgn teks hero yang baru.
+
+  Keputusan yang diambil di tempat:
+  1. **Teks deskripsi hero tidak disalin mentah dari mockup** — mockup Alat
+     Peraga memakai kalimat halaman Buku ("Kumpulan buku, modul dan bahan ajar
+     berkualitas…"), jelas sisa salin-tempel di Figma. Dipakai kalimat yang
+     mengikuti irama yang sama tapi menyebut alat peraga. Placeholder pencarian
+     ikut mockup apa adanya ("Cari materi, topik, kelas, atau kata kunci…").
+  2. **Gambar promo hero = sampul alat peraga sematan** (`urutan` terkecil),
+     bukan aset terpisah — alasan & pola sama persis dgn halaman Buku (§5
+     entri sebelumnya poin 2); belum ada berkas promo khusus di koleksi Media.
+     Hero otomatis jadi satu kolom kalau koleksi kosong.
+  3. **Deskripsi 2 kartu kategori tetap teks lama** — di mockup isinya lorem
+     (`tghtrhrthbery54y65hjytyj7ikuykjy…`), bukan copy sungguhan.
+  4. **Grid 3 kolom** (`lg:grid-cols-3`) mengikuti mockup — beda dari halaman
+     Buku & Video yg 4 kolom. 12 item per halaman jadi pas 4 baris.
+  5. **Ilustrasi orang ber-headset di banner CTA tetap dilewati** — asetnya
+     belum ada, sama spt keputusan di sesi Media Interaktif (§5 entri
+     sebelumnya poin 3). Bannernya sendiri sudah mendatar sesuai mockup.
+  6. **Temuan QA #4 (isi halaman detail) tidak dikerjakan** — itu butuh diskusi
+     informasi apa yang ditampilkan, bukan sekadar tata letak; mockup yang
+     ditinjau sesi ini cuma halaman katalog.
+
+  Verifikasi: `npx tsc --noEmit` bersih. **Tidak dites di browser** — sesuai
+  preferensi tersimpan, preview hanya dijalankan kalau user minta.
+
 ---
 
 ## 6. Ringkasan Sesi QA 26 Agu 2026
@@ -607,11 +659,13 @@ bukan "sudah lolos QA visual/Figma"); rincian temuan tiap halaman ada di §5
 di atas entri "26 Agu 2026" masing-masing.
 
 Ringkas per halaman:
-- **Alat Peraga**: layout search bar, teks "Menampilkan X dari Y", &
-  `LibraryCategoryChips` belum sesuai Figma. Isi halaman detail perlu
-  didiskusikan ulang.
-- **Media Interaktif**: layout belum sesuai Figma. PR terbuka soal tombol
-  "Buka Link" (tautan keluar vs embed) — **butuh konfirmasi klien**.
+- **Alat Peraga**: ~~layout search bar, teks "Menampilkan X dari Y", &
+  `LibraryCategoryChips` belum sesuai Figma~~ → **sudah diperbaiki** 26 Agu
+  2026 (lihat entri §5 terakhir). Sisa yang terbuka: isi halaman detail
+  (temuan #4) masih perlu didiskusikan ulang.
+- **Media Interaktif**: ~~layout belum sesuai Figma~~ → **sudah diperbaiki**
+  26 Agu 2026. Sisa yang terbuka: PR soal tombol "Buka Link" (tautan keluar
+  vs embed) — **butuh konfirmasi klien**.
 - **Video Pembelajaran**: layout belum sesuai Figma. **Keputusan baru**:
   tombol "Tonton" harus jadi halaman detail dgn video ter-embed di website
   kita, bukan redirect ke YouTube — perlu field `slug` baru + komponen

@@ -106,3 +106,26 @@ export async function getAlatPeragaSlugs(): Promise<string[]> {
   });
   return res.docs.map((d) => d.slug);
 }
+
+/**
+ * Satu alat peraga sematan (urutan terkecil) — dipakai sebagai gambar promo di
+ * hero halaman katalog. Pola yang sama dengan `getProdukTerbaru()`: mockup
+ * memperlihatkan gambar promo di sisi kanan hero, tetapi belum ada berkas
+ * promo khusus di koleksi Media, jadi dipinjam sampul item yang disematkan
+ * staf lewat kolom Urutan. Ganti ke aset sendiri begitu tersedia.
+ */
+export const getAlatPeragaSematan = cache(async function getAlatPeragaSematan(
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<AlatPeragaView | null> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "alat-peraga",
+    depth: 1,
+    limit: 1,
+    sort: "urutan",
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+  });
+  const doc = res.docs[0];
+  return doc ? toView(doc) : null;
+});

@@ -7,7 +7,7 @@ import type { LibrarySearchParams } from "@/lib/library";
 export const metadata: Metadata = {
   title: "Teaching Aids",
   description:
-    "A collection of ready-to-use teaching aids to support math and reading instruction in the classroom.",
+    "A collection of quality teaching aids ready to support learning in the classroom.",
 };
 
 export default async function AlatPeragaPageEN({

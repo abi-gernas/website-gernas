@@ -7,7 +7,7 @@ import type { LibrarySearchParams } from "@/lib/library";
 export const metadata: Metadata = {
   title: "Alat Peraga",
   description:
-    "Koleksi alat peraga siap pakai untuk mendukung pembelajaran matematika dan membaca di kelas.",
+    "Kumpulan alat peraga berkualitas yang siap digunakan untuk mendukung pembelajaran di kelas.",
 };
 
 export default async function AlatPeragaPage({
