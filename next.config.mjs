@@ -13,6 +13,15 @@ const nextConfig = {
   // sharp "external" membuat Next memakai node_modules/sharp apa adanya saat
   // runtime, termasuk binary native-nya.
   serverExternalPackages: ["sharp"],
+  // `serverExternalPackages` saja ternyata belum cukup: sharp me-load binding
+  // native-nya lewat dlopen dinamis, bukan `require()` statis, jadi tracer
+  // file bawaan Next tidak mendeteksinya sbg dependency dan TIDAK menyalin
+  // paket @img/sharp-*-linux-x64 ke bundle function Vercel — persis error di
+  // atas. Paksa sertakan seluruh paket @img (binary sharp untuk semua
+  // platform) secara eksplisit.
+  outputFileTracingIncludes: {
+    "/**/*": ["./node_modules/@img/**/*", "./node_modules/sharp/**/*"],
+  },
   images: {
     /**
      * Batasi jumlah varian yang dihasilkan optimizer Vercel.
