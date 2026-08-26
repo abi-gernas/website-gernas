@@ -379,3 +379,90 @@ ditulis.
   context Next request saat dipanggil dari CLI, bukan bug baru, data tetap
   ter-create). Selanjutnya: QA manual halaman Alat Peraga, Media Interaktif,
   Video Pembelajaran oleh user di `dev.gernastastaka.org` (branch `preview`).
+
+- **26 Agu 2026** — Deploy `preview` ke `dev.gernastastaka.org` sempat gagal
+  total (semua halaman "server error", termasuk favicon) krn `sharp` native
+  binary (libvips) tidak ke-bundle ke runtime serverless Vercel — bukan bug
+  Library Guru, ini masalah Turbopack/Next 16 + native module. Diperbaiki 2
+  commit: `serverExternalPackages: ["sharp"]` lalu (krn belum cukup)
+  `outputFileTracingIncludes` paksa sertakan `node_modules/@img/**` &
+  `node_modules/sharp/**`. Lihat `next.config.mjs`.
+
+  **QA manual Alat Peraga (temuan, BELUM DIPERBAIKI — ditunda, dikerjakan
+  nanti sekaligus dgn revisi halaman lain):**
+  1. **Search bar** — penempatan/layout belum sesuai mockup Figma.
+  2. **Teks "Menampilkan 1–12 dari 86 produk"** — posisi/layout-nya belum
+     sesuai Figma (posisi teks ini vs pagination perlu dicek ulang thd
+     mockup).
+  3. **`LibraryCategoryChips`** ("Jelajahi Berdasarkan Kategori") — layout
+     kartu belum sesuai Figma.
+  4. **Halaman detail (`alat-peraga/[slug]`)** — perlu didiskusikan ulang:
+     isi & informasi apa saja yang seharusnya ditampilkan (keputusan
+     sementara di §5 sesi 24 Agu cuma asumsi tanpa akses mockup detail).
+
+  Belum dikerjakan sesi ini — user lanjut QA halaman berikutnya dulu, semua
+  temuan di atas diperbaiki bareng nanti (kemungkinan butuh akses mockup
+  Figma langsung, bukan cuma task breakdown teks).
+
+  **QA manual Media Digital Interaktif (temuan, BELUM DIPERBAIKI — ditunda,
+  sama spt Alat Peraga):**
+  1. **Layout umum** — sama kayak Alat Peraga, perlu disesuaikan ulang ke
+     Figma.
+  2. **Tombol "Buka Link"** — PR terbuka: apa tetap tautan keluar biasa
+     (`target="_blank"`, kondisi saat ini) atau sistemnya mau di-embed
+     langsung saat diklik (mis. modal/iframe)? **Perlu didiskusikan dengan
+     klien dulu** sebelum diputuskan/dikerjakan — jangan asumsikan salah
+     satu di sesi perbaikan nanti tanpa konfirmasi ini.
+
+  **QA manual Video Pembelajaran (temuan, BELUM DIPERBAIKI — ditunda, sama
+  spt 2 halaman di atas):**
+  1. **Layout umum** — sama, perlu disesuaikan ulang ke Figma (lebih teliti
+     lagi menurut user).
+  2. **Tombol "Tonton" — KEPUTUSAN BARU, bukan cuma catatan diskusi**: user
+     memutuskan **halaman detail per video** (bukan redirect keluar ke
+     YouTube spt implementasi saat ini). Klik "Tonton" tetap di website kita,
+     video di-embed & bisa diputar langsung di halaman detail itu. Ini
+     override keputusan sementara sesi 24 Agu ("tombol tonton = tautan
+     eksternal langsung", lihat entri riwayat 24 Agu poin 2 & fungsi
+     `videoPembelajaranTontonHref()` di `src/lib/videoPembelajaran.ts`) —
+     **perlu dikerjakan nanti**:
+     - Tambah route detail `video-pembelajaran/[slug]` (+ `en/`) — tapi
+       skema `VideoPembelajaran.ts` **belum punya field `slug`** (beda dari
+       `AlatPeraga` yang sudah punya), jadi perlu tambah field + migrasi dulu.
+     - Ganti `VideoPembelajaranCard` dari link langsung jadi link ke route
+       detail internal.
+     - Halaman detail perlu komponen embed player (YouTube iframe utk
+       `sumberTipe: "youtube"`; utk `sumberTipe: "upload"` pakai `<video>`
+       tag native ke `berkasVideo.url`). Belum ada komponen video player di
+       proyek ini sama sekali — ini genuinely baru.
+     - `videoPembelajaranTontonHref()` kemungkinan tidak lagi dipakai kalau
+       tombol jadi link internal ke `[slug]`, bukan href eksternal langsung
+       — cek ulang saat pengerjaan.
+
+---
+
+## 6. Ringkasan Sesi QA 26 Agu 2026
+
+Skrip dummy data dibuat, deploy `preview` diperbaiki (bug infra `sharp` di
+Vercel, tidak terkait Library Guru), lalu QA manual dilakukan untuk 3
+halaman yang sudah dibangun (Alat Peraga, Media Interaktif, Video
+Pembelajaran) langsung di `dev.gernastastaka.org`. **Semua 3 halaman perlu
+sesi perbaikan lanjutan** sebelum dianggap selesai penuh — status tracker §3
+sengaja TIDAK diubah dulu dari "Selesai" (itu menandai "sudah dibangun",
+bukan "sudah lolos QA visual/Figma"); rincian temuan tiap halaman ada di §5
+di atas entri "26 Agu 2026" masing-masing.
+
+Ringkas per halaman:
+- **Alat Peraga**: layout search bar, teks "Menampilkan X dari Y", &
+  `LibraryCategoryChips` belum sesuai Figma. Isi halaman detail perlu
+  didiskusikan ulang.
+- **Media Interaktif**: layout belum sesuai Figma. PR terbuka soal tombol
+  "Buka Link" (tautan keluar vs embed) — **butuh konfirmasi klien**.
+- **Video Pembelajaran**: layout belum sesuai Figma. **Keputusan baru**:
+  tombol "Tonton" harus jadi halaman detail dgn video ter-embed di website
+  kita, bukan redirect ke YouTube — perlu field `slug` baru + komponen
+  player baru, cukup besar buat sesi tersendiri.
+
+**Untuk sesi perbaikan berikutnya**: kemungkinan butuh akses langsung ke
+file Figma (bukan cuma task breakdown teks di §4) supaya perbaikan layout
+match betul, terutama utk 3 temuan layout di atas.
