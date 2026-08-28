@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { payloadPromise } from "./payload";
 import { DEFAULT_LOCALE, LOCALES, localizedPath, type Locale } from "./i18n";
-import type { NavChild, NavItem } from "./nav";
+import type { NavChild, NavCta, NavItem } from "./nav";
 
 type RawLink = {
   linkType?: "page" | "custom" | null;
@@ -20,7 +20,11 @@ type RawItem = RawLink & {
   children?: RawChild[] | null;
   hidden?: boolean | null;
 };
-type NavigationDoc = { items?: RawItem[] | null };
+type RawCta = RawLink & {
+  enabled?: boolean | null;
+  label?: string | null;
+};
+type NavigationDoc = { items?: RawItem[] | null; ctaButton?: RawCta | null };
 
 /** Jenis Tautan "Halaman CMS" -> slug Pages; "Tautan Kustom" -> Rute Cepat atau teks manual. */
 function resolveHref(raw: RawLink): string | null {
@@ -57,6 +61,25 @@ function toItem(item: RawItem, locale: Locale): NavItem | null {
   };
 }
 
+function toCta(raw: RawCta | null | undefined, locale: Locale): NavCta | null {
+  if (!raw || raw.enabled === false || !raw.label) return null;
+  const href = resolveHref(raw);
+  if (!href) return null;
+  return { label: raw.label, href: localizedPath(href, locale) };
+}
+
+const fetchNavigationDoc = cache(async function fetchNavigationDoc(
+  locale: Locale,
+): Promise<NavigationDoc> {
+  const payload = await payloadPromise;
+  return (await payload.findGlobal({
+    slug: "navigation",
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+    depth: 1, // perlu 1 untuk mengambil slug dari relasi "page"
+  })) as NavigationDoc;
+});
+
 /**
  * Menu navbar dari Global "Navigation" di Payload — menggantikan
  * `navByLocale` statis di `src/lib/nav.ts`.
@@ -64,25 +87,40 @@ function toItem(item: RawItem, locale: Locale): NavItem | null {
 export const getNavigationItems = cache(async function getNavigationItems(
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<NavItem[]> {
-  const payload = await payloadPromise;
-  const doc = (await payload.findGlobal({
-    slug: "navigation",
-    locale,
-    fallbackLocale: DEFAULT_LOCALE,
-    depth: 1, // perlu 1 untuk mengambil slug dari relasi "page"
-  })) as NavigationDoc;
-
+  const doc = await fetchNavigationDoc(locale);
   return (doc.items ?? [])
     .map((item) => toItem(item, locale))
     .filter((item): item is NavItem => item !== null);
 });
 
-/** Menu untuk semua locale sekaligus — dipakai layout server yang belum tahu locale request. */
+/** Tombol CTA (mis. "Donasi") yang tampil di navbar & footer. */
+export const getCtaButton = cache(async function getCtaButton(
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<NavCta | null> {
+  const doc = await fetchNavigationDoc(locale);
+  return toCta(doc.ctaButton, locale);
+});
+
+/** Menu + CTA untuk semua locale sekaligus — dipakai layout server yang belum tahu locale request. */
 export const getNavigationByLocale = cache(async function getNavigationByLocale(): Promise<
-  Record<Locale, NavItem[]>
+  Record<Locale, { items: NavItem[]; cta: NavCta | null }>
 > {
   const entries = await Promise.all(
-    LOCALES.map(async (locale) => [locale, await getNavigationItems(locale)] as const),
+    LOCALES.map(async (locale) => {
+      const [items, cta] = await Promise.all([
+        getNavigationItems(locale),
+        getCtaButton(locale),
+      ]);
+      return [locale, { items, cta }] as const;
+    }),
   );
-  return Object.fromEntries(entries) as Record<Locale, NavItem[]>;
+  return Object.fromEntries(entries) as Record<Locale, { items: NavItem[]; cta: NavCta | null }>;
 });
+
+/** CTA per locale saja — dipakai komponen yang tidak butuh daftar menu (mis. Footer). */
+export function ctaByLocaleFrom(
+  navByLocale: Record<Locale, { items: NavItem[]; cta: NavCta | null }>,
+): Record<Locale, NavCta | null> {
+  const entries = LOCALES.map((locale) => [locale, navByLocale[locale].cta] as const);
+  return Object.fromEntries(entries) as Record<Locale, NavCta | null>;
+}

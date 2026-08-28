@@ -60,7 +60,6 @@ export function dateLocaleTag(locale: Locale): string {
 
 export const uiText = {
   id: {
-    donate: "Donasi",
     latestNews: "Kabar Terbaru",
     contactUs: "Hubungi Kami",
     readMore: "Baca Selengkapnya",
@@ -121,7 +120,6 @@ export const uiText = {
     backHome: "Kembali ke Beranda",
   },
   en: {
-    donate: "Donate",
     latestNews: "Latest News",
     contactUs: "Contact Us",
     readMore: "Read More",

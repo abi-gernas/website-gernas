@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import type { NavItem } from "@/lib/nav";
+import type { NavCta, NavItem } from "@/lib/nav";
 import {
   DEFAULT_LOCALE,
   LOCALES,
@@ -117,10 +117,14 @@ function LanguageSwitcher({
   );
 }
 
-export function Navbar({ navByLocale }: { navByLocale: Record<Locale, NavItem[]> }) {
+export function Navbar({
+  navByLocale,
+}: {
+  navByLocale: Record<Locale, { items: NavItem[]; cta: NavCta | null }>;
+}) {
   const pathname = usePathname();
   const { locale } = splitLocalePath(pathname);
-  const navItems = navByLocale[locale];
+  const { items: navItems, cta } = navByLocale[locale];
   const text = uiText[locale];
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -143,12 +147,11 @@ export function Navbar({ navByLocale }: { navByLocale: Record<Locale, NavItem[]>
             {navItems.map((item) => (
               <DesktopItem key={item.label} item={item} />
             ))}
-            <Link
-              href={localePathname("/donatur", locale)}
-              className="btn-red ml-3 !px-5 !py-2.5"
-            >
-              {text.donate}
-            </Link>
+            {cta && (
+              <Link href={cta.href} className="btn-red ml-3 !px-5 !py-2.5">
+                {cta.label}
+              </Link>
+            )}
             <LanguageSwitcher locale={locale} pathname={pathname} />
           </div>
 
@@ -228,13 +231,15 @@ export function Navbar({ navByLocale }: { navByLocale: Record<Locale, NavItem[]>
                   </Link>
                 ),
               )}
-              <Link
-                href={localePathname("/donatur", locale)}
-                onClick={() => setOpen(false)}
-                className="btn-red mt-3 w-full"
-              >
-                {text.donate}
-              </Link>
+              {cta && (
+                <Link
+                  href={cta.href}
+                  onClick={() => setOpen(false)}
+                  className="btn-red mt-3 w-full"
+                >
+                  {cta.label}
+                </Link>
+              )}
               <LanguageSwitcher
                 locale={locale}
                 pathname={pathname}

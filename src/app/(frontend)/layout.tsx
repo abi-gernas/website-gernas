@@ -4,7 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { HtmlLangSync } from "@/components/HtmlLangSync";
-import { getNavigationByLocale } from "@/lib/navigation";
+import { ctaByLocaleFrom, getNavigationByLocale } from "@/lib/navigation";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -57,7 +57,7 @@ export default async function RootLayout({
         <HtmlLangSync />
         <Navbar navByLocale={navByLocale} />
         <main id="main">{children}</main>
-        <Footer />
+        <Footer ctaByLocale={ctaByLocaleFrom(navByLocale)} />
       </body>
     </html>
   );

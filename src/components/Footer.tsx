@@ -3,8 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { getFooterLinks, contact } from "@/lib/nav";
-import { splitLocalePath, uiText } from "@/lib/i18n";
+import { getFooterLinks, contact, type NavCta } from "@/lib/nav";
+import { splitLocalePath, uiText, type Locale } from "@/lib/i18n";
 
 const socials = [
   { label: "Facebook", href: "#", d: "M13.5 9H15V6.5h-1.5c-1.7 0-2.5 1-2.5 2.6V11H9v2.5h2v6h2.5v-6H15l.5-2.5h-2v-1.2c0-.6.2-.8.8-.8z" },
@@ -13,11 +13,15 @@ const socials = [
   { label: "YouTube", href: "#", d: "M17.5 9.2a1.7 1.7 0 00-1.2-1.2C15.2 7.7 12 7.7 12 7.7s-3.2 0-4.3.3A1.7 1.7 0 006.5 9.2C6.2 10.3 6.2 12 6.2 12s0 1.7.3 2.8a1.7 1.7 0 001.2 1.2c1.1.3 4.3.3 4.3.3s3.2 0 4.3-.3a1.7 1.7 0 001.2-1.2c.3-1.1.3-2.8.3-2.8s0-1.7-.3-2.8zM10.8 13.8v-3.6l3.1 1.8-3.1 1.8z" },
 ];
 
-export function Footer() {
+export function Footer({ ctaByLocale }: { ctaByLocale: Record<Locale, NavCta | null> }) {
   const pathname = usePathname();
   const { locale } = splitLocalePath(pathname);
   const footerLinks = getFooterLinks(locale);
   const text = uiText[locale];
+  const cta = ctaByLocale[locale];
+  const aktivitasLinks = cta
+    ? [...footerLinks.aktivitas, { label: cta.label, href: cta.href }]
+    : footerLinks.aktivitas;
 
   return (
     <footer className="bg-surface">
@@ -56,7 +60,7 @@ export function Footer() {
             {text.footerActivity}
           </h4>
           <ul className="mt-4 space-y-2.5">
-            {footerLinks.aktivitas.map((l) => (
+            {aktivitasLinks.map((l) => (
               <li key={l.href}>
                 <Link
                   href={l.href}
