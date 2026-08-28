@@ -2,6 +2,7 @@ import { localizedPath, type Locale } from "./i18n";
 
 export type NavChild = { label: string; href: string; desc?: string };
 export type NavItem = { label: string; href?: string; children?: NavChild[] };
+export type NavCta = { label: string; href: string };
 
 const footerLinksByLocale: Record<
   Locale,
@@ -19,7 +20,6 @@ const footerLinksByLocale: Record<
       { label: "Tumbuh Bersama", href: "/tumbuh-bersama" },
       { label: "Penggerak", href: "/tentang-gernas-tastaka#penggerak" },
       { label: "Mitra", href: "/mitra" },
-      { label: "Donasi", href: "/donatur" },
     ],
   },
   en: {
@@ -34,7 +34,6 @@ const footerLinksByLocale: Record<
       { label: "Tumbuh Bersama", href: "/tumbuh-bersama" },
       { label: "Team", href: "/tentang-gernas-tastaka#penggerak" },
       { label: "Partners", href: "/mitra" },
-      { label: "Donate", href: "/donatur" },
     ],
   },
 };

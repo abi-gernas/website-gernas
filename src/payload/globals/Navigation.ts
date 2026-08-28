@@ -1,6 +1,7 @@
 import type { Field, GlobalConfig } from "payload";
 import { terapkanReferensiLokal } from "../fields/localeReference";
 import { judulBaris } from "../fields/rowLabel";
+import { revalidateNavigasi } from "../hooks/revalidate";
 
 /**
  * Rute tetap di kode (bukan dokumen Payload) yang sering dijadikan tujuan
@@ -25,7 +26,7 @@ const LAINNYA = "__custom__";
  * mungkin salah ketik) atau isi tautan kustom untuk rute tetap di kode,
  * anchor (#...), atau URL eksternal.
  */
-function tautanFields(): Field[] {
+function tautanFields(opts: { defaultPreset?: string } = {}): Field[] {
   return [
     {
       name: "linkType",
@@ -51,7 +52,7 @@ function tautanFields(): Field[] {
       name: "preset",
       type: "select",
       label: "Rute Cepat",
-      defaultValue: LAINNYA,
+      defaultValue: opts.defaultPreset ?? LAINNYA,
       options: [
         ...RUTE_TETAP.map((r) => ({ label: `${r.label} (${r.value})`, value: r.value })),
         { label: "Lainnya / isi manual…", value: LAINNYA },
@@ -86,7 +87,34 @@ export const Navigation: GlobalConfig = {
     read: () => true,
     update: ({ req }) => Boolean(req.user),
   },
+  hooks: {
+    afterChange: [revalidateNavigasi],
+  },
   fields: terapkanReferensiLokal([
+    {
+      name: "ctaButton",
+      type: "group",
+      label: "Tombol CTA (mis. Donasi)",
+      fields: [
+        {
+          name: "enabled",
+          type: "checkbox",
+          label: "Tampilkan tombol",
+          defaultValue: true,
+        },
+        {
+          name: "label",
+          type: "text",
+          localized: true,
+          label: "Label",
+          defaultValue: "Donasi",
+          admin: {
+            condition: (_data, siblingData) => siblingData?.enabled !== false,
+          },
+        },
+        ...tautanFields({ defaultPreset: "/donatur" }),
+      ],
+    },
     {
       name: "items",
       type: "array",

@@ -1,4 +1,8 @@
-import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from "payload";
+import type {
+  CollectionAfterChangeHook,
+  CollectionAfterDeleteHook,
+  GlobalAfterChangeHook,
+} from "payload";
 import { pagePath } from "../../lib/routes";
 
 /**
@@ -112,6 +116,12 @@ export const revalidateSemua: CollectionAfterChangeHook = async ({ doc }) => {
 };
 
 export const revalidateSemuaAfterDelete: CollectionAfterDeleteHook = async ({ doc }) => {
+  await revalidateSeluruhSitus();
+  return doc;
+};
+
+/** Navbar/footer dirender di root layout — perubahan di sana menyentuh semua halaman. */
+export const revalidateNavigasi: GlobalAfterChangeHook = async ({ doc }) => {
   await revalidateSeluruhSitus();
   return doc;
 };

@@ -18,6 +18,7 @@ import * as migration_20260815_092958_navigation_drop_href from './20260815_0929
 import * as migration_20260815_125037_add_leads_collection from './20260815_125037_add_leads_collection';
 import * as migration_20260824_075753_library_guru_collections from './20260824_075753_library_guru_collections';
 import * as migration_20260826_161929_video_pembelajaran_slug from './20260826_161929_video_pembelajaran_slug';
+import * as migration_20260828_071924 from './20260828_071924';
 
 export const migrations = [
   {
@@ -118,6 +119,11 @@ export const migrations = [
   {
     up: migration_20260826_161929_video_pembelajaran_slug.up,
     down: migration_20260826_161929_video_pembelajaran_slug.down,
-    name: '20260826_161929_video_pembelajaran_slug'
+    name: '20260826_161929_video_pembelajaran_slug',
+  },
+  {
+    up: migration_20260828_071924.up,
+    down: migration_20260828_071924.down,
+    name: '20260828_071924'
   },
 ];

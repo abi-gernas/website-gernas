@@ -2188,6 +2188,29 @@ export interface SiteSetting {
  */
 export interface Navigation {
   id: number;
+  ctaButton?: {
+    enabled?: boolean | null;
+    label?: string | null;
+    linkType?: ('page' | 'custom') | null;
+    page?: (number | null) | Page;
+    preset?:
+      | (
+          | '/'
+          | '/tentang-gernas-tastaka'
+          | '/galeri'
+          | '/mitra'
+          | '/donatur'
+          | '/tumbuh-bersama'
+          | '/belajar-bersama'
+          | '/publikasi'
+          | '__custom__'
+        )
+      | null;
+    /**
+     * Path relatif (mis. /mitra#anchor) atau URL penuh.
+     */
+    custom?: string | null;
+  };
   items?:
     | {
         label: string;
@@ -2275,6 +2298,16 @@ export interface SiteSettingsSelect<T extends boolean = true> {
  * via the `definition` "navigation_select".
  */
 export interface NavigationSelect<T extends boolean = true> {
+  ctaButton?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        linkType?: T;
+        page?: T;
+        preset?: T;
+        custom?: T;
+      };
   items?:
     | T
     | {
