@@ -145,32 +145,48 @@ hilang diam-diam pada `seed:produk-drive` berikutnya. Ini batasnya.
 Aturan singkat buat staf: **kalau isinya kelihatan datang dari nama berkas atau
 nama folder di Drive, betulkan di Drive — bukan di dasbor.**
 
-### 2.2 Yang belum bisa dilakukan staf tanpa terminal
+### 2.2 Cara menambah materi baru — **opsi A (diputuskan user, 7 Sep 2026)**
 
-Menambah materi baru sekarang butuh dua langkah, dan langkah keduanya belum
-bisa dijalankan dari dasbor:
+Isi awal 79 materi dimasukkan sekali secara gelondongan lewat skrip. Untuk
+seterusnya, **materi baru ditambahkan manual lewat dasbor** — tidak ada
+penjadwalan, tidak ada tombol tarik-dari-Drive.
 
-1. Taruh PDF di folder topik yang benar di Drive. *(staf bisa)*
-2. Jalankan `npm run drive:fetch && npm run seed:produk-drive`. *(butuh
-   terminal + akses `.env` — praktisnya cuma developer)*
+Langkah staf:
 
-Jalan keluarnya, dari yang paling murah:
+1. Taruh PDF-nya di folder topik yang benar di Drive (tetap ikuti penamaan
+   §1.2 — supaya kalau suatu saat skrip dijalankan lagi, berkas itu dikenali).
+2. Di Drive, klik kanan berkas → *Bagikan* → pastikan **"Siapa saja yang punya
+   tautan"**, lalu *Salin link*.
+3. Di dasbor: **Produk (Buku/Bahan Ajar/Modul)** → *Create New*. Isi judul,
+   tempel link tadi ke **Tautan Google Drive**, pilih Topik + Jenis materi +
+   Jenjang + Mapel, unggah sampul, isi ringkasan.
 
-- **A — staf bikin dokumennya manual di dasbor.** Isi judul + tempel tautan
-  Drive + unggah sampul sendiri. Tidak perlu perubahan kode sama sekali, dan
-  skrip tidak akan menduplikasinya selama `tautanDrive`-nya sama persis dengan
-  yang di Drive. Cocok untuk penambahan sesekali (1–2 materi).
-- **B — jadwalkan skripnya.** GitHub Actions harian/mingguan yang menjalankan
-  kedua perintah itu ke database preview/produksi. Staf cukup taruh berkas di
-  Drive, materi muncul sendiri di hari berikutnya. Butuh `DATABASE_URI` +
-  kredensial S3 sbg secret di CI. **Ini yang direkomendasikan** — paling
-  sedikit kode baru, dan sekalian jadi jaring pengaman kalau ada yang lupa.
-- **C — tombol "Tarik dari Drive" di dasbor.** Custom endpoint Payload +
-  komponen tombol di admin UI. Paling enak dipakai, tapi paling banyak kode
-  dan perlu memikirkan siapa yang boleh menekannya + apa yang terjadi kalau
-  ditekan dua kali barengan. Jangan dikerjakan sebelum B terbukti kurang.
+Sampulnya: kalau tidak ada gambar khusus, pakai gambar halaman pertama PDF-nya
+supaya seragam dengan 79 materi yang sudah ada. Alamatnya
+`https://drive.google.com/thumbnail?id=<file id>&sz=w1000` — buka di browser,
+simpan gambarnya, unggah lewat dasbor.
 
-Keputusan A/B/C **belum diambil** — perlu arahan user.
+**Tidak akan bentrok dengan skrip.** Kalau `seed:produk-drive` dijalankan lagi
+(mis. setelah folder Drive dirapikan), dokumen buatan staf dikenali lewat file
+id di dalam tautannya — bentuk tautannya boleh beda (`?usp=sharing`,
+`?usp=drivesdk`, tanpa query) — jadi **tidak dibuat duplikat**. Yang terjadi,
+field milik Drive (§2.1) disamakan lagi dengan Drive: judul kembali mengikuti
+nama berkas, sampul diganti halaman pertama PDF. Ringkasan, jenjang, mapel, dan
+jenis materi buatan staf tetap utuh.
+
+Konsekuensi yang harus diterima sadar: **tidak ada yang mengecek Drive
+otomatis.** Kalau ada yang menaruh PDF di Drive tapi lupa membuat dokumennya di
+dasbor, materi itu tidak akan pernah muncul di situs dan tidak ada peringatan
+apa pun. Kalau suatu saat ini jadi masalah, dua jalan yang tadi ditolak masih
+terbuka:
+
+- **B — jadwalkan skripnya** lewat GitHub Actions (butuh `DATABASE_URI` +
+  kredensial S3 sbg secret CI). Sebaiknya digabung dengan gerbang draft
+  (`versions: { drafts: true }` seperti koleksi `Pages`/`Articles`) supaya
+  materi baru masuk sbg draf yang menunggu dilengkapi, bukan langsung tayang
+  setengah jadi.
+- **C — tombol "Tarik dari Drive" di dasbor.** Paling enak dipakai, paling
+  banyak kode. Jangan dikerjakan sebelum B terbukti kurang.
 
 ### 2.3 Hal yang perlu dijelaskan ke staf sebelum serah terima
 

@@ -183,15 +183,20 @@ for (const [i, e] of daftar.entries()) {
       urutan,
     };
 
-    // Dicocokkan lewat `tautanDrive` (yang memuat file id Drive), bukan slug:
-    // kalau berkasnya diganti nama di Drive, judulnya ikut berubah tapi
-    // dokumennya tetap dokumen yang sama — slug lama dipertahankan supaya URL
-    // yang sudah tersebar tidak mati. Pencarian slug hanya cadangan untuk
-    // dokumen yang terlanjur dibuat sebelum aturan ini ada.
+    // Dicocokkan lewat file id Drive yang ada DI DALAM `tautanDrive`
+    // (`contains`, bukan `equals`), lalu slug sbg cadangan.
+    //
+    // `contains` penting karena satu berkas Drive punya banyak bentuk tautan:
+    // `/view?usp=sharing`, `/view?usp=drivesdk`, `/view` polos, atau tautan
+    // hasil tombol "Bagikan". Staf yang menambahkan materi manual lewat dasbor
+    // (lihat docs/RENCANA-INTEGRASI-DRIVE.md §2.2 opsi A) hampir pasti menempel
+    // bentuk yang berbeda dari yang dihasilkan skrip — dengan `equals`,
+    // dokumen mereka tidak akan dikenali dan skrip membuat duplikatnya.
+    // Membandingkan file id-nya saja membuat semua bentuk tautan itu setara.
     const ada = await payload.find({
       collection: "produk",
       where: {
-        or: [{ tautanDrive: { equals: e.tautanDrive } }, { slug: { equals: e.slug } }],
+        or: [{ tautanDrive: { contains: e.driveId } }, { slug: { equals: e.slug } }],
       },
       limit: 1,
       pagination: false,
