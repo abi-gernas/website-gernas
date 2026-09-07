@@ -25,6 +25,7 @@ import { AlatPeraga } from "./payload/collections/AlatPeraga";
 import { VideoPembelajaran } from "./payload/collections/VideoPembelajaran";
 import { MediaInteraktif } from "./payload/collections/MediaInteraktif";
 import { Leads } from "./payload/collections/Leads";
+import { Ulasan } from "./payload/collections/Ulasan";
 import { SiteSettings } from "./payload/globals/SiteSettings";
 import { Navigation } from "./payload/globals/Navigation";
 
@@ -94,6 +95,7 @@ export default buildConfig({
     VideoPembelajaran,
     MediaInteraktif,
     Leads,
+    Ulasan,
     Users,
   ],
   globals: [SiteSettings, Navigation],

@@ -142,6 +142,15 @@ export const Produk: CollectionConfig = {
       },
     },
     {
+      name: "penulis",
+      type: "text",
+      label: "Disusun oleh",
+      admin: {
+        description:
+          "Nama penulis/penyusun materi, kalau tercantum di berkasnya. Boleh kosong — sebagian terisi otomatis dari teks PDF (npm run backfill:penulis-drive), hasilnya dugaan dan aman dikoreksi manual kapan saja.",
+      },
+    },
+    {
       name: "fiturUnggulan",
       type: "array",
       label: "Fitur unggulan",

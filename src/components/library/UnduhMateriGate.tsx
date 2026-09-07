@@ -5,12 +5,17 @@ import Link from "next/link";
 import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 import { bukaMateri, type DataPengunjung } from "@/lib/actions/unduh-materi";
 import { TombolBagikan } from "./TombolBagikan";
+import { FormUlasan } from "./FormUlasan";
 
 /**
  * Gerbang pendataan sebelum unduh/pratinjau materi gratis (FR-104).
  *
- * Alur: isi nama + asal instansi (kontak opsional) → data masuk ke Pesan Masuk
- * → tombol Unduh & Pratinjau muncul, ditemani CTA donasi dan tombol berbagi.
+ * Alur: pengunjung baru lihat tombol "Unduh Gratis" dulu (meniru pola
+ * referensi produk — harga + tombol aksi menonjol, tanpa formulir kelihatan)
+ * → baru sesudah diklik formulir nama + asal instansi (kontak opsional)
+ * muncul → data masuk ke Pesan Masuk → tombol Unduh & Pratinjau muncul,
+ * ditemani CTA donasi dan tombol berbagi. Pengunjung yang datanya sudah
+ * tersimpan melewati tombol gate ini — satu klik langsung membuka materi.
  *
  * Data pengunjung diingat di `localStorage` supaya materi berikutnya tidak
  * menuntut isi ulang — tapi **tiap pembukaan tetap dicatat** sbg lead baru,
@@ -128,6 +133,7 @@ export function UnduhMateriGate({
   const [galat, setGalat] = useState<string | null>(null);
   const [hasil, setHasil] = useState<{ tautanDrive: string; driveId: string | null } | null>(null);
   const [pratinjau, setPratinjau] = useState(false);
+  const [formulirDibuka, setFormulirDibuka] = useState(false);
   const [f, setF] = useState({ nama: "", asalInstansi: "", kontak: "" });
 
   // localStorage cuma ada di browser — dibaca sesudah hidrasi supaya HTML
@@ -206,6 +212,8 @@ export function UnduhMateriGate({
 
         <TombolBagikan url={urlHalaman} judul={judul} locale={locale} />
 
+        <FormUlasan slug={slug} namaAwal={tersimpan?.nama} locale={locale} />
+
         {pratinjau && hasil.driveId && (
           <div
             role="dialog"
@@ -276,7 +284,17 @@ export function UnduhMateriGate({
     );
   }
 
-  // ── Pengunjung baru: formulir ─────────────────────────────────────────────
+  // ── Pengunjung baru, belum klik: tombol saja, meniru tampilan referensi ───
+  // (harga + tombol aksi menonjol) sebelum formulir pendataan ditampilkan.
+  if (!formulirDibuka) {
+    return (
+      <button type="button" onClick={() => setFormulirDibuka(true)} className="btn-red">
+        {t.unduh}
+      </button>
+    );
+  }
+
+  // ── Pengunjung baru, sudah klik: formulir ─────────────────────────────────
   return (
     <form onSubmit={onSubmit} className="rounded-card bg-white p-5 shadow-soft sm:p-6">
       <p className="text-sm font-bold text-brand-navy">{t.ajakan}</p>

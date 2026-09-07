@@ -1,18 +1,14 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { MediaInteraktifView } from "@/lib/mediaInteraktif";
 import type { Locale } from "@/lib/i18n";
+import { mediaInteraktifPath } from "@/lib/routes";
 
 /**
- * Satu baris daftar Media Digital Interaktif (bukan kartu grid): thumbnail di
- * kiri, judul/deskripsi/tag di tengah, panel "Buka Link" di kanan. Pemisah
- * antar baris berupa garis tipis diatur induknya (`divide-y`), sesuai mockup.
+ * Kartu grid Media Digital Interaktif — gaya sama dengan `ProdukCard`
+ * (Buku, Bahan Ajar & Modul): sampul di atas, judul/deskripsi/tag, tombol
+ * "Detail" di bawah yang mengarah ke halaman detail kita sendiri.
  */
-
-/** Buang skema & `www.` supaya alamat panjang tetap terbaca di panel sempit. */
-function tautanRingkas(tautan: string): string {
-  return tautan.replace(/^https?:\/\//i, "").replace(/^www\./i, "");
-}
-
 export function MediaInteraktifCard({
   item,
   locale = "id",
@@ -20,72 +16,50 @@ export function MediaInteraktifCard({
   item: MediaInteraktifView;
   locale?: Locale;
 }) {
-  const buttonLabel = locale === "en" ? "Open Link" : "Buka Link";
+  const href = mediaInteraktifPath(item.slug, locale);
+  const detailLabel = locale === "en" ? "Details" : "Detail";
 
   return (
-    <article className="flex flex-col gap-5 py-6 sm:flex-row sm:items-center">
-      <div className="relative aspect-[5/3] w-full shrink-0 overflow-hidden rounded-xl bg-surface sm:w-[190px]">
+    <article className="flex flex-col overflow-hidden rounded-card bg-white shadow-soft transition-shadow hover:shadow-card">
+      <Link href={href} className="relative block aspect-[4/3] overflow-hidden bg-surface">
         {item.thumbnail && (
           <Image
             src={item.thumbnail.url}
             alt={item.judul}
             fill
-            sizes="(min-width: 640px) 190px, 100vw"
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover"
           />
         )}
-      </div>
+      </Link>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <h3 className="text-base font-bold leading-snug text-brand-navy sm:text-lg">
-          {item.judul}
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="line-clamp-2 text-sm font-bold leading-snug text-brand-navy">
+          <Link href={href} className="hover:text-brand-red">
+            {item.judul}
+          </Link>
         </h3>
         {item.deskripsi && (
-          <p className="line-clamp-2 text-sm leading-relaxed text-body">{item.deskripsi}</p>
+          <p className="mt-1 line-clamp-2 text-sm text-muted">{item.deskripsi}</p>
         )}
+
         {item.tags.length > 0 && (
-          <div className="mt-1 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-1.5">
             {item.tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-pill bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue"
+                className="rounded bg-brand-navy/5 px-2 py-0.5 text-xs font-semibold text-brand-navy"
               >
                 {tag}
               </span>
             ))}
           </div>
         )}
-      </div>
 
-      <a
-        href={item.tautan}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group flex w-full shrink-0 items-center gap-3 rounded-xl bg-surface px-4 py-3 transition-colors hover:bg-brand-navy/5 sm:w-[240px]"
-      >
-        <span className="min-w-0 flex-1 text-center">
-          <span className="block text-sm font-semibold text-brand-navy">{buttonLabel}</span>
-          <span className="mt-0.5 block truncate text-xs text-muted">
-            {tautanRingkas(item.tautan)}
-          </span>
-        </span>
-        <span
-          aria-hidden="true"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-brand-navy/20 bg-white text-brand-navy transition-colors group-hover:border-brand-navy group-hover:bg-brand-navy group-hover:text-white"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-4 w-4"
-          >
-            <path d="m9 6 6 6-6 6" />
-          </svg>
-        </span>
-      </a>
+        <Link href={href} className="btn-outline mt-4 self-end !min-h-0 !px-4 !py-1.5 !text-xs">
+          {detailLabel}
+        </Link>
+      </div>
     </article>
   );
 }

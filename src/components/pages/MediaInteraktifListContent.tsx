@@ -164,7 +164,7 @@ export async function MediaInteraktifListContent({
           {docs.length === 0 ? (
             <p className="py-10 text-center text-sm text-muted">{t.empty}</p>
           ) : (
-            <div className="divide-y divide-brand-navy/10">
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {docs.map((item) => (
                 <MediaInteraktifCard key={item.id} item={item} locale={locale} />
               ))}

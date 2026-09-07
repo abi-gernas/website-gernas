@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { payloadPromise } from "./payload";
 import { DEFAULT_LOCALE, type Locale } from "./i18n";
-import { LIBRARY_PAGE_SIZE } from "./library";
+import { LIBRARY_PAGE_SIZE, klausaKataKunci, pecahKataKunci } from "./library";
 import type { Where } from "payload";
 import type { MediaInteraktif as PayloadMediaInteraktif, Media } from "@/payload-types";
 
@@ -10,15 +10,19 @@ import type { MediaInteraktif as PayloadMediaInteraktif, Media } from "@/payload
  * Akses koleksi Media Digital Interaktif lewat Local API — pola sama
  * `alatPeraga.ts`. Koleksi ini tidak punya `jenjang`/`mapel` (cuma `tags`
  * bebas) jadi tidak pakai `buildLibraryWhere` dari `library.ts` — lihat
- * `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §5.
+ * `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §5. Yang dipakai bersama cuma
+ * pemecah kata kuncinya, supaya perilaku kotak pencarian tetap sama dengan
+ * 3 halaman Library lain.
  */
 
 export type MediaInteraktifView = {
   id: string;
+  slug: string;
   judul: string;
   deskripsi: string | null;
   thumbnail: { url: string; width?: number; height?: number } | null;
   tags: string[];
+  kontenHtml: string | null;
   tautan: string;
 };
 
@@ -32,10 +36,12 @@ function toImage(value: unknown): { url: string; width?: number; height?: number
 function toView(doc: PayloadMediaInteraktif): MediaInteraktifView {
   return {
     id: String(doc.id),
+    slug: doc.slug,
     judul: doc.judul,
     deskripsi: doc.deskripsi ?? null,
     thumbnail: toImage(doc.thumbnail),
     tags: (doc.tags ?? []).map((t) => t.label),
+    kontenHtml: doc.kontenHtml ?? null,
     tautan: doc.tautan,
   };
 }
@@ -60,7 +66,12 @@ export const getMediaInteraktifList = cache(async function getMediaInteraktifLis
 }> {
   const payload = await payloadPromise;
   const where: Where = {};
-  if (q) where.judul = { contains: q };
+  const kataKunci = pecahKataKunci(q);
+  if (kataKunci.length > 0) {
+    where.and = kataKunci.map((kata) =>
+      klausaKataKunci(kata, ["judul", "deskripsi", "tags.label"]),
+    );
+  }
   if (tag) where["tags.label"] = { equals: tag };
 
   const res = await payload.find({
@@ -80,6 +91,54 @@ export const getMediaInteraktifList = cache(async function getMediaInteraktifLis
     page: res.page ?? 1,
   };
 });
+
+export const getMediaInteraktifBySlug = cache(async function getMediaInteraktifBySlug(
+  slug: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<MediaInteraktifView | null> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "media-interaktif",
+    depth: 1,
+    limit: 1,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+    where: { slug: { equals: slug } },
+    pagination: false,
+  });
+  const doc = res.docs[0];
+  return doc ? toView(doc) : null;
+});
+
+/** Beberapa Media Interaktif terurut — untuk panel "Media Lainnya" di halaman detail. */
+export const getMediaInteraktifPilihan = cache(async function getMediaInteraktifPilihan(
+  locale: Locale = DEFAULT_LOCALE,
+  limit = 6,
+): Promise<MediaInteraktifView[]> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "media-interaktif",
+    depth: 1,
+    limit,
+    sort: "urutan",
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+  });
+  return res.docs.map(toView);
+});
+
+/** Slug seluruh Media Interaktif — untuk `generateStaticParams`. */
+export async function getMediaInteraktifSlugs(): Promise<string[]> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "media-interaktif",
+    depth: 0,
+    limit: 1000,
+    pagination: false,
+    select: { slug: true },
+  });
+  return res.docs.map((d) => d.slug);
+}
 
 /**
  * 3 tag terpakai terbanyak, untuk "Pencarian Populer" di hero. Ambil semua

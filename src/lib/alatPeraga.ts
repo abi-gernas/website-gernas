@@ -66,7 +66,7 @@ export const getAlatPeragaList = cache(async function getAlatPeragaList({
     sort: "urutan",
     locale,
     fallbackLocale: DEFAULT_LOCALE,
-    where: buildLibraryWhere({ q, jenjang, mapel }),
+    where: buildLibraryWhere({ q, jenjang, mapel, fields: ["judul", "subjudul", "deskripsi"] }),
   });
   return {
     docs: res.docs.map(toView),

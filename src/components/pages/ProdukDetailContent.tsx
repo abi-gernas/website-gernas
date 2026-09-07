@@ -13,8 +13,12 @@ import {
 } from "@/lib/produk";
 import { getCtaButton } from "@/lib/navigation";
 import { produkListPath, produkPath } from "@/lib/routes";
+import { getUlasanByProduk } from "@/lib/ulasan";
 import { CtaBantuanBanner } from "@/components/library/CtaBantuanBanner";
 import { UnduhMateriGate } from "@/components/library/UnduhMateriGate";
+import { RatingRingkas } from "@/components/library/RatingRingkas";
+import { DeskripsiExpandable } from "@/components/library/DeskripsiExpandable";
+import { UlasanList } from "@/components/library/UlasanList";
 
 /**
  * Halaman detail satu produk.
@@ -40,6 +44,7 @@ const text = {
     gratis: "Gratis",
     beli: "Beli Sekarang",
     catatanBeli: "Pembelian sementara dilayani lewat tim kami.",
+    disusunOleh: "Disusun oleh",
   },
   en: {
     back: "← Back to Books, Teaching Materials & Modules",
@@ -48,6 +53,7 @@ const text = {
     gratis: "Free",
     beli: "Buy Now",
     catatanBeli: "Purchases are handled by our team for now.",
+    disusunOleh: "Written by",
   },
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -61,6 +67,8 @@ export async function ProdukDetailContent({
   const t = text[locale];
   const item = await getProdukBySlug(slug, locale);
   if (!item) notFound();
+
+  const ulasan = await getUlasanByProduk(item.id);
 
   // CTA donasi memakai tombol yang sama dengan navbar/footer (diatur staf di
   // global Navigasi), bukan tautan donasi terpisah — supaya kalau alamat
@@ -117,10 +125,18 @@ export async function ProdukDetailContent({
                 {item.judul}
               </h1>
 
-              {item.ringkasan && (
-                <p className="mt-3 text-sm leading-relaxed text-body sm:text-base">
-                  {item.ringkasan}
+              <RatingRingkas rataRata={ulasan.rataRata} jumlah={ulasan.jumlah} locale={locale} />
+
+              {item.penulis && (
+                <p className="mt-1 text-sm text-muted">
+                  {t.disusunOleh}: {item.penulis}
                 </p>
+              )}
+
+              {item.ringkasan && (
+                <div className="mt-3">
+                  <DeskripsiExpandable teks={item.ringkasan} locale={locale} />
+                </div>
               )}
 
               <p className="mt-5 text-xl font-bold">
@@ -179,6 +195,8 @@ export async function ProdukDetailContent({
             </ul>
           </div>
         )}
+
+        <UlasanList produkId={item.id} locale={locale} />
 
         <CtaBantuanBanner locale={locale} />
       </div>

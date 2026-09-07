@@ -21,6 +21,8 @@ import * as migration_20260826_161929_video_pembelajaran_slug from './20260826_1
 import * as migration_20260828_071924 from './20260828_071924';
 import * as migration_20260907_053054_produk_topik from './20260907_053054_produk_topik';
 import * as migration_20260907_061904_leads_email_opsional from './20260907_061904_leads_email_opsional';
+import * as migration_20260907_151334_ulasan_dan_penulis from './20260907_151334_ulasan_dan_penulis';
+import * as migration_20260907_151825_media_interaktif_html_slug from './20260907_151825_media_interaktif_html_slug';
 
 export const migrations = [
   {
@@ -136,6 +138,16 @@ export const migrations = [
   {
     up: migration_20260907_061904_leads_email_opsional.up,
     down: migration_20260907_061904_leads_email_opsional.down,
-    name: '20260907_061904_leads_email_opsional'
+    name: '20260907_061904_leads_email_opsional',
+  },
+  {
+    up: migration_20260907_151334_ulasan_dan_penulis.up,
+    down: migration_20260907_151334_ulasan_dan_penulis.down,
+    name: '20260907_151334_ulasan_dan_penulis',
+  },
+  {
+    up: migration_20260907_151825_media_interaktif_html_slug.up,
+    down: migration_20260907_151825_media_interaktif_html_slug.down,
+    name: '20260907_151825_media_interaktif_html_slug'
   },
 ];

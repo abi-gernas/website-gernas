@@ -101,7 +101,7 @@ export const getVideoPembelajaranList = cache(async function getVideoPembelajara
     sort: "urutan",
     locale,
     fallbackLocale: DEFAULT_LOCALE,
-    where: buildLibraryWhere({ q, jenjang, mapel }),
+    where: buildLibraryWhere({ q, jenjang, mapel, fields: ["judul", "deskripsi"] }),
   });
   return {
     docs: res.docs.map(toView),

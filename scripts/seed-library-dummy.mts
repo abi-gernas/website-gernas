@@ -1,6 +1,6 @@
 /**
  * Isi data dummy untuk QA visual koleksi Library Materi Guru yang masih
- * kosong di DB: `alat-peraga`, `media-interaktif`, dan `video-pembelajaran`.
+ * kosong di DB — kini tinggal `alat-peraga`.
  *
  * Koleksi `produk` (Buku, Bahan Ajar & Modul) sudah tidak di sini lagi sejak
  * 7 Sep 2026: isinya kini materi asli dari Google Drive, lihat
@@ -8,11 +8,23 @@
  * tambahkan lagi dummy produk ke skrip ini — skrip Drive itu menghapus dokumen
  * berjudul "[QA] …" tiap kali jalan, jadi keduanya akan saling menimpa.
  *
+ * Koleksi `video-pembelajaran` juga sudah tidak di sini lagi sejak 7 Sep
+ * 2026: isinya kini 7 video asli kanal YouTube Gernas Tastaka sesuai Sheet
+ * "Konten Youtube - Website", lihat `npm run seed:video-youtube`
+ * (scripts/seed-video-pembelajaran-youtube.mts). Jangan tambahkan lagi dummy
+ * video ke skrip ini — skrip itu menghapus dokumen berjudul "[QA] …" tiap
+ * kali jalan, jadi keduanya akan saling menimpa.
+ *
+ * Koleksi `media-interaktif` juga sudah tidak di sini lagi sejak 7 Sep 2026:
+ * isinya kini Repositori Mesin Virtual Numerasi asli dari prpic.id, lihat
+ * `npm run seed:media-interaktif-vm` (scripts/seed-media-interaktif-vm.mts).
+ * Jangan tambahkan lagi dummy media-interaktif ke skrip ini dengan alasan yang sama.
+ *
  * Jalankan:  npm run seed:library-dummy
  *   (jalankan seed:media dulu — skrip ini pakai dokumen Media yang sudah ada
  *   sbg cover/thumbnail, bukan upload berkas baru)
  *
- * Tujuan: 18 dokumen per koleksi (>12, biar `LibraryPagination` ke-test ke
+ * Tujuan: 18 dokumen (>12, biar `LibraryPagination` ke-test ke
  * halaman 2) dengan variasi jenjang/mapel/tags/kategori supaya filter,
  * "Pencarian Populer", dan kartu kategori bisa dicoba dgn data asli. Lihat catatan TODO di
  * docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md §5 (entri 24 Agu 2026, poin 6).
@@ -119,100 +131,7 @@ for (let i = 0; i < 18; i++) {
   dibuatAlatPeraga++;
 }
 
-// ── 2. Media Digital Interaktif (18 dokumen) ────────────────────────────────
-
-const TAG_POOL = [
-  "Numerasi",
-  "Literasi",
-  "Interaktif",
-  "Game",
-  "Kuis",
-  "SD",
-  "SMP",
-  "Simulasi",
-];
-
-let dibuatMediaInteraktif = 0;
-for (let i = 0; i < 18; i++) {
-  const judul = `${PREFIX}Media Interaktif Dummy #${String(i + 1).padStart(2, "0")}`;
-  if (await sudahAda("media-interaktif", judul)) continue;
-
-  const tags = [TAG_POOL[i % TAG_POOL.length], TAG_POOL[(i + 3) % TAG_POOL.length]];
-  await payload.create({
-    collection: "media-interaktif",
-    data: {
-      judul,
-      deskripsi: `Deskripsi dummy media interaktif #${i + 1} untuk keperluan QA tampilan list, tag populer, dan pagination.`,
-      thumbnail: mediaAt(i + 5),
-      tags: tags.map((label) => ({ label })),
-      tautan: `https://example.com/media-interaktif-dummy-${i + 1}`,
-      urutan: i,
-    },
-  });
-  dibuatMediaInteraktif++;
-}
-
-// ── 3. Video Pembelajaran (18 dokumen) ──────────────────────────────────────
-
-const YOUTUBE_CONTOH = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-
-let dibuatVideoPembelajaran = 0;
-for (let i = 0; i < 18; i++) {
-  const judul = `${PREFIX}Video Pembelajaran Dummy #${String(i + 1).padStart(2, "0")}`;
-  if (await sudahAda("video-pembelajaran", judul)) continue;
-
-  const jenjang = pickJenjang(i);
-  const menit = 5 + (i % 20);
-  const detik = (i * 7) % 60;
-  await payload.create({
-    collection: "video-pembelajaran",
-    data: {
-      judul,
-      deskripsi: `Deskripsi dummy video pembelajaran #${i + 1} untuk keperluan QA halaman detail (pemutar video, tag, dan video lainnya).`,
-      thumbnail: mediaAt(i + 10),
-      jenjang,
-      mapel: pickMapel(i),
-      sumberTipe: "youtube",
-      tautanYoutube: YOUTUBE_CONTOH,
-      durasi: `${menit}:${String(detik).padStart(2, "0")}`,
-      urutan: i,
-    },
-  });
-  dibuatVideoPembelajaran++;
-}
-
-// Tambal dokumen video lama: `deskripsi` baru ditambahkan ke skema 26 Agu
-// 2026 (bersama `slug`), jadi 18 dokumen QA yang sudah ada belum punya isinya
-// dan halaman detailnya tampil tanpa teks apa pun.
-let ditambalVideoPembelajaran = 0;
-{
-  const lama = await payload.find({
-    collection: "video-pembelajaran",
-    where: { judul: { like: PREFIX } },
-    limit: 100,
-    pagination: false,
-    depth: 0,
-  });
-  for (const doc of lama.docs) {
-    if (doc.deskripsi) continue;
-    await payload.update({
-      collection: "video-pembelajaran",
-      id: doc.id,
-      data: {
-        deskripsi: `Deskripsi dummy untuk ${doc.judul} — keperluan QA halaman detail (pemutar video, tag, dan video lainnya).`,
-      },
-    });
-    ditambalVideoPembelajaran++;
-  }
-}
-
 console.log(`Alat Peraga: dibuat ${dibuatAlatPeraga} (lewati ${18 - dibuatAlatPeraga} sudah ada)`);
-console.log(
-  `Media Interaktif: dibuat ${dibuatMediaInteraktif} (lewati ${18 - dibuatMediaInteraktif} sudah ada)`,
-);
-console.log(
-  `Video Pembelajaran: dibuat ${dibuatVideoPembelajaran} (lewati ${18 - dibuatVideoPembelajaran} sudah ada), deskripsi ditambal ${ditambalVideoPembelajaran}`,
-);
 console.log("\nSelesai. Hapus data ini kapan saja lewat dasbor — cari judul berawalan “[QA] ”.");
 
 process.exit(0);

@@ -65,7 +65,7 @@ Server Component baca `searchParams`, teruskan ke query Payload local API:
 
 | Param | Arti | Contoh |
 |---|---|---|
-| `q` | Kata kunci, cari di `judul` (contains, case-insensitive) | `?q=pecahan` |
+| `q` | Kata kunci. Sejak 7 Sep 2026 dipecah per kata (AND antar kata, OR antar kolom) dan dicari di beberapa kolom teks per koleksi — Alat Peraga: `judul`/`subjudul`/`deskripsi`; Video: `judul`/`deskripsi`; Buku dll.: `judul`/`ringkasan`/`penulis`; Media Interaktif: `judul`/`deskripsi`/`tags.label`. Kata "sd"/"smp"/"numerasi" dst. juga dicocokkan ke `jenjang`/`mapel` | `?q=pecahan+campuran` |
 | `jenjang` | Filter jenjang, bisa banyak dipisah koma | `?jenjang=sd,smp` |
 | `mapel` | Filter mapel/program | `?mapel=matematika` |
 | `kategori` | Cuma dipakai di Buku/Bahan Ajar/Modul (`kategoriProduk` = jenis materi). Masih didukung query-nya, tapi sejak 7 Sep 2026 **tidak lagi ditautkan dari kartu kategori** | `?kategori=modul` |
@@ -930,3 +930,50 @@ butuh data dummy lagi.
     pratinjaunya yang pertama mati.
   - **OI-107 (kepatuhan data pribadi) sekarang jadi mendesak** — datanya sudah
     benar-benar masuk, kebijakan retensi/ekspornya masih belum ada.
+
+- **7 Sep 2026 (lanjutan 2) — Video Pembelajaran: dummy diganti 7 video asli + pencarian dibikin lebih pintar**
+
+  **Data.** 18 dokumen dummy "[QA] Video Pembelajaran …" diganti isi Sheet
+  "Konten Youtube - Website" (milik admin@gernastastaka.org, kolom
+  no/Judul/Link/Deskripsi) lewat `npm run seed:video-youtube`
+  (scripts/seed-video-pembelajaran-youtube.mts). Thumbnail diunduh dari
+  `i.ytimg.com` (turun bertahap maxres → sd → hq) dan diunggah jadi dokumen
+  Media dengan `legacyPath: youtube:<id>`, jadi skrip aman diulang. Blok dummy
+  video di `seed-library-dummy.mts` dihapus supaya kedua skrip tidak saling
+  menimpa — skrip itu sekarang tinggal mengisi `alat-peraga`.
+
+  **Hasil: 6 dari 7 baris masuk.** Baris ke-7 Sheet, "Faktor Bilangan
+  Terbesar" (`https://youtu.be/3Z3ZUwjF338`), **tautannya mati** — semua
+  varian thumbnail balas 404 dan oEmbed balas 403, artinya videonya
+  dihapus/diprivatkan atau id-nya salah ketik di Sheet. 6 id lain sudah
+  diverifikasi lewat oEmbed: judul & kanal (Gernas Tastaka) cocok persis.
+  Perbaiki tautannya di Sheet lalu jalankan ulang skripnya; dokumen yang sudah
+  ada akan diperbarui, bukan diduplikasi.
+
+  Keputusan isi: `jenjang` tidak ada di Sheet → semua diisi `["sd"]` (topiknya
+  KPK/FPB/faktor/pecahan/nilai tempat) dan bisa dikoreksi staf per video.
+  Baris "Bernalar-Kontekstual-Sederhana-Mendasar" di ekor sebagian deskripsi
+  tidak ikut dimasukkan — itu tag pilar, bukan kalimat, dan koleksi ini belum
+  punya field `tags`. "Kepekaan Menjumlah Pecahan" memang kosong deskripsinya
+  di Sheet; dibiarkan kosong, tidak dikarang.
+
+  **Pencarian.** `buildLibraryWhere()` di `src/lib/library.ts` dulu cuma
+  `judul contains <seluruh kalimat>` — mengetik dua kata atau kata yang cuma
+  ada di deskripsi selalu nihil. Sekarang: `q` dipecah jadi kata (huruf kecil,
+  tanpa tanda baca, kata 1 huruf dibuang, maks 6 kata), tiap kata jadi satu
+  klausa `or` lintas kolom teks, lalu digabung `and` antar kata. Kolom yang
+  dicari ditentukan pemanggil lewat `fields` (lihat §2.2). Kata yang kebetulan
+  nama jenjang/mapel ("sd", "smp", "numerasi", "literasi", …) ikut dicocokkan
+  ke field `jenjang`/`mapel`. `media-interaktif` tetap punya `where` sendiri
+  (tak punya jenjang/mapel) tapi memakai pemecah kata yang sama, jadi perilaku
+  4 kotak pencarian seragam.
+
+  Verifikasi langsung ke DB (`npx tsc --noEmit` bersih, `npm run build`
+  sukses): `q=pizza` → 1 video (kata itu cuma ada di deskripsi Pecahan
+  Campuran, sebelumnya 0), `q=PECAHAN campuran` → 1, `q=kpk` → 1,
+  `q=sd matematika` → 6, `q=kpk pizza` → 0 (AND bekerja), `q=telur dadar` → 1
+  di Media Interaktif, `q=pecahan` → 10 di Buku/Bahan Ajar/Modul.
+
+  Catatan: judul/deskripsi versi EN masih jatuh ke teks Indonesia (fallback) —
+  terjemahannya lewat `npm run translate:export`/`import` seperti biasa.
+  Preview browser tidak dijalankan, sesuai preferensi tersimpan.

@@ -80,6 +80,7 @@ export interface Config {
     'video-pembelajaran': VideoPembelajaran;
     'media-interaktif': MediaInteraktif;
     leads: Lead;
+    ulasan: Ulasan;
     users: User;
     redirects: Redirect;
     'payload-kv': PayloadKv;
@@ -102,6 +103,7 @@ export interface Config {
     'video-pembelajaran': VideoPembelajaranSelect<false> | VideoPembelajaranSelect<true>;
     'media-interaktif': MediaInteraktifSelect<false> | MediaInteraktifSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
+    ulasan: UlasanSelect<false> | UlasanSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -1102,6 +1104,10 @@ export interface Produk {
    */
   ringkasan?: string | null;
   /**
+   * Nama penulis/penyusun materi, kalau tercantum di berkasnya. Boleh kosong — sebagian terisi otomatis dari teks PDF (npm run backfill:penulis-drive), hasilnya dugaan dan aman dikoreksi manual kapan saja.
+   */
+  penulis?: string | null;
+  /**
    * Poin bertanda bintang di halaman detail, mis. “40 kegiatan bertahap”.
    */
   fiturUnggulan?:
@@ -1222,6 +1228,10 @@ export interface VideoPembelajaran {
 export interface MediaInteraktif {
   id: number;
   judul: string;
+  /**
+   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
+   */
+  slug: string;
   deskripsi?: string | null;
   thumbnail: number | Media;
   tags?:
@@ -1231,7 +1241,11 @@ export interface MediaInteraktif {
       }[]
     | null;
   /**
-   * Alamat lengkap tujuan tombol “Buka Link”.
+   * Kode HTML lengkap aktivitas/mesin virtualnya, disalin dari sumber aslinya — tampil tersemat (iframe) di halaman detail. Kosongkan untuk memakai tombol “Buka Link” ke tautan eksternal saja.
+   */
+  kontenHtml?: string | null;
+  /**
+   * Alamat sumber asli. Dipakai sbg tombol “Buka Link” bila Konten HTML kosong, atau sbg tautan “Buka di sumber aslinya” di halaman detail bila Konten HTML terisi.
    */
   tautan: string;
   /**
@@ -1262,6 +1276,29 @@ export interface Lead {
   message?: string | null;
   locale?: ('id' | 'en') | null;
   status?: ('baru' | 'ditindaklanjuti') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Ulasan & rating dari pengunjung yang sudah membuka materi gratis. Baru tampil di halaman publik sesudah statusnya diubah jadi "Disetujui".
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ulasan".
+ */
+export interface Ulasan {
+  id: number;
+  produkRef: number | Produk;
+  nama: string;
+  /**
+   * 1 = terendah, 5 = tertinggi.
+   */
+  rating: number;
+  komentar?: string | null;
+  /**
+   * Cuma yang "Disetujui" tampil di halaman publik.
+   */
+  status: 'menunggu' | 'disetujui' | 'ditolak';
+  locale?: ('id' | 'en') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1363,6 +1400,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'leads';
         value: number | Lead;
+      } | null)
+    | ({
+        relationTo: 'ulasan';
+        value: number | Ulasan;
       } | null)
     | ({
         relationTo: 'users';
@@ -1989,6 +2030,7 @@ export interface ProdukSelect<T extends boolean = true> {
   mapel?: T;
   cover?: T;
   ringkasan?: T;
+  penulis?: T;
   fiturUnggulan?:
     | T
     | {
@@ -2056,6 +2098,7 @@ export interface VideoPembelajaranSelect<T extends boolean = true> {
  */
 export interface MediaInteraktifSelect<T extends boolean = true> {
   judul?: T;
+  slug?: T;
   deskripsi?: T;
   thumbnail?: T;
   tags?:
@@ -2064,6 +2107,7 @@ export interface MediaInteraktifSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  kontenHtml?: T;
   tautan?: T;
   urutan?: T;
   updatedAt?: T;
@@ -2084,6 +2128,20 @@ export interface LeadsSelect<T extends boolean = true> {
   message?: T;
   locale?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ulasan_select".
+ */
+export interface UlasanSelect<T extends boolean = true> {
+  produkRef?: T;
+  nama?: T;
+  rating?: T;
+  komentar?: T;
+  status?: T;
+  locale?: T;
   updatedAt?: T;
   createdAt?: T;
 }

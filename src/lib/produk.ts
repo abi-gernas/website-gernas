@@ -26,6 +26,7 @@ export type ProdukView = {
   mapel: string[];
   cover: { url: string; width?: number; height?: number } | null;
   ringkasan: string | null;
+  penulis: string | null;
   fiturUnggulan: string[];
   format: FormatProduk[];
   status: "gratis" | "berbayar";
@@ -105,6 +106,7 @@ function toView(doc: PayloadProduk): ProdukView {
     mapel: doc.mapel ?? [],
     cover: toImage(doc.cover),
     ringkasan: doc.ringkasan ?? null,
+    penulis: doc.penulis ?? null,
     fiturUnggulan: (doc.fiturUnggulan ?? []).map((f) => f.teks),
     format: doc.format ?? [],
     status: doc.status,
@@ -138,7 +140,12 @@ export const getProdukList = cache(async function getProdukList({
   page: number;
 }> {
   const payload = await payloadPromise;
-  const where = buildLibraryWhere({ q, jenjang, mapel });
+  const where = buildLibraryWhere({
+    q,
+    jenjang,
+    mapel,
+    fields: ["judul", "ringkasan", "penulis"],
+  });
   if (kategori && kategori.length > 0) where.kategoriProduk = { in: kategori };
   if (topik && topik.length > 0) where.topik = { in: topik };
 

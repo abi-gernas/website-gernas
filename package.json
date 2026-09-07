@@ -23,6 +23,9 @@
     "seed:library-dummy": "tsx scripts/seed-library-dummy.mts",
     "drive:fetch": "tsx scripts/fetch-drive-konten.mts",
     "seed:produk-drive": "tsx scripts/seed-produk-drive.mts",
+    "seed:media-interaktif-vm": "tsx scripts/seed-media-interaktif-vm.mts",
+    "backfill:penulis-drive": "tsx scripts/backfill-penulis-drive.mts",
+    "seed:video-youtube": "tsx scripts/seed-video-pembelajaran-youtube.mts",
     "translate:export": "tsx scripts/i18n/export-translations.mts",
     "translate:import": "tsx scripts/i18n/import-translations.mts"
   },
@@ -40,7 +43,8 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "server-only": "^0.0.1",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "unpdf": "^1.8.1"
   },
   "overrides": {
     "postcss": "^8.5.23",
