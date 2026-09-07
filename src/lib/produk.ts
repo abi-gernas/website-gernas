@@ -30,7 +30,18 @@ export type ProdukView = {
   format: FormatProduk[];
   status: "gratis" | "berbayar";
   harga: number | null;
-  tautanDrive: string | null;
+  /**
+   * Sengaja boolean, bukan URL-nya.
+   *
+   * Materi gratis di-gate formulir (FR-104): pengunjung mengisi nama + asal
+   * instansi dulu baru tautannya diberikan. Berkas Drive-nya sendiri publik,
+   * jadi gerbang ini memang tidak bisa dibuat rapat — tapi kalau URL-nya ikut
+   * ter-render di HTML halaman, gerbangnya bukan sekadar longgar, melainkan
+   * tidak ada sama sekali (cukup lihat source). Menyimpannya sbg boolean
+   * membuat kebocoran itu mustahil secara struktural: URL-nya cuma dibaca di
+   * server, di dalam `bukaMateri()` (src/lib/actions/unduh-materi.ts).
+   */
+  punyaTautan: boolean;
 };
 
 /** Label jenis materi — nilainya harus sama dengan `options` di `Produk.ts`. */
@@ -98,7 +109,7 @@ function toView(doc: PayloadProduk): ProdukView {
     format: doc.format ?? [],
     status: doc.status,
     harga: doc.harga ?? null,
-    tautanDrive: doc.tautanDrive ?? null,
+    punyaTautan: Boolean(doc.tautanDrive),
   };
 }
 

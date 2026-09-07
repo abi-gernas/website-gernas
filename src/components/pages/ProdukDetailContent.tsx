@@ -11,8 +11,10 @@ import {
   formatHarga,
   getProdukBySlug,
 } from "@/lib/produk";
+import { getCtaButton } from "@/lib/navigation";
 import { produkListPath, produkPath } from "@/lib/routes";
 import { CtaBantuanBanner } from "@/components/library/CtaBantuanBanner";
+import { UnduhMateriGate } from "@/components/library/UnduhMateriGate";
 
 /**
  * Halaman detail satu produk.
@@ -22,12 +24,13 @@ import { CtaBantuanBanner } from "@/components/library/CtaBantuanBanner";
  * sama di sini). Yang penting sekarang: tombol "Detail" di katalog punya
  * tujuan nyata, bukan tautan mati.
  *
- * Dua tombol aksinya belum menyentuh alur transaksi:
+ * Dua tombol aksinya:
  * - Berbayar → "Beli Sekarang" diarahkan ke halaman Mitra (OI-105, mekanisme
  *   checkout belum diputuskan).
- * - Gratis → tautan Drive ditampilkan apa adanya, TANPA form pendataan
- *   pengunjung (FR-104) dan tanpa integrasi OAuth Drive (OI-108) — keduanya
- *   memang ditunda, lihat §2.4 rencana eksekusi.
+ * - Gratis → `UnduhMateriGate`: formulir pendataan pengunjung (FR-104) dulu,
+ *   baru tautan Drive keluar, ditemani CTA donasi & tombol berbagi. Tautannya
+ *   tidak ikut dirender di sini — halaman ini cuma tahu ADA/TIDAK tautannya
+ *   (`punyaTautan`), lihat catatan di `src/lib/produk.ts`.
  */
 const text = {
   id: {
@@ -35,9 +38,7 @@ const text = {
     fitur: "Fitur Unggulan",
     format: "Format tersedia",
     gratis: "Gratis",
-    unduh: "Unduh Gratis",
     beli: "Beli Sekarang",
-    belumAdaTautan: "Tautan unduhan belum tersedia. Silakan hubungi tim kami.",
     catatanBeli: "Pembelian sementara dilayani lewat tim kami.",
   },
   en: {
@@ -45,9 +46,7 @@ const text = {
     fitur: "Key Features",
     format: "Available formats",
     gratis: "Free",
-    unduh: "Download Free",
     beli: "Buy Now",
-    belumAdaTautan: "The download link isn't available yet. Please contact our team.",
     catatanBeli: "Purchases are handled by our team for now.",
   },
 } satisfies Record<Locale, Record<string, string>>;
@@ -62,6 +61,16 @@ export async function ProdukDetailContent({
   const t = text[locale];
   const item = await getProdukBySlug(slug, locale);
   if (!item) notFound();
+
+  // CTA donasi memakai tombol yang sama dengan navbar/footer (diatur staf di
+  // global Navigasi), bukan tautan donasi terpisah — supaya kalau alamat
+  // donasinya pindah, cukup diubah di satu tempat.
+  const donasi = item.status === "gratis" ? await getCtaButton(locale) : null;
+
+  // Alamat lengkap untuk tombol berbagi. `NEXT_PUBLIC_SERVER_URL` dipakai
+  // (bukan `window.location` di klien) supaya tautan yang dibagikan tetap
+  // alamat kanonik, bukan alamat preview/localhost yang kebetulan dibuka.
+  const urlHalaman = `${process.env.NEXT_PUBLIC_SERVER_URL ?? ""}${produkPath(item.slug, locale)}`;
 
   const tags = [
     TOPIK_PRODUK_LABELS[item.topik][locale],
@@ -138,17 +147,15 @@ export async function ProdukDetailContent({
                     </Link>
                     <p className="mt-2 text-xs text-muted">{t.catatanBeli}</p>
                   </>
-                ) : item.tautanDrive ? (
-                  <a
-                    href={item.tautanDrive}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-red"
-                  >
-                    {t.unduh}
-                  </a>
                 ) : (
-                  <p className="text-sm text-muted">{t.belumAdaTautan}</p>
+                  <UnduhMateriGate
+                    slug={item.slug}
+                    judul={item.judul}
+                    punyaTautan={item.punyaTautan}
+                    urlHalaman={urlHalaman}
+                    donasi={donasi}
+                    locale={locale}
+                  />
                 )}
               </div>
             </div>

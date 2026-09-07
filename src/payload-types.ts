@@ -1254,7 +1254,7 @@ export interface Lead {
    */
   jenis: 'kontak' | 'unduhan-materi';
   name: string;
-  email: string;
+  email?: string | null;
   phone?: string | null;
   asalInstansi?: string | null;
   produkRef?: (number | null) | Produk;

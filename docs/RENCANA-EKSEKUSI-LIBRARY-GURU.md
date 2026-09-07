@@ -114,7 +114,7 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 | 1 | Alat Peraga | Selesai | 24 Agu 2026 |
 | 2 | Media Digital Interaktif | Selesai | 24 Agu 2026 |
 | 3 | Video Pembelajaran | Selesai | 26 Agu 2026 |
-| 4 | Buku, Bahan Ajar & Modul | Selesai (tampilan + data asli; unduhan belum di-gate form FR-104) | 7 Sep 2026 |
+| 4 | Buku, Bahan Ajar & Modul | Selesai (tampilan + data asli + gerbang unduhan FR-104) | 7 Sep 2026 |
 | 5 | Integrasi Beranda (§4.5) | Belum | — |
 
 ## 4. Task per Halaman
@@ -855,3 +855,78 @@ butuh data dummy lagi.
     belum ditutup, sengaja, lihat `docs/RENCANA-INTEGRASI-DRIVE.md` §5.
   - Betulkan `jenjang` materi jenjang SMP dan isi `ringkasan` lewat dasbor
     (poin 5 di atas).
+
+---
+
+- **7 Sep 2026 (lanjutan) — Gerbang pendataan sebelum unduh materi gratis (FR-104)**
+
+  Berkas baru: `src/lib/actions/unduh-materi.ts`,
+  `src/components/library/UnduhMateriGate.tsx`,
+  `src/components/library/TombolBagikan.tsx`,
+  `migrations/20260907_061904_leads_email_opsional.ts`.
+  Diubah: `src/payload/collections/Leads.ts`, `src/lib/produk.ts`,
+  `src/components/pages/ProdukDetailContent.tsx`,
+  `docs/RENCANA-INTEGRASI-DRIVE.md`.
+
+  Alur baru di halaman detail materi gratis: isi nama + asal instansi (kontak
+  opsional) → data masuk koleksi `leads` (`jenis: "unduhan-materi"`,
+  `produkRef` terisi) → tombol Unduh + Pratinjau muncul, ditemani CTA donasi
+  dan tombol berbagi.
+
+  Keputusan yang diambil di tempat:
+  1. **Berkas Drive tetap publik, gerbangnya longgar — pilihan sadar user.**
+     Ditukar dengan tidak perlu memelihara kredensial Google sama sekali. Yang
+     dicegah gerbang ini cuma pengambilan tanpa sengaja, bukan penyalahgunaan.
+     Batasnya ditulis panjang di `unduh-materi.ts` supaya tidak ada yang
+     mengira ini gerbang beneran.
+  2. **`ProdukView.tautanDrive` diganti `punyaTautan: boolean`.** Kalau URL-nya
+     tetap ada di tipe view, cepat atau lambat ada yang me-render-nya dan
+     gerbangnya jadi tidak ada sama sekali (cukup lihat source). Sekarang
+     kebocoran itu mustahil secara struktural — URL cuma dibaca di dalam server
+     action.
+  3. **Server action, bukan route handler.** `(payload)/api/[...slug]` sudah
+     menguasai seluruh `/api/*`; menambah route di situ mengundang bentrok
+     yang tidak perlu.
+  4. **Data pengunjung diingat di `localStorage`, tapi tiap pembukaan tetap
+     dicatat sbg lead baru.** Jadi guru tidak mengisi ulang tiap materi, tapi
+     staf tetap tahu materi mana saja yang diambil — bukan cuma bahwa orangnya
+     pernah mengunduh sesuatu. Konsekuensinya satu orang bisa punya banyak
+     baris di Pesan Masuk; itu bentuk datanya, bukan duplikat.
+  5. **`leads.email` jadi opsional** (migrasi drop NOT NULL) + `validate` yang
+     tetap mewajibkannya untuk `jenis: "kontak"`. `required` di Payload tidak
+     bisa bersyarat, jadi penegakannya dipindah ke validate. Kontak yang
+     mengandung "@" masuk ke `email`, selain itu ke `phone` — menebak begitu
+     lebih ramah daripada memaksa pengunjung memilih jenis kontaknya.
+  6. **Tombol berbagi menyebarkan alamat halaman materi, bukan tautan Drive.**
+     Penerima ikut mendarat di halaman yang punya formulir + CTA donasi, jadi
+     berbagi tidak jadi jalan pintas.
+  7. **Instagram tidak dibuatkan tombol** — tidak ada alamat berbagi yang bisa
+     mengisi caption dari luar aplikasi. Opsi share sheet HP (`navigator.share`)
+     ditawarkan dan **ditolak user**; yang dipakai WhatsApp + Facebook + Salin
+     tautan.
+  8. **CTA donasi memakai tombol CTA global Navigasi**, bukan tautan donasi
+     terpisah — supaya alamat donasi cuma diatur di satu tempat.
+  9. **Tautan tidak dibuka otomatis (`window.open`) sesudah formulir dikirim** —
+     pemblokir popup hampir pasti menahannya karena pembukaan terjadi setelah
+     `await`. Yang muncul tombol Unduh/Pratinjau untuk diklik. Satu klik ekstra,
+     tapi tidak pernah gagal diam-diam.
+
+  Verifikasi: `npx tsc --noEmit` bersih, `npm run build` sukses. Aturan lead
+  diuji langsung ke DB: unduhan tanpa email **diterima**, unduhan dengan nomor
+  HP **diterima** (masuk kolom `phone`), pesan Hubungi Kami tanpa email
+  **ditolak** ("Isian berikut tidak valid: Email"); dokumen ujinya dihapus lagi.
+  **Alur di browser belum dicoba** — sesuai preferensi tersimpan, preview hanya
+  dijalankan kalau user minta.
+
+  **Catatan buat QA manual user:**
+  - Buka `/buku-bahan-ajar-modul/<slug>` mana pun → harusnya muncul formulir,
+    bukan tombol unduh. Sesudah diisi: tombol Unduh + Pratinjau + kartu donasi
+    + tombol berbagi. Muat ulang halaman/buka materi lain → formulir diganti
+    satu tombol "Unduh Gratis" + tautan kecil "Ganti data".
+  - Cek Pesan Masuk di dasbor: tiap pembukaan menambah satu baris berjenis
+    "Unduhan Materi" dengan kolom "Materi yang diunduh" terisi.
+  - **Pratinjau memakai iframe `drive.google.com/file/d/<id>/preview`** — ini
+    bergantung pada berkasnya publik. Kalau suatu saat izin Drive diperketat,
+    pratinjaunya yang pertama mati.
+  - **OI-107 (kepatuhan data pribadi) sekarang jadi mendesak** — datanya sudah
+    benar-benar masuk, kebijakan retensi/ekspornya masih belum ada.

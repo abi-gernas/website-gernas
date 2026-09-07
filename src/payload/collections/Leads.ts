@@ -48,11 +48,29 @@ export const Leads: CollectionConfig = {
       },
     },
     { name: "name", type: "text", required: true, label: "Nama" },
-    { name: "email", type: "email", required: true, label: "Email" },
+    {
+      /**
+       * Wajib untuk formulir Hubungi Kami, opsional untuk formulir unduhan
+       * materi — di situ kontak sengaja tidak dipaksa supaya guru tidak batal
+       * mengunduh cuma karena enggan meninggalkan email (keputusan user,
+       * 7 Sep 2026). Karena `required` di Payload tidak bisa bersyarat,
+       * penegakannya dipindah ke `validate`.
+       */
+      name: "email",
+      type: "email",
+      label: "Email",
+      validate: (value: string | null | undefined, { siblingData }: { siblingData?: Record<string, unknown> }) => {
+        if (siblingData?.jenis !== "unduhan-materi" && !value) {
+          return "Email wajib diisi untuk pesan Hubungi Kami.";
+        }
+        return true;
+      },
+    },
     { name: "phone", type: "text", label: "Telepon" },
     {
       name: "asalInstansi",
       type: "text",
+      required: false,
       label: "Asal instansi/sekolah/daerah",
       admin: {
         condition: (_data, siblingData) => siblingData?.jenis === "unduhan-materi",

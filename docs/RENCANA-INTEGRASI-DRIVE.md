@@ -25,7 +25,7 @@ cuma menyimpan metadata + gambar sampul kecil.
 | Cara ambil daftar berkas | `npm run drive:fetch` → `scripts/fetch-drive-konten.mts` → `scripts/data-produk-drive.json` |
 | Cara isi CMS | `npm run seed:produk-drive` → `scripts/seed-produk-drive.mts` |
 | Hasil | 79 dokumen `produk`, 6 topik, sampul = gambar halaman pertama tiap PDF |
-| Unduh oleh pengunjung | Langsung ke `drive.google.com/file/d/<id>/view` (tanpa gating form) |
+| Unduh oleh pengunjung | Lewat gerbang formulir (nama + asal instansi, kontak opsional) → tautan Drive keluar dari server |
 
 **Batas yang diterima sadar di tahap ini:**
 
@@ -35,9 +35,17 @@ cuma menyimpan metadata + gambar sampul kecil.
    mengembalikan 0 berkas, itu penyebab pertama yang dicek — lompat ke Tahap 1.
 2. Berkasnya harus tetap "siapa saja yang punya tautan". Begitu izinnya
    diperketat, baik daftar berkas maupun sampulnya berhenti bisa diambil.
-3. **FR-104 (gating form) belum ada.** PRD mensyaratkan pengunjung mengisi nama +
-   asal instansi sebelum tautan terbuka; sekarang tombol unduh langsung ke Drive.
-   Ini ditutup di Tahap 3.
+3. **FR-104 sudah ada, tapi gerbangnya longgar — dan itu disengaja.**
+   Pengunjung mengisi nama + asal instansi (kontak opsional) sebelum tautan
+   keluar, dan tiap pembukaan tercatat di Pesan Masuk. Tautannya tidak ikut
+   ter-render di HTML halaman, jadi jalan normal menuju berkas memang lewat
+   formulir. **Tapi berkasnya sendiri tetap publik**: siapa pun yang sudah
+   sekali mengisi bisa menyebarkan tautannya, dan siapa pun yang mau repot bisa
+   memanggil server action-nya langsung dengan data karangan. Ini pertukaran
+   yang diambil sadar (keputusan user 7 Sep 2026) — ditukar dengan tidak perlu
+   memelihara kredensial Google sama sekali. Kalau suatu saat tidak cukup,
+   yang harus berubah adalah status berkas di Drive (Tahap 2 + Tahap 3), bukan
+   kode formulirnya.
 4. `jenjang` semua dokumen diisi `["sd"]` sebagai asumsi. Sebagian materi
    (Bilangan Bulat, Diagonal Bidang & Diagonal Ruang, Mean/Median/Modus)
    sebenarnya SMP. Betulkan per dokumen lewat dasbor — skrip tidak menimpanya
@@ -198,6 +206,18 @@ terbuka:
   perlu diperhatikan staf sehari-hari cuma Topik.
 - Materi berbayar (`status: berbayar`) **belum punya alur checkout** — FR-110
   masih menunggu OI-105. Jangan menerbitkan produk berbayar dulu.
+- Setiap pembukaan materi gratis masuk ke **Pesan Masuk** dengan jenis
+  "Unduhan Materi" + kolom "Materi yang diunduh". Kalau seorang guru mengunduh
+  5 materi, akan ada 5 baris atas nama yang sama — itu memang bentuk datanya,
+  bukan duplikat yang perlu dibersihkan.
+- Kontak di formulir unduhan **opsional**. Kalau isinya mengandung "@" masuk ke
+  kolom Email, selain itu ke kolom Telepon. Jadi banyak baris unduhan yang
+  kolom kontaknya kosong — itu normal.
+- **Kepatuhan data pribadi masih utang** (OI-107, carry-over 25 Jul 2026):
+  kebijakan retensi, siapa yang boleh mengekspor, dan dasar hukum pengumpulan
+  nama + asal instansi belum diputuskan. Sekarang datanya sudah benar-benar
+  mengalir masuk, jadi ini bukan lagi soal teoretis — lihat catatan di
+  `src/payload/collections/Leads.ts`.
 
 ---
 
@@ -274,29 +294,33 @@ Langkah:
 
 ---
 
-## 5. Tahap 3 — Unduhan lewat situs + gating form (FR-104)
+## 5. Tahap 3 — Unduhan di-stream lewat situs (memperketat FR-104)
 
-Baru mungkin setelah Tahap 2, karena selama berkasnya publik, gating form
-apa pun bisa dilewati dengan menyalin tautan Drive-nya.
+**Bukan tahap yang direncanakan dikerjakan.** Formulir FR-104 sudah jalan sejak
+7 Sep 2026 (§0); tahap ini cuma dibutuhkan kalau suatu saat gerbang longgar itu
+tidak lagi cukup — misalnya materi tertentu tidak boleh tersebar bebas, atau
+data unduhan mulai dipakai untuk pelaporan yang menuntut angka akurat.
+
+Prasyaratnya Tahap 2, karena selama berkasnya publik, gerbang seketat apa pun
+bisa dilewati dengan menyebarkan tautan Drive-nya.
 
 Bentuknya:
 
-1. Route handler `src/app/(frontend)/api/materi/[id]/route.ts` yang:
-   - memeriksa apakah pengunjung sudah mengisi form (cookie/lead id yang
-     tercatat di koleksi `Leads`),
-   - kalau sudah, mengambil berkas dari Drive dengan kredensial service account
-     dan mengalirkannya (`stream`) ke pengunjung.
-2. Tombol unduh di `ProdukDetailContent.tsx` menunjuk ke route itu, bukan lagi
-   ke `item.tautanDrive` langsung.
-3. Field `tautanDrive` tetap ada — dipakai skrip sebagai kunci pencocokan dan
-   sebagai jalan darurat kalau route unduhan bermasalah, tapi tidak lagi
-   ditampilkan ke pengunjung.
-4. Koleksi `Leads` sudah punya field yang dibutuhkan (dibuat di
-   `migrations/20260824_075753_library_guru_collections.ts`) — tinggal
-   menghubungkannya.
+1. Route handler `src/app/(frontend)/api/materi/[id]/route.ts` yang memeriksa
+   cookie/lead id yang tercatat di koleksi `Leads`, lalu mengambil berkas dari
+   Drive dengan kredensial service account dan mengalirkannya (`stream`) ke
+   pengunjung.
+2. `bukaMateri()` di `src/lib/actions/unduh-materi.ts` mengembalikan alamat
+   route itu, bukan `produk.tautanDrive`. Komponen `UnduhMateriGate` tidak
+   perlu berubah — dia sudah menerima tautan dari server, bukan dari props.
+3. Pratinjau ikut pindah: iframe `drive.google.com/file/d/<id>/preview` cuma
+   jalan untuk berkas publik, jadi perlu diganti penampil PDF sendiri
+   (mis. `pdf.js`) yang membaca dari route yang sama.
+4. Field `tautanDrive` tetap ada — dipakai skrip sbg kunci pencocokan, tapi
+   tidak lagi pernah sampai ke pengunjung.
 
-Sesudah tahap ini OI-108 bisa ditutup, dan FR-101/FR-104/FR-109 jalur gratis
-selesai. FR-110 (checkout berbayar) tetap terpisah dan tetap menunggu OI-105.
+Sesudah tahap ini OI-108 bisa ditutup penuh. FR-110 (checkout berbayar) tetap
+terpisah dan tetap menunggu OI-105.
 
 ---
 
