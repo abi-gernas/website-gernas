@@ -68,7 +68,8 @@ Server Component baca `searchParams`, teruskan ke query Payload local API:
 | `q` | Kata kunci, cari di `judul` (contains, case-insensitive) | `?q=pecahan` |
 | `jenjang` | Filter jenjang, bisa banyak dipisah koma | `?jenjang=sd,smp` |
 | `mapel` | Filter mapel/program | `?mapel=matematika` |
-| `kategori` | Cuma dipakai di Buku/Bahan Ajar/Modul (`kategoriProduk`) | `?kategori=modul` |
+| `kategori` | Cuma dipakai di Buku/Bahan Ajar/Modul (`kategoriProduk` = jenis materi). Masih didukung query-nya, tapi sejak 7 Sep 2026 **tidak lagi ditautkan dari kartu kategori** | `?kategori=modul` |
+| `topik` | Cuma dipakai di Buku/Bahan Ajar/Modul (`topik`). Inilah yang dipakai 6 kartu "Jelajahi Berdasarkan Topik" | `?topik=pecahan` |
 | `page` | Nomor halaman, 1-based | `?page=2` |
 
 12 item per halaman (`limit: 12`), sesuai mockup "Menampilkan 1–12 dari 86
@@ -113,7 +114,7 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 | 1 | Alat Peraga | Selesai | 24 Agu 2026 |
 | 2 | Media Digital Interaktif | Selesai | 24 Agu 2026 |
 | 3 | Video Pembelajaran | Selesai | 26 Agu 2026 |
-| 4 | Buku, Bahan Ajar & Modul | Selesai (tampilan) | 26 Agu 2026 |
+| 4 | Buku, Bahan Ajar & Modul | Selesai (tampilan + data asli; unduhan belum di-gate form FR-104) | 7 Sep 2026 |
 | 5 | Integrasi Beranda (§4.5) | Belum | — |
 
 ## 4. Task per Halaman
@@ -782,3 +783,75 @@ butuh data dummy lagi.
     Library tidak ada satu pun di `src/app/(frontend)/sitemap.ts` — sitemap
     masih cuma memuat `pages` + `articles`. Berlaku juga utk Alat Peraga &
     Buku/Bahan Ajar/Modul, bukan cuma halaman ini.
+
+---
+
+- **7 Sep 2026 — Buku, Bahan Ajar & Modul: data dummy diganti materi asli dari Google Drive**
+
+  Berkas baru: `scripts/fetch-drive-konten.mts`, `scripts/data-produk-drive.json`,
+  `scripts/seed-produk-drive.mts`, `src/components/library/IkonTopikProduk.tsx`,
+  `docs/RENCANA-INTEGRASI-DRIVE.md`,
+  `migrations/20260907_053054_produk_topik.ts`.
+  Diubah: `src/payload/collections/Produk.ts`, `src/lib/produk.ts`,
+  `src/components/pages/ProdukListContent.tsx`,
+  `src/components/pages/ProdukDetailContent.tsx`,
+  `src/components/library/ProdukCard.tsx`,
+  `src/components/library/LibraryCategoryChips.tsx`,
+  `scripts/seed-library-dummy.mts`, `package.json`.
+
+  Sumber data: folder Drive "Konten" `1ucyEM7NXmqJhQyNtnuNqZCePno37VF86`
+  (pemilik `gernastastaka.online@gmail.com`, akses "siapa saja yang punya
+  tautan") — 6 folder topik berisi 79 PDF lembar kegiatan matematika.
+  18 dokumen `[QA] …` dihapus, diganti 79 dokumen asli.
+
+  Keputusan yang diambil di tempat:
+  1. **Field `topik` baru, bukan mengganti opsi `kategoriProduk`.** User minta
+     6 folder Drive jadi kategori di halaman katalog. Mengganti isi
+     `kategoriProduk` berarti membuang opsi Modul/Buku/LKS yang belum ada
+     datanya tapi jelas akan dipakai (situsnya sendiri berjudul "Buku, Bahan
+     Ajar & Modul"). Jadi `kategoriProduk` dipertahankan sbg **jenis materi**
+     (label di dasbor diubah jadi "Jenis materi") dan `topik` ditambahkan sbg
+     dimensi kedua. Kartu kategori di halaman kini memakai `topik`;
+     `?kategori=` tetap jalan tapi tidak ada yang menautkannya lagi.
+  2. **Sampul = gambar halaman pertama tiap PDF**, diambil dari
+     `drive.google.com/thumbnail?id=…` lalu diunggah ke koleksi Media.
+     Alternatifnya (logo Gernas untuk semua, spt data dummy) membuat 79 kartu
+     kelihatan identik. Halaman pertama tiap materi kebetulan berisi judul +
+     ilustrasi kegiatannya, jadi terbaca sbg sampul betulan.
+  3. **Dokumen dicocokkan lewat file id Drive (`tautanDrive`), bukan slug.**
+     Kalau berkas diganti nama di Drive, judul produk ikut berubah tapi
+     slug/URL lama dipertahankan. Slug hanya ditulis saat dokumen dibuat.
+  4. **`urutan` = indeks topik × 1000 + nomor berkas.** Dengan begitu katalog
+     yang di-`sort: "urutan"` mengelompok per topik dengan sendirinya, tanpa
+     perlu mengubah sort di `src/lib/produk.ts` (yang juga dipakai panel
+     "Produk Terbaru").
+  5. **`jenjang` semua diisi `["sd"]` sebagai asumsi yang dinyatakan terbuka**,
+     bukan ditebak per berkas. Sebagian materi (Bilangan Bulat, Diagonal
+     Bidang & Ruang, Mean/Median/Modus) sebenarnya SMP. `ringkasan` sengaja
+     dibiarkan kosong daripada diisi kalimat karangan. Keduanya tidak ditimpa
+     lagi saat skrip dijalankan ulang, jadi aman dibetulkan lewat dasbor.
+  6. **`Pak Yadi.pdf` di folder akar tidak dimasukkan** — isinya #CeritaKelas
+     (pengalaman Pak Oktoriyadi, SDN 10 Sengkuang Kuning), bahan artikel bukan
+     bahan ajar.
+  7. **Bagian produk dummy dihapus dari `seed-library-dummy.mts`** — kalau
+     dibiarkan, menjalankannya akan memasukkan lagi 18 dokumen `[QA] …` yang
+     justru dihapus `seed:produk-drive`, dan keduanya saling menimpa.
+  8. **`LibraryCategoryChips` dapat prop `kolom`** (3/4) — 6 kartu di grid
+     4 kolom menyisakan baris kedua yang timpang.
+
+  Verifikasi: `npx tsc --noEmit` bersih; migrasi dijalankan ke DB yang dipakai
+  user; `npm run seed:produk-drive` selesai 79/79 tanpa gagal, dan dijalankan
+  ulang menghasilkan 0 dokumen baru (idempoten terbukti). Error
+  `[revalidate] gagal menyegarkan halaman publik` di log skrip tetap noise CLI
+  yang sama spt sesi sebelumnya. **Tidak dites di browser** — sesuai preferensi
+  tersimpan, preview hanya dijalankan kalau user minta.
+
+  **Catatan buat QA manual user:**
+  - Alamat: `/buku-bahan-ajar-modul` (7 halaman, 79 produk) + `?topik=geometri`
+    dst., dan `/buku-bahan-ajar-modul/<slug>` (+ `en/`).
+  - Ikon 6 kartu topik digambar sendiri (`IkonTopikProduk.tsx`), **belum
+    dicocokkan ke mockup Figma** — mockup yang ada cuma punya 4 kartu jenis.
+  - Tombol unduh di halaman detail **langsung ke Drive tanpa form** — FR-104
+    belum ditutup, sengaja, lihat `docs/RENCANA-INTEGRASI-DRIVE.md` §5.
+  - Betulkan `jenjang` materi jenjang SMP dan isi `ringkasan` lewat dasbor
+    (poin 5 di atas).

@@ -19,6 +19,7 @@ import * as migration_20260815_125037_add_leads_collection from './20260815_1250
 import * as migration_20260824_075753_library_guru_collections from './20260824_075753_library_guru_collections';
 import * as migration_20260826_161929_video_pembelajaran_slug from './20260826_161929_video_pembelajaran_slug';
 import * as migration_20260828_071924 from './20260828_071924';
+import * as migration_20260907_053054_produk_topik from './20260907_053054_produk_topik';
 
 export const migrations = [
   {
@@ -124,6 +125,11 @@ export const migrations = [
   {
     up: migration_20260828_071924.up,
     down: migration_20260828_071924.down,
-    name: '20260828_071924'
+    name: '20260828_071924',
+  },
+  {
+    up: migration_20260907_053054_produk_topik.up,
+    down: migration_20260907_053054_produk_topik.down,
+    name: '20260907_053054_produk_topik'
   },
 ];

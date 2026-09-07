@@ -1084,9 +1084,13 @@ export interface Produk {
    */
   slug: string;
   /**
-   * Menentukan kartu kategori mana di halaman katalog yang memuat produk ini.
+   * Bentuk materinya. Tidak dipakai kartu kategori di halaman katalog — itu memakai field Topik di bawah.
    */
   kategoriProduk: 'modul' | 'buku' | 'bahan-ajar' | 'lks';
+  /**
+   * Menentukan kartu kategori mana di halaman katalog yang memuat produk ini. Nilainya mengikuti nama folder di Google Drive “Konten” — kalau menambah opsi di sini, tambahkan juga pemetaannya di scripts/fetch-drive-konten.mts.
+   */
+  topik: 'geometri' | 'bilangan-cacah' | 'pecahan' | 'bilangan-bulat' | 'statistika' | 'pengukuran';
   jenjang: ('paud' | 'tk' | 'sd' | 'smp' | 'sma')[];
   /**
    * Sama seperti field Program di Modul Pelatihan — tambah opsi di sini bila nanti ada mapel baru.
@@ -1980,6 +1984,7 @@ export interface ProdukSelect<T extends boolean = true> {
   judul?: T;
   slug?: T;
   kategoriProduk?: T;
+  topik?: T;
   jenjang?: T;
   mapel?: T;
   cover?: T;

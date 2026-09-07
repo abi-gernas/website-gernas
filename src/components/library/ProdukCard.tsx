@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Locale } from "@/lib/i18n";
 import { JENJANG_LABELS, MAPEL_LABELS } from "@/lib/library";
-import { formatHarga, formatLabelPendek, type ProdukView } from "@/lib/produk";
+import { TOPIK_PRODUK_LABELS, formatHarga, formatLabelPendek, type ProdukView } from "@/lib/produk";
 import { produkPath } from "@/lib/routes";
 
 /**
@@ -18,7 +18,10 @@ export function ProdukCard({ item, locale = "id" }: { item: ProdukView; locale?:
     locale === "en"
       ? { detail: "Details", gratis: "Free" }
       : { detail: "Detail", gratis: "Gratis" };
+  // Topik ditaruh paling depan: seluruh materi yang ada sekarang berjenjang &
+  // bermapel sama, jadi topik-lah satu-satunya tag yang membedakan antar kartu.
   const tags = [
+    TOPIK_PRODUK_LABELS[item.topik][locale],
     ...item.jenjang.map((j) => JENJANG_LABELS[j] ?? j),
     ...item.mapel.map((m) => MAPEL_LABELS[m] ?? m),
   ];

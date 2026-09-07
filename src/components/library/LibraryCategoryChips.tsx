@@ -44,25 +44,35 @@ export type LibraryCategoryChip = {
  * per halaman, styling sama — lihat §2.3 rencana eksekusi.
  *
  * Dua tampilan:
- * - `ringkas` (bawaan) — 4 kolom, ikon kiri + teks kanan, dipakai halaman
+ * - `ringkas` (bawaan) — ikon kiri + teks kanan, dipakai halaman
  *   Buku, Bahan Ajar & Modul.
  * - `lebar` — 2 kolom, kartu lebih lapang, judul ikut warna aksen kartu, dan
  *   ada tombol panah bundar di ujung kanan. Mengikuti mockup Figma halaman
  *   Alat Peraga (menutup temuan QA #3 halaman itu).
+ *
+ * `kolom` hanya berlaku untuk varian `ringkas`: halaman Buku memakai 3 kolom
+ * sejak kartunya jadi 6 topik (4 kolom menyisakan baris kedua yang timpang).
  */
+const kolomKelas: Record<3 | 4, string> = {
+  3: "lg:grid-cols-3",
+  4: "lg:grid-cols-4",
+};
+
 export function LibraryCategoryChips({
   items,
   variant = "ringkas",
+  kolom = 4,
 }: {
   items: LibraryCategoryChip[];
   variant?: "ringkas" | "lebar";
+  kolom?: 3 | 4;
 }) {
   if (items.length === 0) return null;
 
   const lebar = variant === "lebar";
 
   return (
-    <div className={`grid gap-4 sm:grid-cols-2 ${lebar ? "" : "lg:grid-cols-4"}`}>
+    <div className={`grid gap-4 sm:grid-cols-2 ${lebar ? "" : kolomKelas[kolom]}`}>
       {items.map((item) => {
         const warna = item.warna ?? "putih";
         return (

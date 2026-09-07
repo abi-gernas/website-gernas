@@ -7,13 +7,13 @@ import {
   parseQueryParam,
   type LibrarySearchParams,
 } from "@/lib/library";
-import { KATEGORI_PRODUK_LABELS, getProdukList, getProdukTerbaru, type KategoriProduk } from "@/lib/produk";
+import { TOPIK_PRODUK_LABELS, getProdukList, getProdukTerbaru, type TopikProduk } from "@/lib/produk";
 import { produkListPath } from "@/lib/routes";
 import { LibrarySearchBar } from "@/components/library/LibrarySearchBar";
 import { LibraryCategoryChips, type ChipWarna } from "@/components/library/LibraryCategoryChips";
 import { LibraryPagination } from "@/components/library/LibraryPagination";
 import { CtaBantuanBanner } from "@/components/library/CtaBantuanBanner";
-import { IkonKategoriProduk } from "@/components/library/IkonKategoriProduk";
+import { IkonTopikProduk } from "@/components/library/IkonTopikProduk";
 import { ProdukCard } from "@/components/library/ProdukCard";
 import { ProdukTerbaru } from "@/components/library/ProdukTerbaru";
 
@@ -23,7 +23,7 @@ const text = {
     description:
       "Kumpulan buku, modul dan bahan ajar berkualitas yang siap digunakan untuk mendukung pembelajaran di kelas.",
     searchPlaceholder: "Cari materi, topik, kelas, atau kata kunci...",
-    categoryTitle: "Jelajahi Berdasarkan Kategori",
+    categoryTitle: "Jelajahi Berdasarkan Topik",
     listTitle: "Semua Buku, Bahan Ajar & Modul",
     empty: "Belum ada produk yang cocok dengan pencarian Anda.",
     showing: (start: number, end: number, total: number) =>
@@ -34,7 +34,7 @@ const text = {
     description:
       "A collection of quality books, modules, and teaching materials ready to support learning in the classroom.",
     searchPlaceholder: "Search materials, topics, grade, or keywords...",
-    categoryTitle: "Browse by Category",
+    categoryTitle: "Browse by Topic",
     listTitle: "All Books, Teaching Materials & Modules",
     empty: "No products matched your search yet.",
     showing: (start: number, end: number, total: number) =>
@@ -42,31 +42,49 @@ const text = {
   },
 } satisfies Record<Locale, unknown>;
 
-/** Deskripsi + tint tiap kartu kategori, mengikuti mockup (urutan & warnanya). */
-const kategoriKartu: {
-  kategori: KategoriProduk;
+/**
+ * Deskripsi + tint tiap kartu topik.
+ *
+ * Urutan & isinya mengikuti folder di Google Drive "Konten" yang jadi sumber
+ * materinya (lihat `scripts/fetch-drive-konten.mts`), bukan lagi keempat
+ * kartu jenis materi Modul/Buku/Bahan Ajar/LKS di mockup awal: seluruh materi
+ * yang sudah ada berjenis sama, jadi kartu jenis tidak memisahkan apa pun.
+ * Warnanya bergilir merah–biru–kuning seperti kartu Modul Pelatihan.
+ */
+const topikKartu: {
+  topik: TopikProduk;
   warna: ChipWarna;
   deskripsi: Record<Locale, string>;
 }[] = [
   {
-    kategori: "modul",
+    topik: "geometri",
     warna: "biru",
-    deskripsi: { id: "Pembelajaran siap pakai", en: "Ready-to-use lessons" },
+    deskripsi: { id: "Bangun datar, bangun ruang, dan sudut", en: "Shapes, solids, and angles" },
   },
   {
-    kategori: "buku",
+    topik: "bilangan-cacah",
     warna: "merah",
-    deskripsi: { id: "Referensi dan panduan guru", en: "References and teacher guides" },
+    deskripsi: { id: "Nilai tempat sampai perkalian & pembagian", en: "Place value to multiplication & division" },
   },
   {
-    kategori: "bahan-ajar",
+    topik: "pecahan",
     warna: "kuning",
-    deskripsi: { id: "Materi ajar praktis dan kontekstual", en: "Practical, contextual materials" },
+    deskripsi: { id: "Pecahan senilai, desimal, dan persen", en: "Equivalent fractions, decimals, and percent" },
   },
   {
-    kategori: "lks",
+    topik: "bilangan-bulat",
     warna: "langit",
-    deskripsi: { id: "Lembar kerja siswa dan aktivitas", en: "Student worksheets and activities" },
+    deskripsi: { id: "Bilangan negatif dan operasinya", en: "Negative numbers and their operations" },
+  },
+  {
+    topik: "statistika",
+    warna: "biru",
+    deskripsi: { id: "Penyajian data, mean, median, modus", en: "Data displays, mean, median, mode" },
+  },
+  {
+    topik: "pengukuran",
+    warna: "merah",
+    deskripsi: { id: "Keliling, luas, volume, dan waktu", en: "Perimeter, area, volume, and time" },
   },
 ];
 
@@ -82,10 +100,11 @@ export async function ProdukListContent({
   const jenjang = parseListParam(searchParams.jenjang);
   const mapel = parseListParam(searchParams.mapel);
   const kategori = parseListParam(searchParams.kategori);
+  const topik = parseListParam(searchParams.topik);
   const page = parsePageParam(searchParams.page);
 
   const [{ docs, totalDocs, totalPages, page: currentPage }, terbaru] = await Promise.all([
-    getProdukList({ q, jenjang, mapel, kategori, page, locale }),
+    getProdukList({ q, jenjang, mapel, kategori, topik, page, locale }),
     getProdukTerbaru(locale),
   ]);
 
@@ -136,11 +155,12 @@ export async function ProdukListContent({
         <div>
           <h2 className="mb-5 text-lg font-bold text-brand-navy">{t.categoryTitle}</h2>
           <LibraryCategoryChips
-            items={kategoriKartu.map((k) => ({
-              label: KATEGORI_PRODUK_LABELS[k.kategori][locale],
+            kolom={3}
+            items={topikKartu.map((k) => ({
+              label: TOPIK_PRODUK_LABELS[k.topik][locale],
               deskripsi: k.deskripsi[locale],
-              ikon: <IkonKategoriProduk kategori={k.kategori} />,
-              href: `${basePath}?kategori=${k.kategori}`,
+              ikon: <IkonTopikProduk topik={k.topik} />,
+              href: `${basePath}?topik=${k.topik}`,
               warna: k.warna,
             }))}
           />

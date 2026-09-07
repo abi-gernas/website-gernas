@@ -19,6 +19,13 @@ import { revalidateSemua, revalidateSemuaAfterDelete } from "../hooks/revalidate
  * `tautanDrive` menunggu OI-108 (OAuth Google Drive belum dibuat) — field
  * ini aman diisi manual (link folder/berkas "siapa saja yang punya tautan")
  * sebagai jalan pintas sementara sebelum integrasi OAuth resmi ada.
+ *
+ * Sejak 7 Sep 2026 isi koleksi ini tidak lagi diketik manual: 79 dokumen
+ * pertamanya dihasilkan `npm run seed:produk-drive` dari folder Drive
+ * "Konten" milik gernastastaka.online@gmail.com. `judul`, `slug`, `topik`,
+ * `cover`, `tautanDrive`, dan `urutan` ditimpa ulang tiap kali skrip itu
+ * jalan; field lain (jenjang, mapel, ringkasan, harga, dst.) aman disunting
+ * lewat dasbor. Lihat docs/RENCANA-INTEGRASI-DRIVE.md.
  */
 export const Produk: CollectionConfig = {
   slug: "produk",
@@ -53,7 +60,7 @@ export const Produk: CollectionConfig = {
       name: "kategoriProduk",
       type: "select",
       required: true,
-      label: "Kategori",
+      label: "Jenis materi",
       defaultValue: "modul",
       options: [
         { label: "Modul", value: "modul" },
@@ -63,7 +70,28 @@ export const Produk: CollectionConfig = {
       ],
       admin: {
         position: "sidebar",
-        description: "Menentukan kartu kategori mana di halaman katalog yang memuat produk ini.",
+        description:
+          "Bentuk materinya. Tidak dipakai kartu kategori di halaman katalog — itu memakai field Topik di bawah.",
+      },
+    },
+    {
+      name: "topik",
+      type: "select",
+      required: true,
+      label: "Topik",
+      defaultValue: "geometri",
+      options: [
+        { label: "Geometri", value: "geometri" },
+        { label: "Bilangan Cacah", value: "bilangan-cacah" },
+        { label: "Pecahan", value: "pecahan" },
+        { label: "Bilangan Bulat", value: "bilangan-bulat" },
+        { label: "Statistika", value: "statistika" },
+        { label: "Pengukuran", value: "pengukuran" },
+      ],
+      admin: {
+        position: "sidebar",
+        description:
+          "Menentukan kartu kategori mana di halaman katalog yang memuat produk ini. Nilainya mengikuti nama folder di Google Drive “Konten” — kalau menambah opsi di sini, tambahkan juga pemetaannya di scripts/fetch-drive-konten.mts.",
       },
     },
     {

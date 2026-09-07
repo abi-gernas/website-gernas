@@ -7,6 +7,7 @@ import { JENJANG_LABELS, MAPEL_LABELS } from "@/lib/library";
 import {
   FORMAT_LABELS,
   KATEGORI_PRODUK_LABELS,
+  TOPIK_PRODUK_LABELS,
   formatHarga,
   getProdukBySlug,
 } from "@/lib/produk";
@@ -63,6 +64,7 @@ export async function ProdukDetailContent({
   if (!item) notFound();
 
   const tags = [
+    TOPIK_PRODUK_LABELS[item.topik][locale],
     KATEGORI_PRODUK_LABELS[item.kategoriProduk][locale],
     ...item.jenjang.map((j) => JENJANG_LABELS[j] ?? j),
     ...item.mapel.map((m) => MAPEL_LABELS[m] ?? m),

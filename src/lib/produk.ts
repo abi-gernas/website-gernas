@@ -13,6 +13,7 @@ import type { Produk as PayloadProduk, Media } from "@/payload-types";
  */
 
 export type KategoriProduk = PayloadProduk["kategoriProduk"];
+export type TopikProduk = PayloadProduk["topik"];
 export type FormatProduk = PayloadProduk["format"][number];
 
 export type ProdukView = {
@@ -20,6 +21,7 @@ export type ProdukView = {
   judul: string;
   slug: string;
   kategoriProduk: KategoriProduk;
+  topik: TopikProduk;
   jenjang: string[];
   mapel: string[];
   cover: { url: string; width?: number; height?: number } | null;
@@ -31,12 +33,26 @@ export type ProdukView = {
   tautanDrive: string | null;
 };
 
-/** Label kartu kategori — nilainya harus sama dengan `options` di `Produk.ts`. */
+/** Label jenis materi — nilainya harus sama dengan `options` di `Produk.ts`. */
 export const KATEGORI_PRODUK_LABELS: Record<KategoriProduk, { id: string; en: string }> = {
   modul: { id: "Modul", en: "Modules" },
   buku: { id: "Buku", en: "Books" },
   "bahan-ajar": { id: "Bahan Ajar", en: "Teaching Materials" },
   lks: { id: "LKS/Worksheet", en: "Worksheets" },
+};
+
+/**
+ * Label kartu kategori di halaman katalog — nilainya harus sama dengan
+ * `options` field `topik` di `Produk.ts` dan dengan `PETA_TOPIK` di
+ * `scripts/fetch-drive-konten.mts`.
+ */
+export const TOPIK_PRODUK_LABELS: Record<TopikProduk, { id: string; en: string }> = {
+  geometri: { id: "Geometri", en: "Geometry" },
+  "bilangan-cacah": { id: "Bilangan Cacah", en: "Whole Numbers" },
+  pecahan: { id: "Pecahan", en: "Fractions" },
+  "bilangan-bulat": { id: "Bilangan Bulat", en: "Integers" },
+  statistika: { id: "Statistika", en: "Statistics" },
+  pengukuran: { id: "Pengukuran", en: "Measurement" },
 };
 
 /** Label panjang, dipakai di bagian "Produk Terbaru" & halaman detail. */
@@ -73,6 +89,7 @@ function toView(doc: PayloadProduk): ProdukView {
     judul: doc.judul,
     slug: doc.slug,
     kategoriProduk: doc.kategoriProduk,
+    topik: doc.topik,
     jenjang: doc.jenjang ?? [],
     mapel: doc.mapel ?? [],
     cover: toImage(doc.cover),
@@ -90,6 +107,7 @@ export type ProdukListParams = {
   jenjang?: string[];
   mapel?: string[];
   kategori?: string[];
+  topik?: string[];
   page?: number;
   locale?: Locale;
 };
@@ -99,6 +117,7 @@ export const getProdukList = cache(async function getProdukList({
   jenjang,
   mapel,
   kategori,
+  topik,
   page = 1,
   locale = DEFAULT_LOCALE,
 }: ProdukListParams): Promise<{
@@ -110,6 +129,7 @@ export const getProdukList = cache(async function getProdukList({
   const payload = await payloadPromise;
   const where = buildLibraryWhere({ q, jenjang, mapel });
   if (kategori && kategori.length > 0) where.kategoriProduk = { in: kategori };
+  if (topik && topik.length > 0) where.topik = { in: topik };
 
   const res = await payload.find({
     collection: "produk",
