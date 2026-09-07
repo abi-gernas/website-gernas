@@ -977,3 +977,92 @@ butuh data dummy lagi.
   Catatan: judul/deskripsi versi EN masih jatuh ke teks Indonesia (fallback) —
   terjemahannya lewat `npm run translate:export`/`import` seperti biasa.
   Preview browser tidak dijalankan, sesuai preferensi tersimpan.
+
+- **7 Sep 2026 (lanjutan 3) — "Video Pilihan" diubah ke bentuk sorotan sesuai mockup baru**
+
+  Mockup baru halaman Video Pembelajaran memperlihatkan blok "Video Pilihan"
+  sbg **satu video sorotan per geseran**: thumbnail besar di kiri, lalu judul,
+  baris tag, deskripsi, dan tombol "Tonton Video" di kanan, dengan tombol
+  panah bulat di tepi. Sebelumnya blok itu berisi 3 kartu kecil yang bentuknya
+  sama persis dengan grid "Semua Video" di bawahnya — jadi dua blok itu tampak
+  kembar. `VideoPilihanCarousel` ditulis ulang; `VideoPembelajaranCard` tidak
+  disentuh dan tetap dipakai grid (bentuknya sudah sesuai mockup).
+
+  Mekanisme gesernya tetap `scrollBy` + scroll-snap, sekarang satu slide =
+  satu lebar trek, jadi sapuan jari di HP ikut jalan tanpa kode tambahan.
+  Panah muncul dari `sm` ke atas dan disembunyikan (`invisible`, bukan
+  dilepas) di ujung trek supaya lebar trek tidak melompat.
+
+  Keputusan: chip pertama di mockup berbunyi "Pembelajaran" sedangkan koleksi
+  ini tidak punya field kategori/tag — jadi chip itu **teks tetap** di
+  komponen ("Learning" untuk EN), sementara chip jenjang/mapel setelahnya
+  tetap dari data. Kalau nanti staf mau mengatur label itu per video, koleksi
+  ini butuh field `tags` seperti `media-interaktif`.
+
+  Verifikasi: `npx tsc --noEmit` bersih, `npm run build` sukses. Tampilan di
+  browser belum dicek, sesuai preferensi tersimpan (preview cuma kalau diminta).
+
+- **7 Sep 2026 (lanjutan 4) — Banner "Belum menemukan yang anda cari?" pakai ilustrasi CS**
+
+  Referensi baru dari user: kartu navy dengan ilustrasi CS menempel di tepi
+  kiri bawah, teks di tengah, tombol garis-putih di kanan. `CtaBantuanBanner`
+  disesuaikan — ilustrasinya `absolute bottom-0` + `object-bottom` supaya
+  kakinya selalu rata dasar kartu berapa pun tinggi teksnya, dan `hidden`
+  di bawah `lg` karena di layar sempit ia mendesak teks (dekoratif, `alt=""`).
+
+  Berkasnya statis di `public/ilustrasi/cs-bantuan.png` (313×313, PNG
+  transparan), bukan dokumen Media — banner ini memang tidak diatur dari CMS.
+
+  Komponen ini dipakai 8 halaman sekaligus (4 daftar + 4 detail Library), jadi
+  satu perubahan berlaku untuk Buku/Bahan Ajar/Modul, Video Pembelajaran,
+  Media Interaktif, dan Alat Peraga.
+
+  Yang **belum** ikut referensi: ikon tombolnya masih gelembung obrolan, bukan
+  logo WhatsApp, karena nomor WhatsApp resmi belum ada di SiteSettings maupun
+  kode — tombolnya masih mendarat di halaman Mitra. Begitu nomornya turun,
+  ganti `href` jadi `wa.me/<nomor>` sekalian ikonnya.
+
+  Verifikasi: `npx tsc --noEmit` bersih, `npm run build` sukses. Tampilan di
+  browser belum dicek, sesuai preferensi tersimpan.
+
+- **7 Sep 2026 (lanjutan 5) — Katalog Media Interaktif diisi VM Numerasi asli; kartu jadi grid; halaman detail dicoba lalu dibatalkan**
+
+  Koleksi `media-interaktif` (18 dokumen dummy `[QA] …`) diisi 20 dokumen
+  asli dari Repositori Mesin Virtual Numerasi (`prpic.id/vmnumerasi`) lewat
+  skrip baru `scripts/seed-media-interaktif-vm.mts` (pola sama
+  `seed-produk-drive.mts`: hapus dummy, unduh sampul tiap VM ke Media, lalu
+  create/update per dokumen dikenali dari `tautan`). `seed-library-dummy.mts`
+  tidak lagi mengisi dummy koleksi ini (menyusul pola yang sudah dipakai utk
+  `produk`).
+
+  `MediaInteraktifCard` diubah dari baris horizontal (mockup Fase 2 lama) jadi
+  kartu grid selaras `ProdukCard` (sampul atas, judul, deskripsi, tag), dan
+  `MediaInteraktifListContent` ikut dirender grid (`sm:grid-cols-2
+  lg:grid-cols-4`), bukan `divide-y`.
+
+  Sempat dicoba: field `kontenHtml` (`type: "code"`, HTML) + `slug` di koleksi
+  ini, plus halaman detail `/media-interaktif/[slug]` yang menyematkan VM-nya
+  langsung lewat `<iframe srcDoc>` (`sandbox="allow-scripts"`, tanpa
+  `allow-same-origin`) — skrip seed di atas ikut mengunduh HTML tiap VM,
+  membuang skrip analitik Cloudflare bawaannya, dan mengabsolutkan alamat aset
+  relatif (`assets/...` → `https://prpic.id/vmnumerasi/assets/...`).
+  **Dibatalkan** setelah diriviu: kartunya harus langsung membuka tautan
+  eksternal saat diklik, bukan ke halaman detail. Halaman detail,
+  `MediaInteraktifDetailContent`, dan `MediaInteraktifPlayer` dihapus lagi.
+
+  Keputusan: field `kontenHtml` + `slug` (dan 20 dokumennya yang sudah
+  terisi lengkap) **dibiarkan tersimpan** di koleksi — tidak dipakai front-end
+  mana pun sekarang, siap dipakai kalau/ketika halaman detailnya dibangun
+  ulang nanti tanpa perlu migrasi baru.
+
+  Catatan migrasi: migrasi `20260907_151825_media_interaktif_html_slug`
+  sempat punya bug — `\s` di dalam template literal JS ke-eat jadi huruf `s`
+  biasa (bukan whitespace) sebelum sampai ke SQL, jadi backfill slug pertama
+  salah (mis. "Pasang Keramik" → `pa-angkeramik`). Sudah diperbaiki di file
+  migrasinya (`\\s`) dan 20 baris datanya dikoreksi ulang lewat Local API.
+  Kalau menulis regex dgn class shorthand (`\s`, `\d`, dst.) di dalam
+  `sql\`...\`` tagged template, selalu escape ganda.
+
+  Verifikasi: `npx tsc --noEmit` bersih. Tampilan di browser belum dicek,
+  sesuai preferensi tersimpan.
+

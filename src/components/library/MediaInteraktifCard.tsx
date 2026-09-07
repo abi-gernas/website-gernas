@@ -1,13 +1,11 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { MediaInteraktifView } from "@/lib/mediaInteraktif";
 import type { Locale } from "@/lib/i18n";
-import { mediaInteraktifPath } from "@/lib/routes";
 
 /**
- * Kartu grid Media Digital Interaktif — gaya sama dengan `ProdukCard`
- * (Buku, Bahan Ajar & Modul): sampul di atas, judul/deskripsi/tag, tombol
- * "Detail" di bawah yang mengarah ke halaman detail kita sendiri.
+ * Kartu grid Media Digital Interaktif — sampul di atas, judul/deskripsi/tag,
+ * lalu tombol "Buka Link" yang langsung membuka tautan eksternalnya di tab
+ * baru (tidak ada halaman detail di situs ini).
  */
 export function MediaInteraktifCard({
   item,
@@ -16,12 +14,16 @@ export function MediaInteraktifCard({
   item: MediaInteraktifView;
   locale?: Locale;
 }) {
-  const href = mediaInteraktifPath(item.slug, locale);
-  const detailLabel = locale === "en" ? "Details" : "Detail";
+  const label = locale === "en" ? "Open Link" : "Buka Link";
 
   return (
     <article className="flex flex-col overflow-hidden rounded-card bg-white shadow-soft transition-shadow hover:shadow-card">
-      <Link href={href} className="relative block aspect-[4/3] overflow-hidden bg-surface">
+      <a
+        href={item.tautan}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="relative block aspect-[4/3] overflow-hidden bg-surface"
+      >
         {item.thumbnail && (
           <Image
             src={item.thumbnail.url}
@@ -31,13 +33,13 @@ export function MediaInteraktifCard({
             className="object-cover"
           />
         )}
-      </Link>
+      </a>
 
       <div className="flex flex-1 flex-col p-5">
         <h3 className="line-clamp-2 text-sm font-bold leading-snug text-brand-navy">
-          <Link href={href} className="hover:text-brand-red">
+          <a href={item.tautan} target="_blank" rel="noopener noreferrer" className="hover:text-brand-red">
             {item.judul}
-          </Link>
+          </a>
         </h3>
         {item.deskripsi && (
           <p className="mt-1 line-clamp-2 text-sm text-muted">{item.deskripsi}</p>
@@ -56,9 +58,14 @@ export function MediaInteraktifCard({
           </div>
         )}
 
-        <Link href={href} className="btn-outline mt-4 self-end !min-h-0 !px-4 !py-1.5 !text-xs">
-          {detailLabel}
-        </Link>
+        <a
+          href={item.tautan}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-outline mt-4 self-end !min-h-0 !px-4 !py-1.5 !text-xs"
+        >
+          {label}
+        </a>
       </div>
     </article>
   );
