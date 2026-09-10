@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 import { bukaMateri, type DataPengunjung } from "@/lib/actions/unduh-materi";
@@ -13,7 +14,7 @@ import { FormUlasan } from "./FormUlasan";
  * Alur: pengunjung baru lihat tombol "Unduh Gratis" dulu (meniru pola
  * referensi produk — harga + tombol aksi menonjol, tanpa formulir kelihatan)
  * → baru sesudah diklik formulir nama + asal instansi (kontak opsional)
- * muncul → data masuk ke Pesan Masuk → tombol Unduh & Pratinjau muncul,
+ * muncul sbg pop-up → data masuk ke Pesan Masuk → tombol Unduh & Pratinjau muncul,
  * ditemani CTA donasi dan tombol berbagi. Pengunjung yang datanya sudah
  * tersimpan melewati tombol gate ini — satu klik langsung membuka materi.
  *
@@ -43,6 +44,7 @@ const text = {
     kontakPlaceholder: "nama@email.com atau +62…",
     kirim: "Buka Materi",
     mengirim: "Membuka…",
+    tutup: "Tutup",
     sebagai: (nama: string) => `Anda mengisi data sebagai ${nama}.`,
     ganti: "Ganti data",
     bukaLagi: "Unduh Gratis",
@@ -75,6 +77,7 @@ const text = {
     kontakPlaceholder: "name@email.com or +62…",
     kirim: "Unlock Material",
     mengirim: "Unlocking…",
+    tutup: "Close",
     sebagai: (nama: string) => `You filled this in as ${nama}.`,
     ganti: "Change details",
     bukaLagi: "Download Free",
@@ -128,19 +131,40 @@ export function UnduhMateriGate({
 }) {
   const t = text[locale];
   const [tersimpan, setTersimpan] = useState<DataPengunjung | null>(null);
-  const [paksaFormulir, setPaksaFormulir] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [galat, setGalat] = useState<string | null>(null);
   const [hasil, setHasil] = useState<{ tautanDrive: string; driveId: string | null } | null>(null);
   const [pratinjau, setPratinjau] = useState(false);
-  const [formulirDibuka, setFormulirDibuka] = useState(false);
+  const [modalBuka, setModalBuka] = useState(false);
   const [f, setF] = useState({ nama: "", asalInstansi: "", kontak: "" });
+  const inputPertama = useRef<HTMLInputElement>(null);
 
   // localStorage cuma ada di browser — dibaca sesudah hidrasi supaya HTML
   // server & klien tetap sama (kalau tidak, React akan protes hydration).
   useEffect(() => {
     setTersimpan(bacaSimpanan());
   }, []);
+
+  const mengirim = status === "mengirim";
+
+  // Pop-up formulir: kunci scroll halaman, fokus ke kolom pertama, Esc menutup,
+  // dan fokus dikembalikan ke tombol pemicu sesudah ditutup.
+  useEffect(() => {
+    if (!modalBuka) return;
+    const pemicu = document.activeElement as HTMLElement | null;
+    const overflowLama = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    inputPertama.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setModalBuka(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = overflowLama;
+      window.removeEventListener("keydown", onKey);
+      pemicu?.focus();
+    };
+  }, [modalBuka]);
 
   if (!punyaTautan) {
     return <p className="text-sm text-muted">{t.belumAdaTautan}</p>;
@@ -164,7 +188,7 @@ export function UnduhMateriGate({
       // Tidak apa-apa — cuma berarti materi berikutnya minta isi ulang.
     }
     setTersimpan(data);
-    setPaksaFormulir(false);
+    setModalBuka(false);
     setStatus("idle");
     setHasil({ tautanDrive: res.tautanDrive, driveId: res.driveId });
   };
@@ -246,17 +270,122 @@ export function UnduhMateriGate({
     );
   }
 
+  const bukaModal = () => {
+    setGalat(null);
+    setModalBuka(true);
+  };
+
+  // ── Pop-up formulir pendataan ─────────────────────────────────────────────
+  // Di-portal ke <body> supaya tidak terpotong/tertimpa header yang juga z-50.
+  const modal =
+    modalBuka &&
+    createPortal(
+      <div
+        className="fixed inset-0 z-[60] flex items-end justify-center bg-brand-navy/70 p-0 sm:items-center sm:p-6"
+        onClick={() => !mengirim && setModalBuka(false)}
+      >
+        <form
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ug-judul"
+          onSubmit={onSubmit}
+          onClick={(e) => e.stopPropagation()}
+          className="relative max-h-[90vh] w-full overflow-y-auto rounded-t-card bg-white p-5 shadow-soft sm:max-w-md sm:rounded-card sm:p-6"
+        >
+          <button
+            type="button"
+            onClick={() => setModalBuka(false)}
+            disabled={mengirim}
+            aria-label={t.tutup}
+            className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full text-xl leading-none text-muted hover:bg-brand-navy/5 hover:text-brand-navy disabled:opacity-40"
+          >
+            ×
+          </button>
+
+          <p id="ug-judul" className="pr-10 text-base font-bold text-brand-navy">
+            {t.ajakan}
+          </p>
+          <p className="mt-1 pr-6 text-xs leading-relaxed text-muted">{t.alasan}</p>
+
+          <div className="mt-4 space-y-4">
+            <div>
+              <label htmlFor="ug-nama" className="text-xs font-medium text-muted">
+                {t.nama} <span className="text-brand-red">*</span>
+              </label>
+              <input
+                ref={inputPertama}
+                id="ug-nama"
+                name="name"
+                autoComplete="name"
+                className={field}
+                placeholder={t.namaPlaceholder}
+                value={f.nama}
+                onChange={(e) => setF({ ...f, nama: e.target.value })}
+                disabled={mengirim}
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="ug-instansi" className="text-xs font-medium text-muted">
+                {t.instansi} <span className="text-brand-red">*</span>
+              </label>
+              <input
+                id="ug-instansi"
+                name="organization"
+                autoComplete="organization"
+                className={field}
+                placeholder={t.instansiPlaceholder}
+                value={f.asalInstansi}
+                onChange={(e) => setF({ ...f, asalInstansi: e.target.value })}
+                disabled={mengirim}
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="ug-kontak" className="text-xs font-medium text-muted">
+                {t.kontak} <span className="font-normal">({t.kontakOpsional})</span>
+              </label>
+              <input
+                id="ug-kontak"
+                name="email"
+                autoComplete="email"
+                spellCheck={false}
+                className={field}
+                placeholder={t.kontakPlaceholder}
+                value={f.kontak}
+                onChange={(e) => setF({ ...f, kontak: e.target.value })}
+                disabled={mengirim}
+              />
+            </div>
+          </div>
+
+          <button type="submit" className="btn-red mt-5 w-full disabled:opacity-60" disabled={mengirim}>
+            {mengirim ? t.mengirim : t.kirim}
+          </button>
+
+          {galat && (
+            <p role="alert" className="mt-3 text-sm text-brand-red">
+              {galat}
+            </p>
+          )}
+        </form>
+      </div>,
+      document.body,
+    );
+
   // ── Pernah mengisi: cukup satu tombol, tapi tetap dicatat ─────────────────
-  if (tersimpan && !paksaFormulir) {
+  if (tersimpan) {
     return (
       <div>
         <button
           type="button"
           onClick={() => void kirim(tersimpan)}
-          disabled={status === "mengirim"}
+          disabled={mengirim}
           className="btn-red disabled:opacity-60"
         >
-          {status === "mengirim" ? t.membuka : t.bukaLagi}
+          {mengirim && !modalBuka ? t.membuka : t.bukaLagi}
         </button>
         <p className="mt-2 text-xs text-muted">
           {t.sebagai(tersimpan.nama)}{" "}
@@ -268,100 +397,31 @@ export function UnduhMateriGate({
                 asalInstansi: tersimpan.asalInstansi,
                 kontak: tersimpan.kontak ?? "",
               });
-              setPaksaFormulir(true);
+              bukaModal();
             }}
             className="font-semibold text-brand-red underline"
           >
             {t.ganti}
           </button>
         </p>
-        {galat && (
+        {galat && !modalBuka && (
           <p role="alert" className="mt-2 text-sm text-brand-red">
             {galat}
           </p>
         )}
+        {modal}
       </div>
     );
   }
 
-  // ── Pengunjung baru, belum klik: tombol saja, meniru tampilan referensi ───
-  // (harga + tombol aksi menonjol) sebelum formulir pendataan ditampilkan.
-  if (!formulirDibuka) {
-    return (
-      <button type="button" onClick={() => setFormulirDibuka(true)} className="btn-red">
+  // ── Pengunjung baru: tombol saja (meniru referensi — harga + tombol aksi
+  // menonjol); formulir pendataan baru muncul sbg pop-up sesudah diklik.
+  return (
+    <>
+      <button type="button" onClick={bukaModal} className="btn-red">
         {t.unduh}
       </button>
-    );
-  }
-
-  // ── Pengunjung baru, sudah klik: formulir ─────────────────────────────────
-  return (
-    <form onSubmit={onSubmit} className="rounded-card bg-white p-5 shadow-soft sm:p-6">
-      <p className="text-sm font-bold text-brand-navy">{t.ajakan}</p>
-      <p className="mt-1 text-xs leading-relaxed text-muted">{t.alasan}</p>
-
-      <div className="mt-4 space-y-4">
-        <div>
-          <label htmlFor="ug-nama" className="text-xs font-medium text-muted">
-            {t.nama} <span className="text-brand-red">*</span>
-          </label>
-          <input
-            id="ug-nama"
-            name="name"
-            autoComplete="name"
-            className={field}
-            placeholder={t.namaPlaceholder}
-            value={f.nama}
-            onChange={(e) => setF({ ...f, nama: e.target.value })}
-            disabled={status === "mengirim"}
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="ug-instansi" className="text-xs font-medium text-muted">
-            {t.instansi} <span className="text-brand-red">*</span>
-          </label>
-          <input
-            id="ug-instansi"
-            name="organization"
-            autoComplete="organization"
-            className={field}
-            placeholder={t.instansiPlaceholder}
-            value={f.asalInstansi}
-            onChange={(e) => setF({ ...f, asalInstansi: e.target.value })}
-            disabled={status === "mengirim"}
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="ug-kontak" className="text-xs font-medium text-muted">
-            {t.kontak} <span className="font-normal">({t.kontakOpsional})</span>
-          </label>
-          <input
-            id="ug-kontak"
-            name="email"
-            autoComplete="email"
-            spellCheck={false}
-            className={field}
-            placeholder={t.kontakPlaceholder}
-            value={f.kontak}
-            onChange={(e) => setF({ ...f, kontak: e.target.value })}
-            disabled={status === "mengirim"}
-          />
-        </div>
-      </div>
-
-      <button type="submit" className="btn-red mt-5 disabled:opacity-60" disabled={status === "mengirim"}>
-        {status === "mengirim" ? t.mengirim : t.kirim}
-      </button>
-
-      {galat && (
-        <p role="alert" className="mt-3 text-sm text-brand-red">
-          {galat}
-        </p>
-      )}
-    </form>
+      {modal}
+    </>
   );
 }
