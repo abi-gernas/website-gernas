@@ -75,6 +75,7 @@ export interface Config {
     mitra: Mitra;
     video: Video;
     'modul-pelatihan': ModulPelatihan;
+    acara: Acara;
     produk: Produk;
     'alat-peraga': AlatPeraga;
     'video-pembelajaran': VideoPembelajaran;
@@ -98,6 +99,7 @@ export interface Config {
     mitra: MitraSelect<false> | MitraSelect<true>;
     video: VideoSelect<false> | VideoSelect<true>;
     'modul-pelatihan': ModulPelatihanSelect<false> | ModulPelatihanSelect<true>;
+    acara: AcaraSelect<false> | AcaraSelect<true>;
     produk: ProdukSelect<false> | ProdukSelect<true>;
     'alat-peraga': AlatPeragaSelect<false> | AlatPeragaSelect<true>;
     'video-pembelajaran': VideoPembelajaranSelect<false> | VideoPembelajaranSelect<true>;
@@ -621,6 +623,20 @@ export interface Page {
             blockType: 'trainingModules';
           }
         | {
+            /**
+             * Acara diambil dari Data Situs → Jadwal Acara: yang akan datang tampil lebih dulu (terdekat di depan), lalu yang sudah selesai (terbaru di depan).
+             */
+            heading?: string | null;
+            /**
+             * Sisanya disembunyikan di balik tombol “Lihat Semua”. Kosongkan untuk menampilkan semua sekaligus.
+             */
+            batasAwal?: number | null;
+            sembunyikanSelesai?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'jadwalAcara';
+          }
+        | {
             heading?: string | null;
             /**
              * Foto boleh beda ukuran — tingginya menyesuaikan sendiri. Seret untuk mengubah urutan.
@@ -1073,6 +1089,37 @@ export interface ModulPelatihan {
   createdAt: string;
 }
 /**
+ * Jadwal acara untuk blok “Jadwal Acara”. Acara yang akan datang tampil lebih dulu, lalu acara yang sudah selesai. Kosongkan Tautan pendaftaran bila acaranya eksklusif.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "acara".
+ */
+export interface Acara {
+  id: number;
+  judul: string;
+  kategori: 'webinar' | 'pelatihan' | 'workshop' | 'klubBuku' | 'seminar';
+  /**
+   * Bila diisi, kartu tampil sebagai poster. Bila kosong, kartu tampil sebagai kotak berwarna sesuai kategori. Poster sebaiknya tegak (4:5).
+   */
+  poster?: (number | null) | Media;
+  tanggal: string;
+  /**
+   * Mis. 19.00 - 21.00 WIB. Boleh dikosongkan.
+   */
+  waktu?: string | null;
+  format: 'online' | 'offline' | 'hybrid';
+  /**
+   * Untuk acara tatap muka/hybrid, mis. “Kantor Indorelawan, Jakarta”. Cukup nama tempat + kota.
+   */
+  lokasi?: string | null;
+  /**
+   * Alamat Google Form (https://forms.gle/…) atau formulir situs sendiri (/…). KOSONGKAN bila acara eksklusif — tombol “Daftar” tidak akan muncul. Tombol juga otomatis hilang setelah tanggal acara lewat.
+   */
+  tautanDaftar?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Katalog Buku, Bahan Ajar & Modul. Materi gratis diunduh lewat tautan Google Drive (perlu form isi data pengunjung dulu — lihat koleksi Pesan Masuk); materi berbayar masih menunggu keputusan mekanisme pembayaran (lihat PRD Fase 2 v1.2, OI-105).
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1241,11 +1288,11 @@ export interface MediaInteraktif {
       }[]
     | null;
   /**
-   * Kode HTML lengkap aktivitas/mesin virtualnya, disalin dari sumber aslinya — tampil tersemat (iframe) di halaman detail. Kosongkan untuk memakai tombol “Buka Link” ke tautan eksternal saja.
+   * Kode HTML lengkap aktivitas/mesin virtualnya, disalin dari sumber aslinya. Belum dipakai di halaman publik mana pun — disimpan utk dipakai nanti bila halaman detailnya dibangun.
    */
   kontenHtml?: string | null;
   /**
-   * Alamat sumber asli. Dipakai sbg tombol “Buka Link” bila Konten HTML kosong, atau sbg tautan “Buka di sumber aslinya” di halaman detail bila Konten HTML terisi.
+   * Alamat lengkap tujuan tombol “Buka Link”.
    */
   tautan: string;
   /**
@@ -1380,6 +1427,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'modul-pelatihan';
         value: number | ModulPelatihan;
+      } | null)
+    | ({
+        relationTo: 'acara';
+        value: number | Acara;
       } | null)
     | ({
         relationTo: 'produk';
@@ -1754,6 +1805,15 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        jadwalAcara?:
+          | T
+          | {
+              heading?: T;
+              batasAwal?: T;
+              sembunyikanSelesai?: T;
+              id?: T;
+              blockName?: T;
+            };
         gallery?:
           | T
           | {
@@ -2014,6 +2074,22 @@ export interface ModulPelatihanSelect<T extends boolean = true> {
         id?: T;
       };
   urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "acara_select".
+ */
+export interface AcaraSelect<T extends boolean = true> {
+  judul?: T;
+  kategori?: T;
+  poster?: T;
+  tanggal?: T;
+  waktu?: T;
+  format?: T;
+  lokasi?: T;
+  tautanDaftar?: T;
   updatedAt?: T;
   createdAt?: T;
 }

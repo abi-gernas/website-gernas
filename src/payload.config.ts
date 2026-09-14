@@ -20,6 +20,7 @@ import { Penggerak } from "./payload/collections/Penggerak";
 import { Mitra } from "./payload/collections/Mitra";
 import { Video } from "./payload/collections/Video";
 import { ModulPelatihan } from "./payload/collections/ModulPelatihan";
+import { Acara } from "./payload/collections/Acara";
 import { Produk } from "./payload/collections/Produk";
 import { AlatPeraga } from "./payload/collections/AlatPeraga";
 import { VideoPembelajaran } from "./payload/collections/VideoPembelajaran";
@@ -90,6 +91,7 @@ export default buildConfig({
     Mitra,
     Video,
     ModulPelatihan,
+    Acara,
     Produk,
     AlatPeraga,
     VideoPembelajaran,

@@ -109,6 +109,10 @@ export const uiText = {
     tataNilaiLabel: "Tata Nilai",
     teamShowMore: "Lihat Semua Penggerak",
     teamShowLess: "Tampilkan Lebih Sedikit",
+    eventRegister: "Daftar Sekarang",
+    eventShowMore: "Lihat Semua Acara",
+    eventUpcoming: "Akan Datang",
+    eventDone: "Selesai",
     comingSoonEyebrow: "Segera Hadir",
     comingSoonTitle: "Halaman ini sedang kami siapkan",
     comingSoonBody:
@@ -169,6 +173,10 @@ export const uiText = {
     tataNilaiLabel: "Values",
     teamShowMore: "View All Movers",
     teamShowLess: "Show Less",
+    eventRegister: "Register Now",
+    eventShowMore: "View All Events",
+    eventUpcoming: "Upcoming",
+    eventDone: "Finished",
     comingSoonEyebrow: "Coming Soon",
     comingSoonTitle: "This page is being prepared",
     comingSoonBody:

@@ -22,10 +22,12 @@ import { IndonesiaMap } from "@/components/IndonesiaMap";
 import { ContactForm } from "@/components/ContactForm";
 import { PartnerLogoGrid, PartnerMarquee } from "@/components/PartnerLogoGrid";
 import { VideoCard } from "@/components/VideoCard";
+import { JadwalAcara } from "@/components/JadwalAcara";
 import Link from "next/link";
 import { getArticles } from "@/lib/content";
 import { localizedPath, uiText, type Locale } from "@/lib/i18n";
 import {
+  getAcara,
   getMitra,
   getModulPelatihan,
   getPenggerak,
@@ -256,6 +258,42 @@ async function ModulPelatihanBlok({
               }
             : undefined
         }
+      />
+    </Section>
+  );
+}
+
+async function JadwalAcaraBlok({
+  block,
+  locale,
+}: {
+  block: Extract<Block, { blockType: "jadwalAcara" }>;
+  locale: Locale;
+}) {
+  const docs = await getAcara(locale);
+  if (docs.length === 0) return null;
+
+  const acara = docs.map((d) => ({
+    judul: d.judul,
+    kategori: d.kategori,
+    poster: mediaURL(d.poster),
+    tanggal: d.tanggal,
+    waktu: d.waktu ?? undefined,
+    format: d.format,
+    lokasi: d.lokasi ?? undefined,
+    tautanDaftar: d.tautanDaftar?.trim()
+      ? localizedPath(d.tautanDaftar.trim(), locale)
+      : undefined,
+  }));
+
+  return (
+    <Section title={block.heading ?? undefined}>
+      <JadwalAcara
+        acara={acara}
+        patokan={Date.now()}
+        locale={locale}
+        batasAwal={block.batasAwal ?? undefined}
+        sembunyikanSelesai={Boolean(block.sembunyikanSelesai)}
       />
     </Section>
   );
@@ -509,6 +547,9 @@ async function RenderBlock({ block, locale }: { block: Block; locale: Locale }) 
 
     case "trainingModules":
       return <ModulPelatihanBlok block={block} locale={locale} />;
+
+    case "jadwalAcara":
+      return <JadwalAcaraBlok block={block} locale={locale} />;
 
     case "gallery": {
       const foto = (block.images ?? [])

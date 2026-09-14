@@ -12,3 +12,7 @@ next-env.d.ts
 # Data kerja sementara translate:export/translate:import — hasil generate,
 # bukan kode sumber, dan bisa berisi draf terjemahan yang belum final.
 /scripts/i18n/translations.json
+
+# Rangkuman CV/portofolio pribadi — diperbarui tiap ada pengembangan, bukan
+# dokumen proyek untuk klien.
+/docs/cv-gernas-tastaka.md

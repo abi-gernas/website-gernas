@@ -1,7 +1,7 @@
 import "server-only";
 import { payloadPromise } from "./payload";
 import { DEFAULT_LOCALE, type Locale } from "./i18n";
-import type { Media, ModulPelatihan, Penggerak, Mitra, Video, SiteSetting } from "@/payload-types";
+import type { Acara, Media, ModulPelatihan, Penggerak, Mitra, Video, SiteSetting } from "@/payload-types";
 
 /**
  * Akses koleksi "Data Situs" — daftar berulang yang dipakai blok halaman.
@@ -65,6 +65,25 @@ export async function getVideo(
     depth: 1,
     limit: limit ?? 200,
     sort: SORT,
+    pagination: false,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+  });
+  return res.docs;
+}
+
+/**
+ * Semua acara, terbaru di depan. Pemisahan "akan datang" vs "selesai"
+ * sengaja tidak dilakukan di sini — halaman di-render statis, jadi patokan
+ * "hari ini" harus dihitung di browser (lihat `JadwalAcara.tsx`).
+ */
+export async function getAcara(locale: Locale = DEFAULT_LOCALE): Promise<Acara[]> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "acara",
+    depth: 1,
+    limit: 500,
+    sort: "-tanggal",
     pagination: false,
     locale,
     fallbackLocale: DEFAULT_LOCALE,

@@ -23,6 +23,8 @@ import * as migration_20260907_053054_produk_topik from './20260907_053054_produ
 import * as migration_20260907_061904_leads_email_opsional from './20260907_061904_leads_email_opsional';
 import * as migration_20260907_151334_ulasan_dan_penulis from './20260907_151334_ulasan_dan_penulis';
 import * as migration_20260907_151825_media_interaktif_html_slug from './20260907_151825_media_interaktif_html_slug';
+import * as migration_20260914_171318_jadwal_acara from './20260914_171318_jadwal_acara';
+import * as migration_20260914_171740_acara_lokasi_kategori from './20260914_171740_acara_lokasi_kategori';
 
 export const migrations = [
   {
@@ -148,6 +150,16 @@ export const migrations = [
   {
     up: migration_20260907_151825_media_interaktif_html_slug.up,
     down: migration_20260907_151825_media_interaktif_html_slug.down,
-    name: '20260907_151825_media_interaktif_html_slug'
+    name: '20260907_151825_media_interaktif_html_slug',
+  },
+  {
+    up: migration_20260914_171318_jadwal_acara.up,
+    down: migration_20260914_171318_jadwal_acara.down,
+    name: '20260914_171318_jadwal_acara',
+  },
+  {
+    up: migration_20260914_171740_acara_lokasi_kategori.up,
+    down: migration_20260914_171740_acara_lokasi_kategori.down,
+    name: '20260914_171740_acara_lokasi_kategori'
   },
 ];

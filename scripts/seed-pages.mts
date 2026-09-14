@@ -637,6 +637,13 @@ const halaman: Halaman[] = [
         ],
       },
       {
+        // Isi acaranya dari koleksi Jadwal Acara, bukan dari sini.
+        blockType: "jadwalAcara",
+        heading: "Jadwal Acara",
+        batasAwal: 6,
+        sembunyikanSelesai: false,
+      },
+      {
         blockType: "programIntensif",
         heading: "Program Intensif",
         isi: "Program Intensif Gernas Tastaka memberikan pendampingan terstruktur yang memastikan pelatihan terimplementasi menjadi praktik nyata di kelas. Bersama mitra, kami mendukung guru melalui diskusi terarah, coaching, mentoring, micro-teaching, dan kelas percontohan yang mudah direplikasi. Program ini dirancang untuk membantu sekolah dan pemerintah daerah mencapai peningkatan mutu pembelajaran secara berkelanjutan dan terukur.",

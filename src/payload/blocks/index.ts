@@ -14,6 +14,7 @@ import {
   VisiMisiBlock,
 } from "./konten";
 import {
+  JadwalAcaraBlock,
   LatestNewsBlock,
   PartnerLogosBlock,
   TeamGridBlock,
@@ -69,6 +70,7 @@ export const pageBlocks: Block[] = [
   PartnerLogosBlock,
   VideoGridBlock,
   TrainingModulesBlock,
+  JadwalAcaraBlock,
 
   // Bergambar & komponen khusus
   GalleryBlock,
@@ -92,6 +94,7 @@ export {
   HeroBlock,
   IdeaCardsBlock,
   IndonesiaMapBlock,
+  JadwalAcaraBlock,
   LatestNewsBlock,
   PageHeroBlock,
   PartnerLogosBlock,

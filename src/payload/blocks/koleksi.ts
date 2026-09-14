@@ -146,6 +146,43 @@ export const VideoGridBlock: Block = {
   ],
 };
 
+/** Jadwal acara (poster / kartu kategori) dari koleksi Jadwal Acara. */
+export const JadwalAcaraBlock: Block = {
+  slug: "jadwalAcara",
+  labels: { singular: "Jadwal Acara (dari Data Situs)", plural: "Jadwal Acara" },
+  imageURL: "/blok/latestNews.svg",
+  imageAltText: "Grid kartu acara berposter dengan tombol daftar",
+  fields: [
+    {
+      name: "heading",
+      type: "text",
+      localized: true,
+      label: "Judul bagian",
+      admin: {
+        description:
+          "Acara diambil dari Data Situs → Jadwal Acara: yang akan datang tampil lebih dulu (terdekat di depan), lalu yang sudah selesai (terbaru di depan).",
+      },
+    },
+    {
+      name: "batasAwal",
+      type: "number",
+      label: "Jumlah awal yang tampil",
+      min: 1,
+      defaultValue: 6,
+      admin: {
+        description:
+          "Sisanya disembunyikan di balik tombol “Lihat Semua”. Kosongkan untuk menampilkan semua sekaligus.",
+      },
+    },
+    {
+      name: "sembunyikanSelesai",
+      type: "checkbox",
+      label: "Sembunyikan acara yang sudah selesai",
+      defaultValue: false,
+    },
+  ],
+};
+
 /** Modul pelatihan dari koleksi Modul Pelatihan. */
 export const TrainingModulesBlock: Block = {
   slug: "trainingModules",

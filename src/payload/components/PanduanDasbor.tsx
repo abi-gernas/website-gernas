@@ -52,7 +52,7 @@ export const PanduanDasbor = () => (
       </li>
       <li>
         <strong>Data Situs</strong> — daftar yang dipakai berulang: Penggerak,
-        Mitra, Video, Modul Pelatihan. Isinya tidak diketik di dalam halaman,
+        Mitra, Video, Modul Pelatihan, Jadwal Acara. Isinya tidak diketik di dalam halaman,
         melainkan diambil dari sini. Karena itu mengubah satu data di sini ikut
         mengubah <em>semua</em> halaman yang menampilkannya.
       </li>
