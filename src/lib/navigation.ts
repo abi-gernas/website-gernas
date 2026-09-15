@@ -19,6 +19,7 @@ type RawItem = RawLink & {
   label?: string | null;
   children?: RawChild[] | null;
   hidden?: boolean | null;
+  sorot?: boolean | null;
 };
 type RawCta = RawLink & {
   enabled?: boolean | null;
@@ -58,6 +59,7 @@ function toItem(item: RawItem, locale: Locale): NavItem | null {
     label: item.label,
     ...(href ? { href: localizedPath(href, locale) } : {}),
     ...(children.length ? { children } : {}),
+    ...(item.sorot ? { sorot: true } : {}),
   };
 }
 

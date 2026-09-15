@@ -19,9 +19,30 @@ import { localizedPath, type Locale } from "./i18n";
  */
 export const HOME_SLUG = "beranda";
 
+/**
+ * Slug dokumen Halaman landing page segmen guru. Halamannya tetap dilayani
+ * `[...slug]` (disusun staf dari blok); konstanta ini hanya dipakai kode yang
+ * menautkannya, mis. breadcrumb di halaman katalog Library.
+ */
+export const POJOK_GURU_SLUG = "pojok-guru";
+
 /** Alamat publik satu dokumen Halaman. */
 export function pagePath(slug: string, locale?: Locale): string {
   const path = slug === HOME_SLUG ? "/" : `/${slug}`;
+  return locale ? localizedPath(path, locale) : path;
+}
+
+/** Alamat publik Pojok Guru — lihat `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §4.5. */
+export function pojokGuruPath(locale?: Locale): string {
+  return pagePath(POJOK_GURU_SLUG, locale);
+}
+
+/**
+ * Halaman hasil pencarian lintas 4 katalog Library. Route kode sendiri
+ * (`pojok-guru/cari/page.tsx`), bukan dokumen Halaman — menang atas `[...slug]`.
+ */
+export function pojokGuruCariPath(locale?: Locale, q?: string): string {
+  const path = `/${POJOK_GURU_SLUG}/cari${q ? `?q=${encodeURIComponent(q)}` : ""}`;
   return locale ? localizedPath(path, locale) : path;
 }
 

@@ -17,6 +17,12 @@ const RUTE_TETAP = [
   { label: "Tumbuh Bersama", value: "/tumbuh-bersama" },
   { label: "Belajar Bersama", value: "/belajar-bersama" },
   { label: "Publikasi", value: "/publikasi" },
+  { label: "Pojok Guru", value: "/pojok-guru" },
+  { label: "Buku, Bahan Ajar & Modul", value: "/buku-bahan-ajar-modul" },
+  { label: "Alat Peraga", value: "/alat-peraga" },
+  { label: "Video Pembelajaran", value: "/video-pembelajaran" },
+  { label: "Media Interaktif", value: "/media-interaktif" },
+  { label: "Jadwal Acara", value: "/belajar-bersama#jadwal-acara" },
 ];
 
 const LAINNYA = "__custom__";
@@ -130,6 +136,16 @@ export const Navigation: GlobalConfig = {
           defaultValue: false,
           admin: {
             description: "Menu tetap tersimpan di sini, hanya tidak ditampilkan di navbar.",
+          },
+        },
+        {
+          name: "sorot",
+          type: "checkbox",
+          label: "Tampilkan menonjol",
+          defaultValue: false,
+          admin: {
+            description:
+              "Menu diberi latar kuning muda agar mudah ditemukan, mis. “Pojok Guru”. Cukup satu menu saja — kalau banyak, tidak ada yang menonjol.",
           },
         },
         {

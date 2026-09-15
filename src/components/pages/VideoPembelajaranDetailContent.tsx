@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import {
@@ -10,18 +9,17 @@ import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 import { JENJANG_LABELS, MAPEL_LABELS } from "@/lib/library";
 import { videoPembelajaranListPath, videoPembelajaranPath } from "@/lib/routes";
 import { CtaBantuanBanner } from "@/components/library/CtaBantuanBanner";
+import { Breadcrumb, labelKatalogGuru } from "@/components/library/Breadcrumb";
 import { VideoPembelajaranCard } from "@/components/library/VideoPembelajaranCard";
 import { VideoPembelajaranPlayer } from "@/components/library/VideoPembelajaranPlayer";
 
 const text = {
   id: {
-    back: "← Kembali ke Video Pembelajaran",
     durasi: "Durasi",
     sumber: "Buka di sumber aslinya",
     lainnya: "Video Lainnya",
   },
   en: {
-    back: "← Back to Learning Videos",
     durasi: "Duration",
     sumber: "Open the original source",
     lainnya: "More Videos",
@@ -57,12 +55,16 @@ export async function VideoPembelajaranDetailContent({
   return (
     <article>
       <div className="container-page max-w-4xl py-10">
-        <Link
-          href={videoPembelajaranListPath(locale)}
-          className="text-sm font-semibold text-brand-red"
-        >
-          {t.back}
-        </Link>
+        <Breadcrumb
+          locale={locale}
+          items={[
+            {
+              label: labelKatalogGuru.videoPembelajaran[locale],
+              href: videoPembelajaranListPath(locale),
+            },
+            { label: item.judul },
+          ]}
+        />
 
         <div className="mt-6">
           <VideoPembelajaranPlayer item={item} locale={locale} />

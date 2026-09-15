@@ -15,6 +15,7 @@ import { LibraryPagination } from "@/components/library/LibraryPagination";
 import { CtaBantuanBanner } from "@/components/library/CtaBantuanBanner";
 import { IkonAlatPeraga } from "@/components/library/IkonAlatPeraga";
 import { AlatPeragaCard } from "@/components/library/AlatPeragaCard";
+import { Breadcrumb, labelKatalogGuru } from "@/components/library/Breadcrumb";
 
 const text = {
   id: {
@@ -76,6 +77,11 @@ export async function AlatPeragaListContent({
       <section className="bg-surface">
         <div className="container-page grid gap-10 py-14 sm:py-20 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center">
           <div>
+            <Breadcrumb
+              locale={locale}
+              items={[{ label: labelKatalogGuru.alatPeraga[locale] }]}
+              className="mb-5"
+            />
             <h1 className="text-3xl font-bold leading-tight text-brand-navy sm:text-4xl">
               {t.title}
             </h1>

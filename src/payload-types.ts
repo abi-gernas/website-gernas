@@ -214,6 +214,30 @@ export interface Page {
             blockType: 'pageHero';
           }
         | {
+            judul: string;
+            subjudul?: string | null;
+            /**
+             * Opsional. Diberi lapisan gelap supaya teks tetap terbaca; tanpa gambar, latarnya biru tua.
+             */
+            gambarLatar?: (number | null) | Media;
+            /**
+             * Mis. “Cari materi, topik, kelas, atau kata kunci…”. Kosongkan untuk memakai teks bawaan.
+             */
+            placeholder?: string | null;
+            /**
+             * Tampil sebagai tombol di bawah kotak pencarian. Pilih kata yang memang ada hasilnya — coba dulu di /pojok-guru/cari. Isi materi berbahasa Indonesia, jadi kata kunci versi Inggris sebaiknya tetap kata Indonesia.
+             */
+            tagPopuler?:
+              | {
+                  label: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'pencarianCepat';
+          }
+        | {
             heading?: string | null;
             content?: {
               root: {
@@ -235,6 +259,34 @@ export interface Page {
             id?: string | null;
             blockName?: string | null;
             blockType: 'richText';
+          }
+        | {
+            judul: string;
+            /**
+             * Satu-dua kalimat. Boleh dikosongkan.
+             */
+            ringkas?: string | null;
+            /**
+             * Di layar kecil tampil di bawah judul.
+             */
+            isi?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'introDuaKolom';
           }
         | {
             heading?: string | null;
@@ -632,9 +684,42 @@ export interface Page {
              */
             batasAwal?: number | null;
             sembunyikanSelesai?: boolean | null;
+            /**
+             * Membuat bagian ini bisa dituju langsung lewat alamat, mis. “/belajar-bersama#jadwal-acara”. Hanya huruf kecil dan tanda hubung. Jangan diubah bila sudah dipakai di menu.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'jadwalAcara';
+          }
+        | {
+            /**
+             * Kosongkan untuk memakai “Produk Terbaru”.
+             */
+            heading?: string | null;
+            /**
+             * Kosongkan untuk memakai produk dengan Urutan terkecil — sama dengan “Produk Terbaru” di halaman katalog Buku, Bahan Ajar & Modul.
+             */
+            produk?: (number | null) | Produk;
+            /**
+             * Opsional, tampil besar di bawah judul produk (mis. “Membaca menjadi jauh lebih bermakna”). Kalimat ini melekat di blok, bukan di produk — perbarui bila produk yang disorot berganti.
+             */
+            subjudul?: string | null;
+            alasan?: {
+              judul?: string | null;
+              /**
+               * Hapus semua poin untuk menyembunyikan panel ini.
+               */
+              poin?:
+                | {
+                    teks: string;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'produkSorotan';
           }
         | {
             heading?: string | null;
@@ -859,6 +944,67 @@ export interface Category {
    * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
    */
   slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Katalog Buku, Bahan Ajar & Modul. Materi gratis diunduh lewat tautan Google Drive (perlu form isi data pengunjung dulu — lihat koleksi Pesan Masuk); materi berbayar masih menunggu keputusan mekanisme pembayaran (lihat PRD Fase 2 v1.2, OI-105).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "produk".
+ */
+export interface Produk {
+  id: number;
+  judul: string;
+  /**
+   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
+   */
+  slug: string;
+  /**
+   * Bentuk materinya. Tidak dipakai kartu kategori di halaman katalog — itu memakai field Topik di bawah.
+   */
+  kategoriProduk: 'modul' | 'buku' | 'bahan-ajar' | 'lks';
+  /**
+   * Menentukan kartu kategori mana di halaman katalog yang memuat produk ini. Nilainya mengikuti nama folder di Google Drive “Konten” — kalau menambah opsi di sini, tambahkan juga pemetaannya di scripts/fetch-drive-konten.mts.
+   */
+  topik: 'geometri' | 'bilangan-cacah' | 'pecahan' | 'bilangan-bulat' | 'statistika' | 'pengukuran';
+  jenjang: ('paud' | 'tk' | 'sd' | 'smp' | 'sma')[];
+  /**
+   * Sama seperti field Program di Modul Pelatihan — tambah opsi di sini bila nanti ada mapel baru.
+   */
+  mapel: ('matematika' | 'membaca')[];
+  cover: number | Media;
+  /**
+   * Tampil di kartu katalog dan sebagai deskripsi SEO bila belum diisi manual.
+   */
+  ringkasan?: string | null;
+  /**
+   * Nama penulis/penyusun materi, kalau tercantum di berkasnya. Boleh kosong — sebagian terisi otomatis dari teks PDF (npm run backfill:penulis-drive), hasilnya dugaan dan aman dikoreksi manual kapan saja.
+   */
+  penulis?: string | null;
+  /**
+   * Poin bertanda bintang di halaman detail, mis. “40 kegiatan bertahap”.
+   */
+  fiturUnggulan?:
+    | {
+        teks: string;
+        id?: string | null;
+      }[]
+    | null;
+  format: ('pdf' | 'cetak')[];
+  status: 'gratis' | 'berbayar';
+  /**
+   * Wajib diisi bila status Berbayar.
+   */
+  harga?: number | null;
+  /**
+   * Alamat berkas/folder Drive (akses “siapa saja yang punya tautan”) sampai OAuth resmi (OI-108) selesai dibuat. Untuk produk berbayar, ini bisa dikosongkan dan dikirim manual setelah pembayaran dikonfirmasi.
+   */
+  tautanDrive?: string | null;
+  /**
+   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
+   */
+  urutan?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1116,67 +1262,6 @@ export interface Acara {
    * Alamat Google Form (https://forms.gle/…) atau formulir situs sendiri (/…). KOSONGKAN bila acara eksklusif — tombol “Daftar” tidak akan muncul. Tombol juga otomatis hilang setelah tanggal acara lewat.
    */
   tautanDaftar?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Katalog Buku, Bahan Ajar & Modul. Materi gratis diunduh lewat tautan Google Drive (perlu form isi data pengunjung dulu — lihat koleksi Pesan Masuk); materi berbayar masih menunggu keputusan mekanisme pembayaran (lihat PRD Fase 2 v1.2, OI-105).
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "produk".
- */
-export interface Produk {
-  id: number;
-  judul: string;
-  /**
-   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
-   */
-  slug: string;
-  /**
-   * Bentuk materinya. Tidak dipakai kartu kategori di halaman katalog — itu memakai field Topik di bawah.
-   */
-  kategoriProduk: 'modul' | 'buku' | 'bahan-ajar' | 'lks';
-  /**
-   * Menentukan kartu kategori mana di halaman katalog yang memuat produk ini. Nilainya mengikuti nama folder di Google Drive “Konten” — kalau menambah opsi di sini, tambahkan juga pemetaannya di scripts/fetch-drive-konten.mts.
-   */
-  topik: 'geometri' | 'bilangan-cacah' | 'pecahan' | 'bilangan-bulat' | 'statistika' | 'pengukuran';
-  jenjang: ('paud' | 'tk' | 'sd' | 'smp' | 'sma')[];
-  /**
-   * Sama seperti field Program di Modul Pelatihan — tambah opsi di sini bila nanti ada mapel baru.
-   */
-  mapel: ('matematika' | 'membaca')[];
-  cover: number | Media;
-  /**
-   * Tampil di kartu katalog dan sebagai deskripsi SEO bila belum diisi manual.
-   */
-  ringkasan?: string | null;
-  /**
-   * Nama penulis/penyusun materi, kalau tercantum di berkasnya. Boleh kosong — sebagian terisi otomatis dari teks PDF (npm run backfill:penulis-drive), hasilnya dugaan dan aman dikoreksi manual kapan saja.
-   */
-  penulis?: string | null;
-  /**
-   * Poin bertanda bintang di halaman detail, mis. “40 kegiatan bertahap”.
-   */
-  fiturUnggulan?:
-    | {
-        teks: string;
-        id?: string | null;
-      }[]
-    | null;
-  format: ('pdf' | 'cetak')[];
-  status: 'gratis' | 'berbayar';
-  /**
-   * Wajib diisi bila status Berbayar.
-   */
-  harga?: number | null;
-  /**
-   * Alamat berkas/folder Drive (akses “siapa saja yang punya tautan”) sampai OAuth resmi (OI-108) selesai dibuat. Untuk produk berbayar, ini bisa dikosongkan dan dikirim manual setelah pembayaran dikonfirmasi.
-   */
-  tautanDrive?: string | null;
-  /**
-   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
-   */
-  urutan?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1547,6 +1632,22 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        pencarianCepat?:
+          | T
+          | {
+              judul?: T;
+              subjudul?: T;
+              gambarLatar?: T;
+              placeholder?: T;
+              tagPopuler?:
+                | T
+                | {
+                    label?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
         richText?:
           | T
           | {
@@ -1554,6 +1655,15 @@ export interface PagesSelect<T extends boolean = true> {
               content?: T;
               lebar?: T;
               rataTengah?: T;
+              id?: T;
+              blockName?: T;
+            };
+        introDuaKolom?:
+          | T
+          | {
+              judul?: T;
+              ringkas?: T;
+              isi?: T;
               id?: T;
               blockName?: T;
             };
@@ -1811,6 +1921,27 @@ export interface PagesSelect<T extends boolean = true> {
               heading?: T;
               batasAwal?: T;
               sembunyikanSelesai?: T;
+              anchor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        produkSorotan?:
+          | T
+          | {
+              heading?: T;
+              produk?: T;
+              subjudul?: T;
+              alasan?:
+                | T
+                | {
+                    judul?: T;
+                    poin?:
+                      | T
+                      | {
+                          teks?: T;
+                          id?: T;
+                        };
+                  };
               id?: T;
               blockName?: T;
             };
@@ -2342,6 +2473,12 @@ export interface Navigation {
           | '/tumbuh-bersama'
           | '/belajar-bersama'
           | '/publikasi'
+          | '/pojok-guru'
+          | '/buku-bahan-ajar-modul'
+          | '/alat-peraga'
+          | '/video-pembelajaran'
+          | '/media-interaktif'
+          | '/belajar-bersama#jadwal-acara'
           | '__custom__'
         )
       | null;
@@ -2365,6 +2502,12 @@ export interface Navigation {
               | '/tumbuh-bersama'
               | '/belajar-bersama'
               | '/publikasi'
+              | '/pojok-guru'
+              | '/buku-bahan-ajar-modul'
+              | '/alat-peraga'
+              | '/video-pembelajaran'
+              | '/media-interaktif'
+              | '/belajar-bersama#jadwal-acara'
               | '__custom__'
             )
           | null;
@@ -2376,6 +2519,10 @@ export interface Navigation {
          * Menu tetap tersimpan di sini, hanya tidak ditampilkan di navbar.
          */
         hidden?: boolean | null;
+        /**
+         * Menu diberi latar kuning muda agar mudah ditemukan, mis. “Pojok Guru”. Cukup satu menu saja — kalau banyak, tidak ada yang menonjol.
+         */
+        sorot?: boolean | null;
         children?:
           | {
               label: string;
@@ -2391,6 +2538,12 @@ export interface Navigation {
                     | '/tumbuh-bersama'
                     | '/belajar-bersama'
                     | '/publikasi'
+                    | '/pojok-guru'
+                    | '/buku-bahan-ajar-modul'
+                    | '/alat-peraga'
+                    | '/video-pembelajaran'
+                    | '/media-interaktif'
+                    | '/belajar-bersama#jadwal-acara'
                     | '__custom__'
                   )
                 | null;
@@ -2456,6 +2609,7 @@ export interface NavigationSelect<T extends boolean = true> {
         preset?: T;
         custom?: T;
         hidden?: T;
+        sorot?: T;
         children?:
           | T
           | {

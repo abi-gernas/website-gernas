@@ -2,6 +2,59 @@ import type { Block } from "payload";
 import { judulBaris } from "../fields/rowLabel";
 import { ctaField } from "./shared";
 
+/**
+ * Hero pencarian — "Cari Kebutuhan Anda!" di Pojok Guru.
+ *
+ * Kotak pencariannya selalu menuju `/pojok-guru/cari` (lintas 4 katalog
+ * Library), bukan ke halaman tempat blok ini dipasang. Tag populer halaman
+ * hasil pencarian juga dibaca dari blok ini di halaman Pojok Guru.
+ */
+export const PencarianCepatBlock: Block = {
+  slug: "pencarianCepat",
+  labels: { singular: "Hero Pencarian (Pojok Guru)", plural: "Hero Pencarian" },
+  imageURL: "/blok/pencarianCepat.svg",
+  imageAltText: "Panel judul dengan kotak pencarian dan deretan kata kunci populer",
+  fields: [
+    { name: "judul", type: "text", required: true, localized: true, label: "Judul" },
+    { name: "subjudul", type: "textarea", localized: true, label: "Keterangan di bawah judul" },
+    {
+      name: "gambarLatar",
+      type: "upload",
+      relationTo: "media",
+      label: "Gambar latar",
+      admin: {
+        description:
+          "Opsional. Diberi lapisan gelap supaya teks tetap terbaca; tanpa gambar, latarnya biru tua.",
+      },
+    },
+    {
+      name: "placeholder",
+      type: "text",
+      localized: true,
+      label: "Teks contoh di kotak pencarian",
+      admin: {
+        description:
+          "Mis. “Cari materi, topik, kelas, atau kata kunci…”. Kosongkan untuk memakai teks bawaan.",
+      },
+    },
+    {
+      name: "tagPopuler",
+      type: "array",
+      label: "Pencarian populer",
+      maxRows: 6,
+      labels: { singular: "Kata kunci", plural: "Kata kunci" },
+      admin: {
+        components: judulBaris,
+        description:
+          "Tampil sebagai tombol di bawah kotak pencarian. Pilih kata yang memang ada hasilnya — coba dulu di /pojok-guru/cari. Isi materi berbahasa Indonesia, jadi kata kunci versi Inggris sebaiknya tetap kata Indonesia.",
+      },
+      fields: [
+        { name: "label", type: "text", required: true, localized: true, label: "Kata kunci" },
+      ],
+    },
+  ],
+};
+
 /** Hero carousel beranda — komponen <HeroCarousel slides={…} /> */
 export const HeroBlock: Block = {
   slug: "hero",

@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getAlatPeragaBySlug } from "@/lib/alatPeraga";
@@ -7,11 +6,12 @@ import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 import { JENJANG_LABELS, MAPEL_LABELS } from "@/lib/library";
 import { alatPeragaListPath, alatPeragaPath } from "@/lib/routes";
 import { CtaBantuanBanner } from "@/components/library/CtaBantuanBanner";
+import { Breadcrumb, labelKatalogGuru } from "@/components/library/Breadcrumb";
 
 const text = {
-  id: { back: "← Kembali ke Alat Peraga", contents: "Isi Paket" },
-  en: { back: "← Back to Teaching Aids", contents: "Package Contents" },
-} satisfies Record<Locale, { back: string; contents: string }>;
+  id: { contents: "Isi Paket" },
+  en: { contents: "Package Contents" },
+} satisfies Record<Locale, { contents: string }>;
 
 export async function AlatPeragaDetailContent({
   slug,
@@ -33,9 +33,13 @@ export async function AlatPeragaDetailContent({
     <article>
       <div className="bg-surface">
         <div className="container-page max-w-3xl py-12">
-          <Link href={alatPeragaListPath(locale)} className="text-sm font-semibold text-brand-red">
-            {t.back}
-          </Link>
+          <Breadcrumb
+            locale={locale}
+            items={[
+              { label: labelKatalogGuru.alatPeraga[locale], href: alatPeragaListPath(locale) },
+              { label: item.judul },
+            ]}
+          />
           {tags.length > 0 && (
             <div className="mt-6 flex flex-wrap gap-1.5">
               {tags.map((tag) => (

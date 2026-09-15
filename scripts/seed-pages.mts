@@ -642,6 +642,8 @@ const halaman: Halaman[] = [
         heading: "Jadwal Acara",
         batasAwal: 6,
         sembunyikanSelesai: false,
+        // Dituju menu "Pojok Guru → Jadwal Acara" & halaman /pojok-guru.
+        anchor: "jadwal-acara",
       },
       {
         blockType: "programIntensif",

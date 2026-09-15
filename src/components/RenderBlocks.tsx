@@ -23,8 +23,12 @@ import { ContactForm } from "@/components/ContactForm";
 import { PartnerLogoGrid, PartnerMarquee } from "@/components/PartnerLogoGrid";
 import { VideoCard } from "@/components/VideoCard";
 import { JadwalAcara } from "@/components/JadwalAcara";
+import { PencarianCepat } from "@/components/library/PencarianCepat";
+import { ProdukSorotan } from "@/components/library/ProdukSorotan";
+import { IntroDuaKolom } from "@/components/IntroDuaKolom";
 import Link from "next/link";
 import { getArticles } from "@/lib/content";
+import { getProdukById, getProdukTerbaru } from "@/lib/produk";
 import { localizedPath, uiText, type Locale } from "@/lib/i18n";
 import {
   getAcara,
@@ -287,7 +291,7 @@ async function JadwalAcaraBlok({
   }));
 
   return (
-    <Section title={block.heading ?? undefined}>
+    <Section title={block.heading ?? undefined} id={block.anchor ?? undefined}>
       <JadwalAcara
         acara={acara}
         patokan={Date.now()}
@@ -299,9 +303,46 @@ async function JadwalAcaraBlok({
   );
 }
 
+async function ProdukSorotanBlok({
+  block,
+  locale,
+}: {
+  block: Extract<Block, { blockType: "produkSorotan" }>;
+  locale: Locale;
+}) {
+  // Produk pilihan staf; kosong (atau sudah dihapus) → produk "Produk Terbaru"
+  // katalog, supaya blok tidak pernah hilang hanya karena relasinya putus.
+  const idProduk =
+    block.produk && typeof block.produk === "object" ? block.produk.id : block.produk;
+  const item =
+    (idProduk ? await getProdukById(idProduk, locale) : null) ?? (await getProdukTerbaru(locale));
+  if (!item) return null;
+
+  const poin = (block.alasan?.poin ?? []).map((p) => p.teks).filter(Boolean);
+
+  return (
+    <ProdukSorotan
+      judulBagian={block.heading ?? undefined}
+      subjudul={block.subjudul ?? undefined}
+      item={item}
+      alasan={poin.length > 0 ? { judul: block.alasan?.judul ?? undefined, poin } : undefined}
+      locale={locale}
+    />
+  );
+}
+
 // ─── Pemetaan blok → komponen ─────────────────────────────────────────────
 
-async function RenderBlock({ block, locale }: { block: Block; locale: Locale }) {
+async function RenderBlock({
+  block,
+  locale,
+  pertama = false,
+}: {
+  block: Block;
+  locale: Locale;
+  /** Blok paling atas halaman — blok hero yang judulnya bisa jadi `<h1>`. */
+  pertama?: boolean;
+}) {
   switch (block.blockType) {
     case "hero": {
       const slides = (block.slides ?? []).flatMap((s) => {
@@ -336,6 +377,26 @@ async function RenderBlock({ block, locale }: { block: Block; locale: Locale }) 
         </>
       );
     }
+
+    case "pencarianCepat":
+      return (
+        <PencarianCepat
+          judul={block.judul}
+          subjudul={block.subjudul ?? undefined}
+          gambar={mediaURL(block.gambarLatar)}
+          placeholder={block.placeholder ?? undefined}
+          tagPopuler={(block.tagPopuler ?? []).map((t) => t.label).filter(Boolean)}
+          locale={locale}
+          judulHalaman={pertama}
+        />
+      );
+
+    case "introDuaKolom":
+      return (
+        <IntroDuaKolom judul={block.judul} ringkas={block.ringkas ?? undefined}>
+          {block.isi ? <ArticleBody content={block.isi} /> : null}
+        </IntroDuaKolom>
+      );
 
     case "richText": {
       const lebar = block.lebar === "penuh" ? "" : "mx-auto max-w-4xl";
@@ -551,6 +612,9 @@ async function RenderBlock({ block, locale }: { block: Block; locale: Locale }) 
     case "jadwalAcara":
       return <JadwalAcaraBlok block={block} locale={locale} />;
 
+    case "produkSorotan":
+      return <ProdukSorotanBlok block={block} locale={locale} />;
+
     case "gallery": {
       const foto = (block.images ?? [])
         .map(toFoto)
@@ -698,6 +762,7 @@ export function RenderBlocks({
           key={block.id ?? `${block.blockType}-${i}`}
           block={block}
           locale={locale}
+          pertama={i === 0}
         />
       ))}
     </>

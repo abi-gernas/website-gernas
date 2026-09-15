@@ -17,6 +17,7 @@ const PRIORITAS: Record<string, number> = {
   [HOME_SLUG]: 1,
   "tentang-gernas-tastaka": 0.8,
   publikasi: 0.8,
+  "pojok-guru": 0.8,
   mitra: 0.6,
   donatur: 0.6,
   "tumbuh-bersama": 0.6,

@@ -12,6 +12,7 @@ import {
   IlustrasiMediaInteraktif,
   type FiturMedia,
 } from "@/components/library/IkonMediaInteraktif";
+import { Breadcrumb, labelKatalogGuru } from "@/components/library/Breadcrumb";
 
 /**
  * Susunan halaman mengikuti mockup Figma yang ditinjau 26 Agu 2026: hero dua
@@ -98,6 +99,11 @@ export async function MediaInteraktifListContent({
     <div className="bg-surface">
       <section className="container-page grid gap-10 py-14 sm:py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center">
         <div>
+          <Breadcrumb
+            locale={locale}
+            items={[{ label: labelKatalogGuru.mediaInteraktif[locale] }]}
+            className="mb-5"
+          />
           <h1 className="text-3xl font-bold leading-tight text-brand-navy sm:text-4xl">
             {t.title}
           </h1>

@@ -1,4 +1,5 @@
 import type { Where } from "payload";
+import { DEFAULT_LOCALE, type Locale } from "./i18n";
 
 /**
  * Kontrak query parameter bersama untuk 4 halaman Library (Alat Peraga, Media
@@ -96,9 +97,23 @@ export function pecahKataKunci(q: string | undefined): string[] {
  *
  * `contains` di adapter Postgres jadi `ILIKE %kata%` — jadi pencarian tidak
  * peka huruf besar/kecil dan potongan kata ("pecah") tetap kena.
+ *
+ * `localized` = field di `fields` yang `localized: true` di koleksinya. Di
+ * locale selain `id`, field itu juga dicocokkan ke kolom Indonesianya lewat
+ * path `judul.id`: `where` Payload hanya membaca kolom locale yang diminta
+ * (tidak ikut `fallbackLocale`), dan terjemahan Inggris koleksi Library
+ * sebagian besar masih kosong — tanpa ini, pencarian di `/en` selalu nihil
+ * padahal kartunya tampil (judul Indonesia lewat fallback). Field yang tidak
+ * `localized` jangan dimasukkan: path `penulis.id` bukan path yang sah.
  */
-export function klausaKataKunci(kata: string, fields: string[]): Where {
-  return { or: fields.map((field) => ({ [field]: { contains: kata } })) };
+export function klausaKataKunci(
+  kata: string,
+  fields: string[],
+  { locale = DEFAULT_LOCALE, localized = [] }: { locale?: Locale; localized?: string[] } = {},
+): Where {
+  const paths =
+    locale === DEFAULT_LOCALE ? fields : [...fields, ...localized.map((f) => `${f}.${DEFAULT_LOCALE}`)];
+  return { or: paths.map((path) => ({ [path]: { contains: kata } })) };
 }
 
 /**
@@ -116,18 +131,23 @@ export function buildLibraryWhere({
   jenjang,
   mapel,
   fields = ["judul"],
+  localized = [],
+  locale = DEFAULT_LOCALE,
 }: {
   q?: string;
   jenjang?: string[];
   mapel?: string[];
   fields?: string[];
+  /** Lihat `klausaKataKunci`. */
+  localized?: string[];
+  locale?: Locale;
 }): Where {
   const where: Where = {};
 
   const kataKunci = pecahKataKunci(q);
   if (kataKunci.length > 0) {
     where.and = kataKunci.map((kata) => {
-      const klausa = klausaKataKunci(kata, fields);
+      const klausa = klausaKataKunci(kata, fields, { locale, localized });
       const or = klausa.or as Where[];
       if (JENJANG_ALIAS[kata]) or.push({ jenjang: { in: [JENJANG_ALIAS[kata]] } });
       if (MAPEL_ALIAS[kata]) or.push({ mapel: { in: [MAPEL_ALIAS[kata]] } });

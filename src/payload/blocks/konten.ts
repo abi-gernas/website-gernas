@@ -30,6 +30,35 @@ export const RichTextBlock: Block = {
   ],
 };
 
+/**
+ * Pembuka bagian dua kolom: judul + ringkasan di kiri, garis pemisah, paragraf
+ * di kanan. Dipisah dari Teks Bebas karena Teks Bebas cuma satu kolom dan
+ * judulnya selalu di atas isi.
+ */
+export const IntroDuaKolomBlock: Block = {
+  slug: "introDuaKolom",
+  labels: { singular: "Pembuka 2 Kolom", plural: "Pembuka 2 Kolom" },
+  imageURL: "/blok/introDuaKolom.svg",
+  imageAltText: "Judul dan ringkasan di kiri, garis pemisah, paragraf panjang di kanan",
+  fields: [
+    { name: "judul", type: "text", required: true, localized: true, label: "Judul" },
+    {
+      name: "ringkas",
+      type: "textarea",
+      localized: true,
+      label: "Ringkasan di bawah judul",
+      admin: { description: "Satu-dua kalimat. Boleh dikosongkan." },
+    },
+    {
+      name: "isi",
+      type: "richText",
+      localized: true,
+      label: "Paragraf kolom kanan",
+      admin: { description: "Di layar kecil tampil di bawah judul." },
+    },
+  ],
+};
+
 /** Tiga kartu berwarna bertumpuk di atas hero beranda. */
 export const ValueCardsBlock: Block = {
   slug: "valueCards",

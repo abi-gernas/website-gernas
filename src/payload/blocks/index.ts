@@ -1,11 +1,12 @@
 import type { Block } from "payload";
 
-import { HeroBlock, PageHeroBlock } from "./hero";
+import { HeroBlock, PageHeroBlock, PencarianCepatBlock } from "./hero";
 import {
   ActivityCardsBlock,
   CTABannerBlock,
   CalloutBlock,
   FeatureCardsBlock,
+  IntroDuaKolomBlock,
   ProgramIntensifBlock,
   RichTextBlock,
   StatCounterBlock,
@@ -17,6 +18,7 @@ import {
   JadwalAcaraBlock,
   LatestNewsBlock,
   PartnerLogosBlock,
+  ProdukSorotanBlock,
   TeamGridBlock,
   TrainingModulesBlock,
   VideoGridBlock,
@@ -51,9 +53,11 @@ export const pageBlocks: Block[] = [
   // Pembuka halaman
   HeroBlock,
   PageHeroBlock,
+  PencarianCepatBlock,
 
   // Isi yang diketik langsung
   RichTextBlock,
+  IntroDuaKolomBlock,
   FeatureCardsBlock,
   ValueCardsBlock,
   ActivityCardsBlock,
@@ -71,6 +75,7 @@ export const pageBlocks: Block[] = [
   VideoGridBlock,
   TrainingModulesBlock,
   JadwalAcaraBlock,
+  ProdukSorotanBlock,
 
   // Bergambar & komponen khusus
   GalleryBlock,
@@ -98,6 +103,7 @@ export {
   LatestNewsBlock,
   PageHeroBlock,
   PartnerLogosBlock,
+  PencarianCepatBlock,
   ProgramIntensifBlock,
   RichTextBlock,
   StatCounterBlock,

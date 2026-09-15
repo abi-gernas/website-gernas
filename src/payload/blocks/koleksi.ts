@@ -1,4 +1,5 @@
 import type { Block } from "payload";
+import { judulBaris } from "../fields/rowLabel";
 import { anchorField, ctaField, kolomField } from "./shared";
 
 /**
@@ -179,6 +180,68 @@ export const JadwalAcaraBlock: Block = {
       type: "checkbox",
       label: "Sembunyikan acara yang sudah selesai",
       defaultValue: false,
+    },
+    anchorField("/belajar-bersama#jadwal-acara"),
+  ],
+};
+
+/**
+ * Satu produk Buku/Bahan Ajar/Modul disorot besar, plus panel alasan umum di
+ * sampingnya ("Mengapa Guru Memilih…"). Poin alasannya sengaja diisi di blok,
+ * bukan diambil dari `fiturUnggulan` produk — keputusan §4.5.0 rencana eksekusi.
+ */
+export const ProdukSorotanBlock: Block = {
+  slug: "produkSorotan",
+  labels: { singular: "Produk Sorotan (dari Buku & Bahan Ajar)", plural: "Produk Sorotan" },
+  imageURL: "/blok/produkSorotan.svg",
+  imageAltText: "Kartu produk bersampul dengan panel daftar alasan di sampingnya",
+  fields: [
+    {
+      name: "heading",
+      type: "text",
+      localized: true,
+      label: "Judul bagian",
+      admin: { description: "Kosongkan untuk memakai “Produk Terbaru”." },
+    },
+    {
+      name: "produk",
+      type: "relationship",
+      relationTo: "produk",
+      label: "Produk",
+      admin: {
+        description:
+          "Kosongkan untuk memakai produk dengan Urutan terkecil — sama dengan “Produk Terbaru” di halaman katalog Buku, Bahan Ajar & Modul.",
+      },
+    },
+    {
+      name: "subjudul",
+      type: "text",
+      localized: true,
+      label: "Kalimat sorotan",
+      admin: {
+        description:
+          "Opsional, tampil besar di bawah judul produk (mis. “Membaca menjadi jauh lebih bermakna”). Kalimat ini melekat di blok, bukan di produk — perbarui bila produk yang disorot berganti.",
+      },
+    },
+    {
+      name: "alasan",
+      type: "group",
+      label: "Panel alasan di samping",
+      fields: [
+        { name: "judul", type: "text", localized: true, label: "Judul panel" },
+        {
+          name: "poin",
+          type: "array",
+          label: "Poin",
+          maxRows: 6,
+          labels: { singular: "Poin", plural: "Poin" },
+          admin: {
+            components: judulBaris,
+            description: "Hapus semua poin untuk menyembunyikan panel ini.",
+          },
+          fields: [{ name: "teks", type: "text", required: true, localized: true, label: "Isi poin" }],
+        },
+      ],
     },
   ],
 };

@@ -64,11 +64,18 @@ export const getMediaInteraktifList = cache(async function getMediaInteraktifLis
   const where: Where = {};
   const kataKunci = pecahKataKunci(q);
   if (kataKunci.length > 0) {
-    where.and = kataKunci.map((kata) =>
-      klausaKataKunci(kata, ["judul", "deskripsi", "tags.label"]),
-    );
+    const fields = ["judul", "deskripsi", "tags.label"];
+    where.and = kataKunci.map((kata) => klausaKataKunci(kata, fields, { locale, localized: fields }));
   }
-  if (tag) where["tags.label"] = { equals: tag };
+  if (tag) {
+    // Label tag di `/en` bisa hasil fallback Indonesia — cocokkan juga ke
+    // kolom `id`, alasan sama dengan `klausaKataKunci`.
+    const cocokTag: Where =
+      locale === DEFAULT_LOCALE
+        ? { "tags.label": { equals: tag } }
+        : { or: [{ "tags.label": { equals: tag } }, { [`tags.label.${DEFAULT_LOCALE}`]: { equals: tag } }] };
+    where.and = [...(where.and ?? []), cocokTag];
+  }
 
   const res = await payload.find({
     collection: "media-interaktif",

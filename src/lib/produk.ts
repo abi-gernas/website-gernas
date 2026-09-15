@@ -145,6 +145,8 @@ export const getProdukList = cache(async function getProdukList({
     jenjang,
     mapel,
     fields: ["judul", "ringkasan", "penulis"],
+    localized: ["judul", "ringkasan"],
+    locale,
   });
   if (kategori && kategori.length > 0) where.kategoriProduk = { in: kategori };
   if (topik && topik.length > 0) where.topik = { in: topik };
@@ -207,6 +209,23 @@ export const getProdukBySlug = cache(async function getProdukBySlug(
     pagination: false,
   });
   const doc = res.docs[0];
+  return doc ? toView(doc) : null;
+});
+
+/** Satu Produk menurut id — dipakai blok Produk Sorotan. `null` bila sudah dihapus. */
+export const getProdukById = cache(async function getProdukById(
+  id: number | string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<ProdukView | null> {
+  const payload = await payloadPromise;
+  const doc = await payload.findByID({
+    collection: "produk",
+    id,
+    depth: 1,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+    disableErrors: true,
+  });
   return doc ? toView(doc) : null;
 });
 

@@ -1,7 +1,13 @@
 import { localizedPath, type Locale } from "./i18n";
 
 export type NavChild = { label: string; href: string; desc?: string };
-export type NavItem = { label: string; href?: string; children?: NavChild[] };
+export type NavItem = {
+  label: string;
+  href?: string;
+  children?: NavChild[];
+  /** Ditampilkan menonjol di navbar, mis. "Pojok Guru". */
+  sorot?: boolean;
+};
 export type NavCta = { label: string; href: string };
 
 const footerLinksByLocale: Record<

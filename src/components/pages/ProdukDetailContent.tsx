@@ -19,6 +19,7 @@ import { UnduhMateriGate } from "@/components/library/UnduhMateriGate";
 import { RatingRingkas } from "@/components/library/RatingRingkas";
 import { DeskripsiExpandable } from "@/components/library/DeskripsiExpandable";
 import { UlasanList } from "@/components/library/UlasanList";
+import { Breadcrumb, labelKatalogGuru } from "@/components/library/Breadcrumb";
 
 /**
  * Halaman detail satu produk.
@@ -38,7 +39,6 @@ import { UlasanList } from "@/components/library/UlasanList";
  */
 const text = {
   id: {
-    back: "← Kembali ke Buku, Bahan Ajar & Modul",
     fitur: "Fitur Unggulan",
     format: "Format tersedia",
     gratis: "Gratis",
@@ -47,7 +47,6 @@ const text = {
     disusunOleh: "Disusun oleh",
   },
   en: {
-    back: "← Back to Books, Teaching Materials & Modules",
     fitur: "Key Features",
     format: "Available formats",
     gratis: "Free",
@@ -91,9 +90,13 @@ export async function ProdukDetailContent({
     <article>
       <div className="bg-surface">
         <div className="container-page py-12">
-          <Link href={produkListPath(locale)} className="text-sm font-semibold text-brand-red">
-            {t.back}
-          </Link>
+          <Breadcrumb
+            locale={locale}
+            items={[
+              { label: labelKatalogGuru.produk[locale], href: produkListPath(locale) },
+              { label: item.judul },
+            ]}
+          />
 
           <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-center">
             <div className="relative mx-auto aspect-square w-full max-w-sm lg:max-w-none">

@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { localizedPath, type Locale } from "@/lib/i18n";
-import { FORMAT_LABELS, type ProdukView } from "@/lib/produk";
+import type { ProdukView } from "@/lib/produk";
 import { produkPath } from "@/lib/routes";
+import { DaftarFormat } from "./DaftarFormat";
 
 /**
  * Panel "Produk Terbaru" di atas katalog — satu produk sematan, lihat
@@ -32,8 +33,6 @@ export function ProdukTerbaru({ item, locale = "id" }: { item: ProdukView; local
           unduh: "Unduh Gratis",
           selengkapnya: "Lihat detail produk",
         };
-
-  const semuaFormat = ["pdf", "cetak"] as const;
 
   return (
     <section className="rounded-card bg-brand-yellow/[0.12] p-6 sm:p-8">
@@ -84,41 +83,7 @@ export function ProdukTerbaru({ item, locale = "id" }: { item: ProdukView; local
             </Link>
           </div>
 
-          <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
-            {semuaFormat.map((f) => {
-              const tersedia = item.format.includes(f);
-              return (
-                <li
-                  key={f}
-                  className={`flex items-center gap-2 text-sm ${
-                    tersedia ? "text-brand-navy" : "text-muted/60"
-                  }`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`flex h-4 w-4 items-center justify-center rounded-[4px] ${
-                      tersedia ? "bg-brand-navy text-white" : "bg-brand-navy/15"
-                    }`}
-                  >
-                    {tersedia && (
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-2.5 w-2.5"
-                      >
-                        <path d="m5 12 5 5L19 7" />
-                      </svg>
-                    )}
-                  </span>
-                  {FORMAT_LABELS[f][locale]}
-                </li>
-              );
-            })}
-          </ul>
+          <DaftarFormat format={item.format} locale={locale} className="mt-5" />
 
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href={href} className="btn-outline">

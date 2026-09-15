@@ -36,7 +36,7 @@ Sesuai rekomendasi rilis PRD v1.2 §8 — dari yang paling tidak terblokir:
 2. **Media Digital Interaktif** (FR-108) — paling ringan, tautan eksternal doang.
 3. **Video Pembelajaran** (FR-107) — perlu keputusan OI-106 (YouTube vs upload) diambil di tempat kalau belum ada arahan baru.
 4. **Buku, Bahan Ajar & Modul** (FR-101–104, FR-109) — nilai terbesar tapi **terblokir OI-108** (OAuth Google Drive belum dibuat). Jalur gratis bisa dikerjakan pakai tautan Drive manual (lihat catatan di `Produk.ts`) sambil OAuth resmi menyusul. Jalur berbayar (FR-110/tombol "Beli Sekarang") **jangan dikerjakan** sampai OI-105 (mekanisme checkout) diputuskan — sembunyikan/nonaktifkan tombolnya, arahkan ke "Hubungi Kami" sbg fallback.
-5. **Integrasi Beranda** (§4.5) — dikerjakan **terakhir**, setelah minimal 1 halaman Library sudah punya route nyata untuk ditautkan. Ini bukan FR baru di PRD v1.2, ditambahkan 24 Agu 2026 setelah review mockup beranda terpisah (lihat §5).
+5. **Landing Page Pojok Guru** (§4.5) — dikerjakan **terakhir**, setelah 4 halaman Library punya route nyata untuk ditautkan (sudah terpenuhi). Awalnya ditulis 24 Agu 2026 sbg "Integrasi Beranda"; **15 Sep 2026 diputuskan jadi halaman tersendiri `/pojok-guru`**, bukan ditempel ke beranda utama (lihat §5). Dipecah jadi 6 sesi A–F.
 
 ## 2. Arsitektur Bersama
 
@@ -115,7 +115,12 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 | 2 | Media Digital Interaktif | Selesai | 24 Agu 2026 |
 | 3 | Video Pembelajaran | Selesai | 26 Agu 2026 |
 | 4 | Buku, Bahan Ajar & Modul | Selesai (tampilan + data asli + gerbang unduhan FR-104) | 7 Sep 2026 |
-| 5 | Integrasi Beranda (§4.5) | Belum | — |
+| 5A | Pojok Guru — halaman CMS, navbar, breadcrumb, teaser beranda (§4.5) | Selesai (belum dicek di browser) | 15 Sep 2026 |
+| 5B | Pojok Guru — blok `pencarianCepat` + halaman `/pojok-guru/cari` | Selesai (belum dicek di browser; bug pencarian `/en` sudah diperbaiki) | 15 Sep 2026 |
+| 5C | Pojok Guru — intro 2 kolom + blok `produkSorotan` | Selesai (belum dicek di browser) | 16 Sep 2026 |
+| 5D | Pojok Guru — blok `perangkatGuru` (4 kartu + panel statistik/CTA) | Belum | — |
+| 5E | Pojok Guru — Acara Terdekat (perluas blok `jadwalAcara`) | Belum | — |
+| 5F | Pojok Guru — Komunitas + Tentang ringkas | Belum | — |
 
 ## 4. Task per Halaman
 
@@ -174,24 +179,107 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 - [x] `LibraryPagination` (mockup nunjukin sampai 68 halaman, pastikan pagination-nya handle angka besar dgn elipsis "...")
 - [x] `CtaBantuanBanner`
 
-### 4.5 Integrasi Beranda
+### 4.5 Landing Page Pojok Guru
 
-> Ditambahkan 24 Agu 2026: mockup beranda ("Cari Kebutuhan Anda!", "Perangkat
-> Pembelajaran untuk Guru", stat counter, "Acara Terdekat", "Bergabung
-> dengan Komunitas") sempat tidak masuk rencana awal — cuma 4 halaman
-> katalog yang direncanakan, bukan perubahan beranda. Dikerjakan terakhir
-> karena butuh route Library sungguhan buat ditautkan.
+> **Riwayat:** 24 Agu 2026 ditulis sbg "Integrasi Beranda" (elemen mockup
+> ditempel ke beranda utama). **15 Sep 2026 diubah** — mockup itu seluruhnya
+> ditujukan ke guru, sedangkan beranda utama bicara ke mitra/donatur/publik.
+> Keputusan user: jadi landing page segmen guru tersendiri. Rincian diskusi
+> di §5 entri 15 Sep 2026.
 
-Sebelum coding apa pun di sini, cek dulu isi blok beranda saat ini di
-dasbor (`Halaman` → `beranda`) — kemungkinan sudah berubah sejak baris ini
-ditulis.
+#### 4.5.0 Keputusan yang sudah dikunci (15 Sep 2026)
 
-- [ ] **"Perangkat Pembelajaran untuk Guru" (4 kartu)** — **tidak perlu block baru.** Pakai block `featureCards` yang sudah ada (`src/payload/blocks/konten.ts`, field `cards[].warna` + `ctaField()` sudah pas buat 4 kartu warna beda + tombol "Lihat Produk →"). Tambahkan instance block ini di beranda lewat dasbor, isi `cta.href` ke 4 route Library. **Blocked** sampai minimal ada 1 route Library yang hidup.
-- [ ] **Stat counter (45.000+ Peserta Didik, dst.)** — **tidak perlu block baru.** Pakai `statCounter` yang sudah ada. Cek dulu apakah beranda sekarang sudah punya statCounter lain ("16.000+ Total Pendidik" dari `scripts/seed-pages.mts`) — kalau sudah ada, ini cuma ubah angka/label lewat dasbor, bukan tambah section baru.
-- [ ] **CTA "Belum menemukan yang anda cari?"** — **tidak perlu block baru.** Pakai `ctaBanner` yang sudah ada.
-- [ ] **Hero search "Cari Kebutuhan Anda!" + "Pencarian Populer"** — **ini genuinely baru**, tidak ada block yang cocok (`hero`/`pageHero` di `src/payload/blocks/hero.ts` tidak punya field search). Perlu block baru, mis. `pencarianCepat`: field `tagPopuler` (array teks) + reuse komponen `LibrarySearchBar` dari §2.3. Submit search dari beranda perlu tujuan — putuskan di tempat: arahkan ke halaman Library mana (kemungkinan `buku-bahan-ajar-modul` sbg default) sambil cross-collection search belum ada, catat keputusannya di sini.
-- [ ] **"Acara Terdekat"** (Webinar/Pelatihan/Bincang Gernas dengan "Daftar Sekarang!") — **di luar scope**, ini OI-109 di PRD (belum ada collection Acara/Program). Jangan dikerjakan di sesi ini kecuali user eksplisit minta collection barunya dibuat dulu.
-- [ ] **"Bergabung dengan Komunitas"** — cek dulu apakah section ini sudah ada di beranda/halaman lain (belum ditemukan di kode saat rencana ini ditulis). Kalau belum ada, ini juga di luar cakupan PRD Fase 2 v1.2 — catat sbg temuan baru, jangan dikerjakan diam-diam tanpa konfirmasi user.
+| Topik | Keputusan |
+|---|---|
+| Nama & URL | **"Pojok Guru"**, `/pojok-guru` (+ `/en/pojok-guru`, label EN "Teacher's Corner") |
+| Jenis halaman | **Halaman CMS** (koleksi `pages`, slug `pojok-guru`) lewat `[...slug]` — staf atur urutan/isi section dari dasbor. Section = blok. |
+| URL katalog | **Tetap datar** (`/alat-peraga`, `/buku-bahan-ajar-modul`, `/video-pembelajaran`, `/media-interaktif`) — tidak dipindah ke `/pojok-guru/...`. Hierarki cukup lewat breadcrumb + menu. |
+| Navbar | Menu utama baru **"Pojok Guru"** berisi dropdown (lihat 5A). |
+| Pencarian hero | **Opsi A: halaman pencarian lintas koleksi** `/pojok-guru/cari?q=` (4 koleksi Library). Route kode eksplisit `pojok-guru/cari/page.tsx` — menang atas `[...slug]`. |
+| "Mengapa Guru Memilih Perangkat Gernas?" | **Umum** — daftar poin diisi di blok, bukan per produk. |
+| Tombol "Gabung Sekarang" komunitas | **Belum diketahui tujuannya.** Field tautan opsional; tombol **disembunyikan bila tautan kosong**. |
+| Acara | Sumber tunggal koleksi `acara`. `/belajar-bersama` tetap tampil semua; `/pojok-guru` hanya acara mendatang. Tidak ada data ganda. |
+
+Pemetaan section mockup → blok:
+
+| Section mockup | Blok | Sesi |
+|---|---|---|
+| Hero "Cari Kebutuhan Anda!" + Pencarian Populer | **baru** `pencarianCepat` | 5B |
+| "Tumbuh Bersama Dengan Kompilasi Bahan Ajar" (judul+ringkas kiri, paragraf kanan, garis pemisah) | cek `richText`/`visiMisi` dulu; kalau tak bisa, **baru** `introDuaKolom` | 5C |
+| Produk Terbaru + "Mengapa Guru Memilih…" | **baru** `produkSorotan` | 5C |
+| Perangkat Pembelajaran untuk Guru (4 kartu 2×2) + panel navy statistik & "Belum menemukan…" | **baru** `perangkatGuru` — `featureCards`/`statCounter`/`ctaBanner` terpisah tidak bisa membentuk tata letak gabung ini; pakai ulang `statsArrayField()` & `ctaField()` | 5D |
+| Acara Terdekat (kartu geser horizontal) | **perluas** `jadwalAcara` | 5E |
+| Bergabung dengan Komunitas (2 kartu) | **baru** `komunitas` | 5F |
+| Tentang Gernas Tastaka (panel merah) + 4 ikon fakta | cek blok yang ada dulu; kalau tak cocok, **baru** `tentangRingkas` | 5F |
+
+Aturan umum semua blok baru (ikuti pola yang sudah ada): definisi di
+`src/payload/blocks/*.ts` + daftar di `index.ts`, ikon preview
+`public/blok/<slug>.svg`, cabang render di `RenderBlocks.tsx`, teks
+`localized: true`, migrasi dijalankan ke DB yang sedang dipakai (ingat
+gotcha: dev server error sampai migrasi jalan). Isi konten ke halaman lewat
+SQL/`locale: "all"`, **jangan `payload.update()` biasa** (menghapus terjemahan
+EN). Sinkronkan `scripts/seed-pages.mts`.
+
+#### 5A — Kerangka: halaman, navbar, breadcrumb, teaser
+
+- [x] Dokumen `pages` slug `pojok-guru` (ID "Pojok Guru" / EN "Teacher's Corner"): `pageHero` (gambar dipinjam dari hero Belajar Bersama) + `featureCards` 4 kartu ke katalog + `callout` ke Jadwal Acara — isi sementara, diganti blok 5B–5F. Dibuat lewat `scripts/seed-pojok-guru.mts` (bukan `seed-pages.mts`, yang cuma ID)
+- [x] `RUTE_TETAP` di `src/payload/globals/Navigation.ts`: `/pojok-guru`, 4 route katalog, `/belajar-bersama#jadwal-acara`. `/pojok-guru/cari` **ditunda ke 5B** (route belum ada; menambah opsi = migrasi enum lagi)
+- [x] Menu "Pojok Guru" disisipkan setelah "Beranda" (6 anak ber-`desc` ID+EN). Field baru `sorot` ("Tampilkan menonjol") di item menu → latar kuning muda. Navbar juga kini menandai menu aktif + `aria-current="page"` (menu pertama yang cocok saja)
+- [x] `anchorField` di blok `jadwalAcara` + `anchor: jadwal-acara` di `belajar-bersama` (tabel utama & versi terakhir, via SQL)
+- [x] Komponen `src/components/library/Breadcrumb.tsx` (+ `labelKatalogGuru`), dipasang di 4 halaman katalog & 3 halaman detail. Di detail menggantikan tautan "← Kembali ke …"
+- [x] `src/lib/routes.ts`: `POJOK_GURU_SLUG`, `pojokGuruPath(locale)`. `pojokGuruCariPath` ditunda ke 5B
+- [x] Teaser beranda: `callout` navy "Anda Seorang Guru? Mampir ke Pojok Guru" setelah Kartu Berisi, via SQL (tabel utama + versi terakhir)
+- [x] `sitemap.ts`: `/pojok-guru` otomatis masuk (dokumen Halaman), prioritas 0.8. `/pojok-guru/cari` ditunda ke 5B
+- [ ] **Belum dicek di browser** (sesuai preferensi). Yang paling perlu dilihat: navbar desktop di lebar `lg` (1024px) sekarang 7 menu + Donasi + ID|EN — berisiko sesak/terlipat
+
+#### 5B — Pencarian: blok `pencarianCepat` + `/pojok-guru/cari`
+
+- [x] Blok `pencarianCepat` ("Hero Pencarian (Pojok Guru)") di `src/payload/blocks/hero.ts`: `judul`, `subjudul`, `gambarLatar`, `placeholder`, `tagPopuler[]` (manual). Komponen `src/components/library/PencarianCepat.tsx`, ikon `public/blok/pencarianCepat.svg`. Judulnya `<h1>` bila blok ini paling atas (`RenderBlocks` kini meneruskan `pertama`). Migrasi `20260915_125414_pojok_guru_pencarian` (8 tabel baru, aditif, sudah jalan)
+- [x] `LibrarySearchBar` diperluas: `action`, `inputId`, `tombol` (`navy`/`kuning`), `className`, plus `role="search"`. 4 katalog lama tidak berubah perilakunya
+- [x] Route `pojok-guru/cari/page.tsx` + `en/pojok-guru/cari/page.tsx` → `src/components/pages/PencarianGuruContent.tsx`. Metadata `noindex, follow` (tidak masuk sitemap)
+- [x] `src/lib/pencarianGuru.ts`: **memanggil fungsi daftar milik tiap katalog** (`getProdukList` dst., halaman 1), bukan query baru — kolom, alias kata kunci, dan jumlah hasilnya persis sama dgn katalog, jadi "Lihat semua N hasil" → `katalog?q=` konsisten. Tag populer halaman hasil dibaca dari blok `pencarianCepat` di halaman Pojok Guru (satu sumber)
+- [x] Tampilan: judul "Hasil pencarian “q”" + ringkasan jumlah, tag populer, lompat-ke-katalog (bila >1 katalog berisi), grup per katalog maks. 1 baris kartu (Buku & Media 4, Alat Peraga & Video 3), katalog nihil disebut dalam satu kalimat, keadaan nihil + tautan 4 katalog, keadaan tanpa kata kunci + tautan 4 katalog
+- [x] Halaman `pojok-guru`: hero biasa 5A diganti Hero Pencarian lewat `seed:pojok-guru` (dokumen 5A dihapus & dibuat ulang karena masih 1 versi; cadangan di scratchpad). Tag: Pecahan, Bangun Datar, Perkalian, Nilai Tempat — diuji ada hasilnya (12/4/4/2 materi)
+- [x] Tidak ada filter khusus `[QA] ` — urusan housekeeping §6. Catatan: 18 dokumen Alat Peraga **semuanya** dummy `[QA] `, jadi hasil Alat Peraga di pencarian saat ini data palsu
+- [x] `/pojok-guru/cari` sengaja **tidak** ditambah ke Rute Cepat navigasi — tidak ada menu yang perlu menuju ke sana, dan menambah opsi berarti migrasi enum
+- [x] **Bug pencarian di `/en` (berlaku juga di 4 katalog, bukan cuma halaman ini):** `judul`/`deskripsi` koleksi Library `localized`, dan `where` Payload hanya membaca kolom locale yang diminta — kolom EN kosong, jadi di `/en` kata apa pun nihil kecuali alias jenjang/mapel ("numerasi sd" tetap 90). Tag populer di `/en/pojok-guru` karenanya membuka hasil kosong. **Diperbaiki 15 Sep 2026:** `klausaKataKunci`/`buildLibraryWhere` (`src/lib/library.ts`) menerima `locale` + `localized`; di locale selain `id`, tiap field localized juga dicocokkan lewat path `judul.id` (didukung adapter Postgres). Filter tag Media Interaktif ikut (`tags.label.id`). Diuji ke DB asli: jumlah hasil ID = EN untuk Pecahan/Bangun Datar/Perkalian/Nilai Tempat/"numerasi sd"/"pecahan campuran" di 4 koleksi, tag "Numerasi" 20 = 20
+- [ ] Belum dicek di browser
+
+#### 5C — Intro 2 kolom + `produkSorotan`
+
+- [x] Intro: `richText` (1 kolom, judul selalu di atas) & `visiMisi` (visi/misi tetap) tidak bisa membentuk judul+ringkas kiri | garis | paragraf kanan → blok baru `introDuaKolom` ("Pembuka 2 Kolom", `konten.ts`): `judul`, `ringkas` textarea, `isi` richText. Komponen `src/components/IntroDuaKolom.tsx` (paragraf kanan lewat `children` = `ArticleBody`); di bawah `lg` menumpuk, garis jadi mendatar
+- [x] Blok `produkSorotan` ("Produk Sorotan", `koleksi.ts`): `heading` (kosong = "Produk Terbaru"), `produk` (relationship opsional — kosong/terhapus = `getProdukTerbaru()`, lewat `getProdukById()` baru di `produk.ts`), `subjudul` (kalimat sorotan, melekat di blok), `alasan.judul` + `alasan.poin[]` maks 6 (panel disembunyikan bila poin kosong)
+- [x] Kartu produk `src/components/library/ProdukSorotan.tsx`: `cover`, `judul`, `subjudul`, `ringkasan`, format; tombol "Detail Produk" → detail, "Beli Sekarang!" hanya bila `status: berbayar` → `/mitra`, selain itu "Unduh Gratis" → detail (sama dgn `ProdukTerbaru`). `fiturUnggulan` tidak ditampilkan — mockup memakai panel alasan umum. Daftar centang format dipisah jadi `DaftarFormat.tsx`, dipakai juga oleh `ProdukTerbaru` (+ keterangan sr-only "tidak tersedia")
+- [x] Migrasi `20260915_170426_pojok_guru_intro_produk` (12 tabel baru, aditif, sudah jalan). Ikon `public/blok/introDuaKolom.svg` & `produkSorotan.svg`
+- [x] Isi lewat `seed:pojok-guru`: halaman dibuat ulang (masih 1 versi; cadangan di scratchpad) — teks intro & 5 poin alasan dari mockup + terjemahan EN. `subjudul` tidak diisi: kalimat mockup milik produk contoh "LKS Fonik" yang tidak ada di data; yang tampil otomatis "Bangun Datar Di Mana-Mana"
+- [ ] **Perlu dikonfirmasi tim konten:** poin "Tersedia versi cetak & digital" & "Harga terjangkau" belum sesuai data — per 16 Sep 2026 ke-79 produk gratis & PDF saja
+- [ ] Belum dicek di browser
+
+#### 5D — `perangkatGuru`
+
+- [ ] Blok: `judul`, `subjudul`, `kartu[]` (maks 4: `judul`, `deskripsi`, `warna` enum yang ada, `gambar` upload, `tautan` via `ctaField`/preset route katalog), `panel.statistik` (`statsArrayField()`, ikon per baris), `panel.cta` (`judul`, `isi`, `gambar`, `ctaField()` — "Hubungi Kami")
+- [ ] Layout: grid 2×2 kiri + panel navy kanan (desktop), tumpuk di mobile
+- [ ] Angka mockup (45.000+ / 200+ / 1000+) diisi sbg contoh — **tandai perlu dikonfirmasi tim konten**; "200+ Materi" bisa dibandingkan dgn jumlah dokumen nyata
+
+#### 5E — Acara Terdekat
+
+- [ ] Perluas `jadwalAcara`: field `tampilan` (`grid` default | `geser`), `deskripsi`, `tautanLihatSemua` (`ctaField` opsional). `geser` = baris kartu scroll horizontal (snap), pola panah konsisten dgn carousel yang ada
+- [ ] Di `/pojok-guru`: `tampilan: geser` + `sembunyikanSelesai: true` + "Lihat Semua Program" → `/belajar-bersama#jadwal-acara`
+- [ ] Keadaan kosong: per 15 Sep 2026 semua acara sudah lewat → section tampil apa? Putuskan: sembunyikan section, atau teks "Belum ada acara terdekat" + tautan ke jadwal lengkap (rekomendasi: yang kedua)
+- [ ] Migrasi aditif untuk field baru
+
+#### 5F — Komunitas + Tentang ringkas
+
+- [ ] Blok `komunitas`: `judul`, `subjudul`, `kartu[]` (maks 2: `nama`, `deskripsi`, `warna`, `ikon` dari `ikonOptions`, `ilustrasi` upload, `jumlahAnggota` teks mis. "300+ Pendidik", `tautanGabung` **opsional — tombol disembunyikan bila kosong**)
+- [ ] Tentang ringkas: cek blok yang ada; kalau tak cocok, `tentangRingkas` (`judul`, `isi`, `cta`, `fakta[]` maks 4: `ikon` + `teks`)
+- [ ] Isi konten ID+EN dari mockup; angka komunitas & aset ilustrasi → minta ke user/tim konten
+
+#### Masih terbuka (tanyakan saat sesi terkait, jangan dikarang)
+
+- Tujuan tombol "Gabung Sekarang" Komunitas Tastaka/Tastaba (5F)
+- Sumber angka "300+ / 200+ Pendidik" komunitas & statistik 45.000+/200+/1000+ (5D, 5F)
+- Aset gambar: latar hero, ilustrasi kartu perangkat, ilustrasi komunitas, ilustrasi CS (5B–5F)
+- Posisi menu "Pojok Guru" di navbar & apakah diberi gaya menonjol (5A)
 
 ---
 
@@ -1065,4 +1153,116 @@ butuh data dummy lagi.
 
   Verifikasi: `npx tsc --noEmit` bersih. Tampilan di browser belum dicek,
   sesuai preferensi tersimpan.
+
+- **15 Sep 2026** — Perencanaan ulang §4.5, tanpa kode. User menunjukkan
+  mockup lengkap (hero "Cari Kebutuhan Anda!", intro 2 kolom, Produk Terbaru
+  + "Mengapa Guru Memilih", Perangkat Pembelajaran + panel statistik,
+  Acara Terdekat, Bergabung dengan Komunitas, Tentang Gernas Tastaka) dan
+  mengusulkan segmen khusus guru dgn landing page sendiri di navbar,
+  mencakup 4 halaman Library + Jadwal Acara di `/belajar-bersama`.
+
+  Keputusan user: nama **"Pojok Guru"** (`/pojok-guru`); pencarian hero
+  **lintas koleksi** di `/pojok-guru/cari` (opsi A, bukan sekadar diarahkan
+  ke `/buku-bahan-ajar-modul?q=`); poin "Mengapa Guru Memilih" **umum**;
+  tujuan tombol "Gabung Sekarang" komunitas **belum diketahui**.
+
+  Keputusan yang diambil sbg rekomendasi (belum dibantah user): halaman
+  CMS bukan route kode; URL katalog tetap datar; beranda utama cukup 1
+  teaser; koleksi `acara` jadi sumber tunggal. Nama "Ruang Guru" sengaja
+  dihindari krn bentrok merek Ruangguru.
+
+  Koreksi atas rencana 24 Agu: klaim "3 dari 5 elemen cukup reuse
+  `featureCards`/`statCounter`/`ctaBanner`" tidak berlaku utk mockup ini —
+  4 kartu + panel navy statistik & CTA adalah satu tata letak gabung, jadi
+  butuh blok baru `perangkatGuru`. "Acara Terdekat" yg dulu di luar scope
+  (OI-109) kini bisa digarap krn koleksi `acara` sudah ada (commit
+  `9568de1`). §3 baris 5 dipecah jadi 5A–5F, §4.5 ditulis ulang.
+
+  Catatan dokumen basi yang ditemukan sesi ini: centang FR-104 di §4.4
+  masih kosong padahal gerbang unduhan sudah jadi (`635cccb`, lalu jadi
+  pop-up di `f3cb608`).
+
+- **15 Sep 2026** — Sesi 5A Pojok Guru selesai. Rincian di checklist 5A §4.5.
+  File baru: `src/components/library/Breadcrumb.tsx`,
+  `scripts/seed-pojok-guru.mts` (`npm run seed:pojok-guru`, idempoten),
+  migrasi `20260915_123730_pojok_guru_navigasi` (aditif: 18 nilai enum preset,
+  kolom `navigation_items.sorot`, kolom `anchor` di `pages_blocks_jadwal_acara`
+  & versinya — sudah dijalankan ke DB asli). Diubah: `Navbar.tsx`,
+  `Navigation.ts`, `nav.ts`, `navigation.ts`, `routes.ts`, `koleksi.ts`,
+  `RenderBlocks.tsx`, `sitemap.ts`, `seed-pages.mts`, 7 komponen katalog.
+  `npx tsc --noEmit` bersih.
+
+  Keputusan di tempat: menu Pojok Guru di posisi ke-2 (setelah Beranda) dgn
+  latar kuning muda — cukup menonjol tanpa menyaingi tombol Donasi merah;
+  menu aktif = menu pertama yang memuat halaman ini (/mitra ada di dua menu);
+  tautan ber-anchor tidak ikut menentukan menu aktif; breadcrumb menggantikan
+  tautan "Kembali" di halaman detail (isinya sudah memuat tautan katalog).
+
+  **Insiden (sudah pulih):** versi pertama skrip menulis `layout` beranda
+  lewat `payload.update({ locale: "all" })` — ternyata tetap menghapus 29
+  baris terjemahan Inggris beranda. Jaring pengaman skrip mendeteksinya, tapi
+  tulis-balik lewat API tidak memulihkan. EN dipulihkan dengan INSERT SQL ke
+  `pages_blocks_*_locales` dari cadangan JSON; diff terhadap cadangan = 0.
+  Skrip lalu diubah: sisip blok & penanda lewat SQL. Memory
+  `payload_blocks_update_wipes_locale` diperbarui. Versi 31–32 beranda di tab
+  Versions dasbor adalah jejak insiden ini (isi sama, tanpa EN seperti semua
+  versi lain) — jangan di-restore.
+
+- **15 Sep 2026** — Sesi 5B Pojok Guru selesai: blok Hero Pencarian + halaman
+  hasil `/pojok-guru/cari` lintas 4 katalog. Rincian di checklist 5B §4.5.
+  File baru: `PencarianCepat.tsx`, `PencarianGuruContent.tsx`,
+  `src/lib/pencarianGuru.ts`, 2 route `pojok-guru/cari`, ikon blok, migrasi
+  `20260915_125414_pojok_guru_pencarian`. Diubah: `hero.ts`, `blocks/index.ts`,
+  `LibrarySearchBar.tsx`, `RenderBlocks.tsx`, `routes.ts`
+  (`pojokGuruCariPath`), `seed-pojok-guru.mts`. `npx tsc --noEmit` bersih.
+  Diuji tanpa browser: `tsx --conditions=react-server` memanggil
+  `cariPerangkatGuru` langsung ke DB asli (hasil ID sesuai, EN nihil — bug di
+  checklist 5B).
+
+  Keputusan di tempat: pencarian memakai ulang fungsi daftar katalog alih-alih
+  query gabungan sendiri (konsistensi jumlah > hemat 4 query); halaman hasil
+  `noindex`; jumlah kartu per grup = satu baris grid katalog aslinya; kata
+  kunci EN di tag populer tetap kata Indonesia karena isi materi berbahasa
+  Indonesia.
+
+  **Posisi terakhir:** 5A & 5B selesai (belum dicek visual di browser).
+  Berikutnya **5C** — intro 2 kolom + blok `produkSorotan`. Sebelum 5C
+  sebaiknya perbaiki dulu bug pencarian `/en` (checklist 5B), karena tag
+  populer `/en/pojok-guru` sekarang menuju hasil kosong.
+
+- **15 Sep 2026** — Bug pencarian `/en` diperbaiki (checklist 5B). Akar
+  masalah: `where` Payload tidak ikut `fallbackLocale`, jadi di `/en` hanya
+  kolom EN (kosong) yang dicari. Perbaikan di satu tempat, `src/lib/library.ts`:
+  field localized juga dicocokkan ke kolom `id` lewat path `judul.id` bila
+  locale bukan `id`. Pemanggil (`produk.ts`, `alatPeraga.ts`,
+  `videoPembelajaran.ts`, `mediaInteraktif.ts`) menyebut field mana yang
+  localized — `penulis` (Produk) tidak, dan path `penulis.id` tidak sah.
+  Filter tag Media Interaktif ikut diperbaiki. Tanpa migrasi. `npx tsc
+  --noEmit` bersih; diuji dengan skrip sementara ke DB asli (ID = EN di semua
+  kata uji, lihat checklist).
+
+  **Posisi terakhir:** 5A, 5B, dan bug `/en` selesai. Berikutnya **5C**.
+
+- **16 Sep 2026** — Sesi 5C Pojok Guru selesai: blok Pembuka 2 Kolom
+  (`introDuaKolom`) + Produk Sorotan (`produkSorotan`), sesuai mockup section
+  "Tumbuh Bersama…" dan "Produk Terbaru + Mengapa Guru Memilih…". Rincian di
+  checklist 5C §4.5. File baru: `IntroDuaKolom.tsx`,
+  `library/ProdukSorotan.tsx`, `library/DaftarFormat.tsx` (dipecah dari
+  `ProdukTerbaru`), 2 ikon blok, migrasi `20260915_170426_pojok_guru_intro_produk`.
+  Diubah: `konten.ts`, `koleksi.ts`, `blocks/index.ts`, `RenderBlocks.tsx`,
+  `produk.ts` (`getProdukById`), `ProdukTerbaru.tsx`, `seed-pojok-guru.mts`
+  (syarat buat ulang kini "belum ada blok `introDuaKolom` & masih 1 versi").
+  `npx tsc --noEmit` bersih. Diuji tanpa browser: `getPageBySlug` di `id` & `en`
+  mengembalikan 5 blok dengan teks kedua bahasa; Produk Sorotan otomatis
+  "Bangun Datar Di Mana-Mana". Review Web Interface Guidelines: judul diberi
+  `text-wrap: balance` + `break-words`; sisanya lolos.
+
+  Keputusan di tempat: kalimat sorotan jadi field blok (Produk tak punya
+  subjudul, menambah field koleksi = 79 dokumen kosong); relasi produk yang
+  terhapus jatuh ke "Produk Terbaru" alih-alih menyembunyikan blok; judul
+  panel alasan `<h2>` karena topiknya sejajar, bukan anak "Produk Terbaru".
+
+  **Posisi terakhir:** 5A–5C selesai (belum dicek visual di browser). Poin
+  alasan "cetak & digital" / "harga terjangkau" menunggu konfirmasi tim konten.
+  Berikutnya **5D** — blok `perangkatGuru`.
 
