@@ -1,6 +1,6 @@
 import type { Block } from "payload";
 import { judulBaris } from "../fields/rowLabel";
-import { anchorField, ctaField, kolomField } from "./shared";
+import { anchorField, ctaField, kolomField, warnaOptions } from "./shared";
 
 /**
  * Blok yang isinya diambil dari koleksi "Data Situs", bukan diketik ulang di
@@ -165,6 +165,26 @@ export const JadwalAcaraBlock: Block = {
       },
     },
     {
+      name: "deskripsi",
+      type: "text",
+      localized: true,
+      label: "Kalimat di bawah judul",
+    },
+    {
+      name: "tampilan",
+      type: "select",
+      label: "Tampilan",
+      defaultValue: "grid",
+      options: [
+        { label: "Grid — kartu berposter, tombol “Lihat Semua” di bawah", value: "grid" },
+        { label: "Geser — satu baris kartu ringkas tanpa poster", value: "geser" },
+      ],
+      admin: {
+        description:
+          "“Geser” dipakai Pojok Guru: judul rata kiri dengan tautan “Lihat semua” di kanan, kartu digeser ke samping.",
+      },
+    },
+    {
       name: "batasAwal",
       type: "number",
       label: "Jumlah awal yang tampil",
@@ -172,7 +192,7 @@ export const JadwalAcaraBlock: Block = {
       defaultValue: 6,
       admin: {
         description:
-          "Sisanya disembunyikan di balik tombol “Lihat Semua”. Kosongkan untuk menampilkan semua sekaligus.",
+          "Grid: sisanya disembunyikan di balik tombol “Lihat Semua”. Geser: jumlah kartu di baris. Kosongkan untuk menampilkan semua.",
       },
     },
     {
@@ -180,7 +200,12 @@ export const JadwalAcaraBlock: Block = {
       type: "checkbox",
       label: "Sembunyikan acara yang sudah selesai",
       defaultValue: false,
+      admin: {
+        description:
+          "Bila dicentang dan tidak ada acara yang akan datang, seluruh bagian ini hilang. Tanpa centang, acara selesai terbaru mengisi sisa tempat.",
+      },
     },
+    ctaField("tautanLihatSemua", "Tautan “Lihat semua” (tampilan Geser)"),
     anchorField("/belajar-bersama#jadwal-acara"),
   ],
 };
@@ -241,6 +266,148 @@ export const ProdukSorotanBlock: Block = {
           },
           fields: [{ name: "teks", type: "text", required: true, localized: true, label: "Isi poin" }],
         },
+      ],
+    },
+  ],
+};
+
+/** Pilihan katalog Library. Nilainya WAJIB sama dengan `KatalogGuru` di `src/lib/perangkatGuru.ts`. */
+const katalogGuruOptions = [
+  { label: "Buku, Bahan Ajar & Modul", value: "produk" },
+  { label: "Alat Peraga", value: "alatPeraga" },
+  { label: "Video Pembelajaran", value: "videoPembelajaran" },
+  { label: "Media Digital Interaktif", value: "mediaInteraktif" },
+];
+
+/**
+ * Empat kartu katalog Library + panel biru berisi angka jumlah materi dan
+ * ajakan "Belum menemukan…". Satu blok, bukan Kartu Berisi + Baris Statistik +
+ * Banner Ajakan, karena ketiganya harus membentuk satu tata letak berdampingan.
+ *
+ * Angka statistik dihitung dari koleksi saat halaman dibuka, bukan diketik
+ * staf — keputusan 16 Sep 2026: tampilkan jumlah materi yang benar-benar ada.
+ */
+export const PerangkatGuruBlock: Block = {
+  slug: "perangkatGuru",
+  labels: { singular: "Perangkat Guru (4 katalog + panel angka)", plural: "Perangkat Guru" },
+  imageURL: "/blok/perangkatGuru.svg",
+  imageAltText: "Empat kartu katalog 2×2 dengan panel biru berisi angka dan tombol di sampingnya",
+  fields: [
+    { name: "judul", type: "text", localized: true, label: "Judul bagian" },
+    { name: "subjudul", type: "text", localized: true, label: "Kalimat di bawah judul" },
+    {
+      name: "kartu",
+      type: "array",
+      label: "Kartu katalog",
+      maxRows: 4,
+      labels: { singular: "Kartu", plural: "Kartu" },
+      admin: {
+        components: judulBaris,
+        description: "Seluruh kartu menjadi tautan ke halaman katalog yang dipilih.",
+      },
+      fields: [
+        {
+          name: "katalog",
+          type: "select",
+          required: true,
+          label: "Katalog",
+          defaultValue: "produk",
+          options: katalogGuruOptions,
+        },
+        {
+          name: "judul",
+          type: "text",
+          localized: true,
+          label: "Judul kartu",
+          admin: { description: "Kosongkan untuk memakai nama katalog." },
+        },
+        { name: "deskripsi", type: "textarea", localized: true, label: "Deskripsi singkat" },
+        {
+          name: "warna",
+          type: "select",
+          label: "Warna aksen",
+          defaultValue: "abu",
+          options: warnaOptions,
+          admin: { description: "Menentukan titik warna di depan judul dan latar muda kartu." },
+        },
+        {
+          name: "gambar",
+          type: "upload",
+          relationTo: "media",
+          label: "Gambar",
+          admin: {
+            description:
+              "Kosongkan untuk memakai sampul materi pertama katalog ini (Urutan terkecil) — ikut berganti bila urutan materi diubah.",
+          },
+        },
+      ],
+    },
+    {
+      name: "panel",
+      type: "group",
+      label: "Panel biru di samping",
+      admin: { description: "Kosongkan angka dan judul untuk menyembunyikan panel." },
+      fields: [
+        {
+          name: "statistik",
+          type: "array",
+          label: "Angka",
+          maxRows: 4,
+          labels: { singular: "Angka", plural: "Angka" },
+          admin: { components: judulBaris },
+          fields: [
+            {
+              name: "sumber",
+              type: "select",
+              required: true,
+              label: "Sumber angka",
+              defaultValue: "produk",
+              options: [
+                ...katalogGuruOptions.map((o) => ({ ...o, label: `Jumlah ${o.label}` })),
+                { label: "Jumlah semua materi (4 katalog)", value: "semua" },
+                { label: "Diketik manual", value: "manual" },
+              ],
+              admin: {
+                description: "Jumlah katalog dihitung otomatis dari isi koleksinya setiap halaman dibuka.",
+              },
+            },
+            {
+              name: "angka",
+              type: "number",
+              label: "Angka",
+              admin: {
+                condition: (_, baris) => baris?.sumber === "manual",
+                description: "Angka saja, tanpa titik/koma. Mis. 1000",
+              },
+            },
+            {
+              name: "akhiran",
+              type: "text",
+              localized: true,
+              label: "Akhiran",
+              admin: { description: "Mis. “+”. Boleh dikosongkan." },
+            },
+            {
+              name: "label",
+              type: "text",
+              localized: true,
+              label: "Keterangan",
+              admin: {
+                description: "Kosongkan untuk memakai nama katalog. Wajib bila angka diketik manual.",
+              },
+            },
+          ],
+        },
+        { name: "judul", type: "text", localized: true, label: "Judul ajakan" },
+        { name: "isi", type: "textarea", localized: true, label: "Isi ajakan" },
+        {
+          name: "gambar",
+          type: "upload",
+          relationTo: "media",
+          label: "Ilustrasi",
+          admin: { description: "Kosongkan untuk memakai ilustrasi CS bawaan." },
+        },
+        ctaField("cta", "Tombol"),
       ],
     },
   ],

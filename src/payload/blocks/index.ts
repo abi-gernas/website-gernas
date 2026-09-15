@@ -7,9 +7,11 @@ import {
   CalloutBlock,
   FeatureCardsBlock,
   IntroDuaKolomBlock,
+  KomunitasBlock,
   ProgramIntensifBlock,
   RichTextBlock,
   StatCounterBlock,
+  TentangRingkasBlock,
   TimelineBlock,
   ValueCardsBlock,
   VisiMisiBlock,
@@ -18,6 +20,7 @@ import {
   JadwalAcaraBlock,
   LatestNewsBlock,
   PartnerLogosBlock,
+  PerangkatGuruBlock,
   ProdukSorotanBlock,
   TeamGridBlock,
   TrainingModulesBlock,
@@ -67,6 +70,8 @@ export const pageBlocks: Block[] = [
   VisiMisiBlock,
   StatCounterBlock,
   ProgramIntensifBlock,
+  KomunitasBlock,
+  TentangRingkasBlock,
 
   // Isi dari koleksi Data Situs
   LatestNewsBlock,
@@ -76,6 +81,7 @@ export const pageBlocks: Block[] = [
   TrainingModulesBlock,
   JadwalAcaraBlock,
   ProdukSorotanBlock,
+  PerangkatGuruBlock,
 
   // Bergambar & komponen khusus
   GalleryBlock,

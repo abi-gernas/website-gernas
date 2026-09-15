@@ -552,6 +552,93 @@ export interface Page {
             blockType: 'programIntensif';
           }
         | {
+            judul?: string | null;
+            subjudul?: string | null;
+            kartu?:
+              | {
+                  nama: string;
+                  deskripsi?: string | null;
+                  warna?: ('navy' | 'merah') | null;
+                  ikon?:
+                    | (
+                        | 'diskusi'
+                        | 'komunitas'
+                        | 'rumah'
+                        | 'riset'
+                        | 'ide'
+                        | 'buku'
+                        | 'penghargaan'
+                        | 'daun'
+                        | 'kalender'
+                        | 'lokasi'
+                        | 'sekolah'
+                        | 'kolaborasi'
+                      )
+                    | null;
+                  /**
+                   * Tampil di pojok kanan bawah kartu, disembunyikan di layar ponsel.
+                   */
+                  ilustrasi?: (number | null) | Media;
+                  /**
+                   * Kosongkan keduanya bila blok ini tidak perlu tombol.
+                   */
+                  cta?: {
+                    label?: string | null;
+                    /**
+                     * Contoh: /tumbuh-bersama atau https://…
+                     */
+                    href?: string | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'komunitas';
+          }
+        | {
+            judul: string;
+            isi?: string | null;
+            /**
+             * Kosongkan keduanya bila blok ini tidak perlu tombol.
+             */
+            cta?: {
+              label?: string | null;
+              /**
+               * Contoh: /tumbuh-bersama atau https://…
+               */
+              href?: string | null;
+            };
+            /**
+             * Pastikan angkanya sama dengan halaman Tentang & Baris Statistik.
+             */
+            fakta?:
+              | {
+                  ikon?:
+                    | (
+                        | 'diskusi'
+                        | 'komunitas'
+                        | 'rumah'
+                        | 'riset'
+                        | 'ide'
+                        | 'buku'
+                        | 'penghargaan'
+                        | 'daun'
+                        | 'kalender'
+                        | 'lokasi'
+                        | 'sekolah'
+                        | 'kolaborasi'
+                      )
+                    | null;
+                  teks: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'tentangRingkas';
+          }
+        | {
             heading?: string | null;
             /**
              * Artikel terbaru diambil lebih dulu.
@@ -679,11 +766,29 @@ export interface Page {
              * Acara diambil dari Data Situs → Jadwal Acara: yang akan datang tampil lebih dulu (terdekat di depan), lalu yang sudah selesai (terbaru di depan).
              */
             heading?: string | null;
+            deskripsi?: string | null;
             /**
-             * Sisanya disembunyikan di balik tombol “Lihat Semua”. Kosongkan untuk menampilkan semua sekaligus.
+             * “Geser” dipakai Pojok Guru: judul rata kiri dengan tautan “Lihat semua” di kanan, kartu digeser ke samping.
+             */
+            tampilan?: ('grid' | 'geser') | null;
+            /**
+             * Grid: sisanya disembunyikan di balik tombol “Lihat Semua”. Geser: jumlah kartu di baris. Kosongkan untuk menampilkan semua.
              */
             batasAwal?: number | null;
+            /**
+             * Bila dicentang dan tidak ada acara yang akan datang, seluruh bagian ini hilang. Tanpa centang, acara selesai terbaru mengisi sisa tempat.
+             */
             sembunyikanSelesai?: boolean | null;
+            /**
+             * Kosongkan keduanya bila blok ini tidak perlu tombol.
+             */
+            tautanLihatSemua?: {
+              label?: string | null;
+              /**
+               * Contoh: /tumbuh-bersama atau https://…
+               */
+              href?: string | null;
+            };
             /**
              * Membuat bagian ini bisa dituju langsung lewat alamat, mis. “/belajar-bersama#jadwal-acara”. Hanya huruf kecil dan tanda hubung. Jangan diubah bila sudah dipakai di menu.
              */
@@ -720,6 +825,77 @@ export interface Page {
             id?: string | null;
             blockName?: string | null;
             blockType: 'produkSorotan';
+          }
+        | {
+            judul?: string | null;
+            subjudul?: string | null;
+            /**
+             * Seluruh kartu menjadi tautan ke halaman katalog yang dipilih.
+             */
+            kartu?:
+              | {
+                  katalog: 'produk' | 'alatPeraga' | 'videoPembelajaran' | 'mediaInteraktif';
+                  /**
+                   * Kosongkan untuk memakai nama katalog.
+                   */
+                  judul?: string | null;
+                  deskripsi?: string | null;
+                  /**
+                   * Menentukan titik warna di depan judul dan latar muda kartu.
+                   */
+                  warna?: ('putih' | 'abu' | 'navy' | 'merah' | 'kuning') | null;
+                  /**
+                   * Kosongkan untuk memakai sampul materi pertama katalog ini (Urutan terkecil) — ikut berganti bila urutan materi diubah.
+                   */
+                  gambar?: (number | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Kosongkan angka dan judul untuk menyembunyikan panel.
+             */
+            panel?: {
+              statistik?:
+                | {
+                    /**
+                     * Jumlah katalog dihitung otomatis dari isi koleksinya setiap halaman dibuka.
+                     */
+                    sumber: 'produk' | 'alatPeraga' | 'videoPembelajaran' | 'mediaInteraktif' | 'semua' | 'manual';
+                    /**
+                     * Angka saja, tanpa titik/koma. Mis. 1000
+                     */
+                    angka?: number | null;
+                    /**
+                     * Mis. “+”. Boleh dikosongkan.
+                     */
+                    akhiran?: string | null;
+                    /**
+                     * Kosongkan untuk memakai nama katalog. Wajib bila angka diketik manual.
+                     */
+                    label?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              judul?: string | null;
+              isi?: string | null;
+              /**
+               * Kosongkan untuk memakai ilustrasi CS bawaan.
+               */
+              gambar?: (number | null) | Media;
+              /**
+               * Kosongkan keduanya bila blok ini tidak perlu tombol.
+               */
+              cta?: {
+                label?: string | null;
+                /**
+                 * Contoh: /tumbuh-bersama atau https://…
+                 */
+                href?: string | null;
+              };
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'perangkatGuru';
           }
         | {
             heading?: string | null;
@@ -1845,6 +2021,51 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        komunitas?:
+          | T
+          | {
+              judul?: T;
+              subjudul?: T;
+              kartu?:
+                | T
+                | {
+                    nama?: T;
+                    deskripsi?: T;
+                    warna?: T;
+                    ikon?: T;
+                    ilustrasi?: T;
+                    cta?:
+                      | T
+                      | {
+                          label?: T;
+                          href?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        tentangRingkas?:
+          | T
+          | {
+              judul?: T;
+              isi?: T;
+              cta?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
+              fakta?:
+                | T
+                | {
+                    ikon?: T;
+                    teks?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
         latestNews?:
           | T
           | {
@@ -1919,8 +2140,16 @@ export interface PagesSelect<T extends boolean = true> {
           | T
           | {
               heading?: T;
+              deskripsi?: T;
+              tampilan?: T;
               batasAwal?: T;
               sembunyikanSelesai?: T;
+              tautanLihatSemua?:
+                | T
+                | {
+                    label?: T;
+                    href?: T;
+                  };
               anchor?: T;
               id?: T;
               blockName?: T;
@@ -1940,6 +2169,46 @@ export interface PagesSelect<T extends boolean = true> {
                       | {
                           teks?: T;
                           id?: T;
+                        };
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        perangkatGuru?:
+          | T
+          | {
+              judul?: T;
+              subjudul?: T;
+              kartu?:
+                | T
+                | {
+                    katalog?: T;
+                    judul?: T;
+                    deskripsi?: T;
+                    warna?: T;
+                    gambar?: T;
+                    id?: T;
+                  };
+              panel?:
+                | T
+                | {
+                    statistik?:
+                      | T
+                      | {
+                          sumber?: T;
+                          angka?: T;
+                          akhiran?: T;
+                          label?: T;
+                          id?: T;
+                        };
+                    judul?: T;
+                    isi?: T;
+                    gambar?: T;
+                    cta?:
+                      | T
+                      | {
+                          label?: T;
+                          href?: T;
                         };
                   };
               id?: T;

@@ -25,10 +25,20 @@ import { VideoCard } from "@/components/VideoCard";
 import { JadwalAcara } from "@/components/JadwalAcara";
 import { PencarianCepat } from "@/components/library/PencarianCepat";
 import { ProdukSorotan } from "@/components/library/ProdukSorotan";
+import { PerangkatGuru, type StatistikPerangkat } from "@/components/library/PerangkatGuru";
+import { labelKatalogGuru } from "@/components/library/Breadcrumb";
 import { IntroDuaKolom } from "@/components/IntroDuaKolom";
+import { Komunitas } from "@/components/Komunitas";
+import { TentangRingkas } from "@/components/TentangRingkas";
 import Link from "next/link";
 import { getArticles } from "@/lib/content";
 import { getProdukById, getProdukTerbaru } from "@/lib/produk";
+import {
+  KATALOG_GURU,
+  getGambarKatalogGuru,
+  getJumlahKatalogGuru,
+  katalogGuruPath,
+} from "@/lib/perangkatGuru";
 import { localizedPath, uiText, type Locale } from "@/lib/i18n";
 import {
   getAcara,
@@ -42,7 +52,7 @@ import {
   urutanKelompokMitra,
 } from "@/lib/datasitus";
 import { contact as fallbackContact } from "@/lib/nav";
-import { kolomKe } from "@/components/warna";
+import { asWarna, kolomKe } from "@/components/warna";
 import { asNamaIkon } from "@/components/ikon";
 import type { Page } from "@/payload-types";
 
@@ -290,15 +300,62 @@ async function JadwalAcaraBlok({
       : undefined,
   }));
 
+  const umum = {
+    acara,
+    patokan: Date.now(),
+    locale,
+    batasAwal: block.batasAwal ?? undefined,
+    sembunyikanSelesai: Boolean(block.sembunyikanSelesai),
+  };
+
+  if (block.tampilan === "geser") {
+    const lihatSemua = toCTA(block.tautanLihatSemua, locale);
+    const kepala =
+      block.heading || block.deskripsi || lihatSemua ? (
+        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+          <div className="min-w-0 max-w-2xl">
+            {block.heading && (
+              <h2 className="text-xl font-bold text-brand-navy [text-wrap:balance] sm:text-2xl">
+                {block.heading}
+              </h2>
+            )}
+            {block.deskripsi && (
+              <p className="mt-1.5 text-sm leading-relaxed text-body">{block.deskripsi}</p>
+            )}
+          </div>
+          {lihatSemua && (
+            <Link
+              href={lihatSemua.href}
+              className="group inline-flex items-center gap-1.5 text-sm font-semibold text-brand-red hover:underline"
+            >
+              {lihatSemua.label}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4 transition-transform motion-safe:group-hover:translate-x-0.5"
+              >
+                <path d="M4 10h12M11 5l5 5-5 5" />
+              </svg>
+            </Link>
+          )}
+        </div>
+      ) : undefined;
+
+    return <JadwalAcara {...umum} tampilan="geser" kepala={kepala} id={block.anchor ?? undefined} />;
+  }
+
   return (
-    <Section title={block.heading ?? undefined} id={block.anchor ?? undefined}>
-      <JadwalAcara
-        acara={acara}
-        patokan={Date.now()}
-        locale={locale}
-        batasAwal={block.batasAwal ?? undefined}
-        sembunyikanSelesai={Boolean(block.sembunyikanSelesai)}
-      />
+    <Section
+      title={block.heading ?? undefined}
+      subtitle={block.deskripsi ?? undefined}
+      id={block.anchor ?? undefined}
+    >
+      <JadwalAcara {...umum} />
     </Section>
   );
 }
@@ -326,6 +383,80 @@ async function ProdukSorotanBlok({
       subjudul={block.subjudul ?? undefined}
       item={item}
       alasan={poin.length > 0 ? { judul: block.alasan?.judul ?? undefined, poin } : undefined}
+      locale={locale}
+    />
+  );
+}
+
+/** Gambar ilustrasi panel bila staf belum mengunggah — sama dengan banner bantuan Library. */
+const ILUSTRASI_CS = "/ilustrasi/cs-bantuan.png";
+
+async function PerangkatGuruBlok({
+  block,
+  locale,
+}: {
+  block: Extract<Block, { blockType: "perangkatGuru" }>;
+  locale: Locale;
+}) {
+  const kartuMentah = block.kartu ?? [];
+  const statMentah = block.panel?.statistik ?? [];
+
+  // Kartu tanpa gambar unggahan memakai sampul materi pertama katalognya.
+  const [jumlah, gambarBawaan] = await Promise.all([
+    statMentah.some((s) => s.sumber !== "manual") ? getJumlahKatalogGuru() : null,
+    Promise.all(
+      kartuMentah.map((k) => (mediaURL(k.gambar) ? null : getGambarKatalogGuru(k.katalog))),
+    ),
+  ]);
+
+  const kartu = kartuMentah.map((k, i) => ({
+    judul: k.judul || labelKatalogGuru[k.katalog][locale],
+    deskripsi: k.deskripsi ?? undefined,
+    href: katalogGuruPath(k.katalog, locale),
+    gambar: mediaURL(k.gambar) ?? gambarBawaan[i] ?? undefined,
+    warna: asWarna(k.warna),
+  }));
+
+  const statistik = statMentah.flatMap((s): StatistikPerangkat[] => {
+    if (s.sumber === "manual") {
+      return s.angka != null && s.label
+        ? [{ angka: s.angka, akhiran: s.akhiran ?? undefined, label: s.label, sumber: s.sumber }]
+        : [];
+    }
+    if (!jumlah) return [];
+    const angka =
+      s.sumber === "semua" ? KATALOG_GURU.reduce((n, k) => n + jumlah[k], 0) : jumlah[s.sumber];
+    const label =
+      s.label ||
+      (s.sumber === "semua"
+        ? locale === "en"
+          ? "Learning Materials"
+          : "Materi Pembelajaran"
+        : labelKatalogGuru[s.sumber][locale]);
+    return [{ angka, akhiran: s.akhiran ?? undefined, label, sumber: s.sumber }];
+  });
+
+  const panel = block.panel;
+  const cta = toCTA(panel?.cta, locale);
+  const adaPanel = statistik.length > 0 || Boolean(panel?.judul || panel?.isi || cta);
+  if (kartu.length === 0 && !adaPanel) return null;
+
+  return (
+    <PerangkatGuru
+      judul={block.judul ?? undefined}
+      subjudul={block.subjudul ?? undefined}
+      kartu={kartu}
+      panel={
+        adaPanel
+          ? {
+              statistik,
+              judul: panel?.judul ?? undefined,
+              isi: panel?.isi ?? undefined,
+              gambar: mediaURL(panel?.gambar) ?? ILUSTRASI_CS,
+              cta,
+            }
+          : undefined
+      }
       locale={locale}
     />
   );
@@ -396,6 +527,31 @@ async function RenderBlock({
         <IntroDuaKolom judul={block.judul} ringkas={block.ringkas ?? undefined}>
           {block.isi ? <ArticleBody content={block.isi} /> : null}
         </IntroDuaKolom>
+      );
+
+    case "komunitas": {
+      const kartu = (block.kartu ?? []).map((k) => ({
+        nama: k.nama,
+        deskripsi: k.deskripsi ?? undefined,
+        warna: k.warna === "merah" ? ("merah" as const) : ("navy" as const),
+        ikon: asNamaIkon(k.ikon),
+        ilustrasi: mediaURL(k.ilustrasi),
+        cta: toCTA(k.cta, locale),
+      }));
+      if (kartu.length === 0) return null;
+      return (
+        <Komunitas judul={block.judul ?? undefined} subjudul={block.subjudul ?? undefined} kartu={kartu} />
+      );
+    }
+
+    case "tentangRingkas":
+      return (
+        <TentangRingkas
+          judul={block.judul}
+          isi={block.isi ?? undefined}
+          cta={toCTA(block.cta, locale)}
+          fakta={(block.fakta ?? []).map((f) => ({ ikon: asNamaIkon(f.ikon), teks: f.teks }))}
+        />
       );
 
     case "richText": {
@@ -614,6 +770,9 @@ async function RenderBlock({
 
     case "produkSorotan":
       return <ProdukSorotanBlok block={block} locale={locale} />;
+
+    case "perangkatGuru":
+      return <PerangkatGuruBlok block={block} locale={locale} />;
 
     case "gallery": {
       const foto = (block.images ?? [])

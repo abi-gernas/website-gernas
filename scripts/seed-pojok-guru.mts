@@ -7,10 +7,10 @@
  *
  * Empat langkah, masing-masing dilewati bila sudah pernah dijalankan:
  *  1. Dokumen Halaman `pojok-guru` (ID + EN): Hero Pencarian (5B), Pembuka 2
- *     Kolom & Produk Sorotan (5C), lalu kartu 4 katalog & kotak ajakan Jadwal
- *     Acara sebagai isi sementara — blok perangkat guru dst. menyusul di sesi
- *     5D–5F. Halaman hasil seed sesi sebelumnya (tanpa blok 5C) dibuat ulang
- *     otomatis, asal belum disunting staf.
+ *     Kolom & Produk Sorotan (5C), Perangkat Guru (5D), Acara Terdekat (5E),
+ *     Kartu Komunitas & Tentang Ringkas (5F). Halaman hasil seed sesi
+ *     sebelumnya (tanpa Kartu Komunitas) dibuat ulang otomatis, asal belum
+ *     disunting staf.
  *  2. Menu "Pojok Guru" di Global Navigasi, disisipkan tepat setelah "Beranda".
  *  3. Kotak sorot ajakan ke Pojok Guru di beranda, setelah blok Kartu Berisi.
  *  4. Penanda `jadwal-acara` pada blok Jadwal Acara di /belajar-bersama, supaya
@@ -146,8 +146,8 @@ if (!belajarBersama) throw new Error("Halaman belajar-bersama tidak ada — jala
 const pojokGuruLama = await halamanSemuaLocale("pojok-guru");
 let perluDibuat = !pojokGuruLama;
 
-if (pojokGuruLama && !pojokGuruLama.layout?.some((b: Json) => b.blockType === "introDuaKolom")) {
-  // Isi hasil seed sesi sebelumnya (5A hero biasa / 5B tanpa blok 5C). Dibuat
+if (pojokGuruLama && !pojokGuruLama.layout?.some((b: Json) => b.blockType === "komunitas")) {
+  // Isi hasil seed sesi sebelumnya (5A–5E, tanpa Kartu Komunitas). Dibuat
   // ulang dengan blok terbaru — tapi hanya bila belum pernah disunting staf,
   // yaitu masih satu versi saja.
   const versi = await db.execute(
@@ -157,10 +157,10 @@ if (pojokGuruLama && !pojokGuruLama.layout?.some((b: Json) => b.blockType === "i
     cadangkan("pojok-guru", pojokGuruLama);
     await payload.delete({ collection: "pages", id: pojokGuruLama.id });
     perluDibuat = true;
-    console.log("↻  /pojok-guru — isi seed lama dihapus, dibuat ulang dengan blok 5C");
+    console.log("↻  /pojok-guru — isi seed lama dihapus, dibuat ulang dengan blok 5F");
   } else {
     console.log(
-      "⚠  /pojok-guru sudah disunting staf — tambahkan blok Pembuka 2 Kolom & Produk Sorotan lewat dasbor",
+      "⚠  /pojok-guru sudah disunting staf — tambahkan blok Kartu Komunitas & Tentang Ringkas lewat dasbor",
     );
   }
 }
@@ -172,17 +172,6 @@ if (!perluDibuat) {
   // ada foto khusus; staf tinggal menggantinya di dasbor.
   const gambarHero = belajarBersama.layout.find((b: Json) => b.blockType === "pageHero")?.image;
   if (!gambarHero) throw new Error("Hero Belajar Bersama tidak punya gambar untuk dipinjam.");
-
-  const kartu = (
-    judul: { id: string; en: string },
-    isi: { id: string; en: string },
-    href: string,
-  ) => ({
-    judul,
-    isi: { id: paragraf(isi.id), en: paragraf(isi.en) },
-    warna: "putih",
-    cta: { label: L("Lihat Koleksi →", "Browse Collection →"), href },
-  });
 
   await payload.create({
     collection: "pages",
@@ -257,57 +246,132 @@ if (!perluDibuat) {
           },
         },
         {
-          blockType: "featureCards",
-          heading: L("Perangkat Pembelajaran untuk Guru", "Teaching Resources for Teachers"),
-          kolom: "2",
-          cards: [
-            kartu(
-              L("Buku, Bahan Ajar & Modul", "Books, Teaching Materials & Modules"),
-              L(
-                "Materi ajar matematika siap unduh, tersusun per topik dari bilangan cacah sampai statistika.",
-                "Downloadable mathematics teaching materials, organized by topic from whole numbers to statistics.",
+          // Judul kartu & keterangan angka dikosongkan → nama katalog; gambar
+          // kartu dikosongkan → sampul materi pertama katalognya. Deskripsi
+          // Video & Media Interaktif di mockup hanya salinan kartu atasnya,
+          // jadi ditulis ulang sesuai isi katalog.
+          blockType: "perangkatGuru",
+          judul: L("Perangkat Pembelajaran untuk Guru", "Teaching Resources for Teachers"),
+          subjudul: L(
+            "Temukan berbagai sumber belajar siap pakai untuk mendukung pembelajaran di kelas",
+            "Discover ready-to-use learning resources to support teaching in your classroom",
+          ),
+          kartu: [
+            {
+              katalog: "produk",
+              warna: "navy",
+              deskripsi: L(
+                "Materi lengkap dan terstruktur sesuai kebutuhan guru.",
+                "Complete, well-structured materials tailored to teachers' needs.",
               ),
-              "/buku-bahan-ajar-modul",
-            ),
-            kartu(
-              L("Alat Peraga", "Teaching Aids"),
-              L(
-                "Alat bantu untuk menghadirkan konsep matematika dan membaca secara konkret di kelas.",
-                "Hands-on aids that make mathematics and reading concepts concrete in the classroom.",
+            },
+            {
+              katalog: "alatPeraga",
+              warna: "merah",
+              deskripsi: L(
+                "Media berbentuk alat untuk memahami konsep dengan lebih konkret.",
+                "Hands-on tools that make concepts more concrete.",
               ),
-              "/alat-peraga",
-            ),
-            kartu(
-              L("Video Pembelajaran", "Learning Videos"),
-              L(
-                "Video aktivitas sederhana untuk mengajarkan konsep matematika secara bernalar.",
-                "Short activity videos for teaching mathematics concepts through reasoning.",
+            },
+            {
+              katalog: "videoPembelajaran",
+              warna: "kuning",
+              deskripsi: L(
+                "Video aktivitas sederhana untuk mengajarkan konsep secara bernalar.",
+                "Short activity videos for teaching concepts through reasoning.",
               ),
-              "/video-pembelajaran",
-            ),
-            kartu(
-              L("Media Digital Interaktif", "Interactive Digital Media"),
-              L(
-                "Mesin virtual numerasi yang bisa langsung dimainkan siswa di berbagai perangkat.",
-                "Numeracy virtual machines students can play right away on any device.",
+            },
+            {
+              katalog: "mediaInteraktif",
+              warna: "abu",
+              deskripsi: L(
+                "Latihan numerasi digital yang bisa langsung dimainkan siswa.",
+                "Digital numeracy activities students can play right away.",
               ),
-              "/media-interaktif",
+            },
+          ],
+          panel: {
+            // Angka mockup (45.000+ / 200+ / 1000+) sengaja tidak dipakai —
+            // keputusan 16 Sep 2026: tampilkan jumlah materi yang ada. Alat
+            // Peraga tidak ikut dihitung karena isinya masih dokumen uji [QA].
+            statistik: [{ sumber: "produk" }, { sumber: "videoPembelajaran" }, { sumber: "mediaInteraktif" }],
+            judul: L("Belum menemukan yang anda cari?", "Haven't found what you're looking for?"),
+            isi: L(
+              "Kami siap membantu Anda menemukan perangkat pembelajaran yang sesuai dengan kebutuhan Anda.",
+              "We are ready to help you find the learning materials that fit your needs.",
             ),
+            // Sama dengan banner bantuan Library: formulir kontak di halaman Mitra.
+            cta: { label: L("Hubungi Kami!", "Contact Us"), href: "/mitra#hubungi" },
+          },
+        },
+        {
+          // Per 16 Sep 2026 semua acara sudah lewat. Keputusan user: bagian ini
+          // tetap tampil dengan acara terbaru, jadi `sembunyikanSelesai` tidak
+          // dicentang — acara mendatang tetap otomatis di depan bila ada.
+          blockType: "jadwalAcara",
+          heading: L("Acara Terdekat", "Upcoming Events"),
+          deskripsi: L(
+            "Tingkatkan kompetensi dan dapatkan inspirasi dari kegiatan Gernas Tastaka dan Gernas Tastaba",
+            "Build your skills and get inspired by Gernas Tastaka and Gernas Tastaba activities",
+          ),
+          tampilan: "geser",
+          batasAwal: 8,
+          sembunyikanSelesai: false,
+          tautanLihatSemua: {
+            label: L("Lihat Semua Program", "View All Programs"),
+            href: "/belajar-bersama#jadwal-acara",
+          },
+        },
+        {
+          // Jumlah anggota ("300+ Pendidik") sengaja tidak ditampilkan dan tombol
+          // Gabung disamakan dengan "Hubungi Kami" — keputusan user 16 Sep 2026.
+          // Ilustrasi dikosongkan sampai ada aset dari tim.
+          blockType: "komunitas",
+          judul: L("Bergabung dengan Komunitas", "Join the Community"),
+          subjudul: L(
+            "Berbagi, belajar, dan tumbuh bersama ribuan guru di seluruh Indonesia.",
+            "Share, learn, and grow with thousands of teachers across Indonesia.",
+          ),
+          kartu: [
+            {
+              nama: L("Komunitas Gernas Tastaka", "Gernas Tastaka Community"),
+              deskripsi: L(
+                "Komunitas untuk guru yang ingin berbagi praktik baik, diskusi pembelajaran, dan kolaborasi untuk kelas yang lebih bermakna.",
+                "A community for teachers who want to share good practices, discuss teaching, and collaborate for more meaningful classrooms.",
+              ),
+              warna: "navy",
+              ikon: "komunitas",
+              cta: { label: L("Gabung Sekarang!", "Join Now!"), href: "/mitra#hubungi" },
+            },
+            {
+              nama: L("Komunitas Gernas Tastaba", "Gernas Tastaba Community"),
+              deskripsi: L(
+                "Komunitas penggerak literasi membaca yang membantu sekolah dan guru menciptakan perubahan yang berdampak.",
+                "A community of reading literacy champions helping schools and teachers create meaningful change.",
+              ),
+              warna: "merah",
+              ikon: "buku",
+              cta: { label: L("Gabung Sekarang!", "Join Now!"), href: "/mitra#hubungi" },
+            },
           ],
         },
         {
-          blockType: "callout",
-          judul: L("Acara & Pelatihan untuk Guru", "Events & Training for Teachers"),
+          // Fakta diambil dari data situs, bukan mockup: mockup menulis "Berdiri
+          // sejak 2017", linimasa halaman Tentang menulis deklarasi 2018; angka
+          // pendidik & provinsi sama dengan Baris Statistik beranda/Tentang.
+          blockType: "tentangRingkas",
+          judul: L("Tentang Gernas Tastaka", "About Gernas Tastaka"),
           isi: L(
-            "Ikuti webinar Bincang Gernas, pelatihan, dan klub buku bersama komunitas Gernas Tastaka dan Gernas Tastaba.",
-            "Join Bincang Gernas webinars, training sessions, and book clubs with the Gernas Tastaka and Gernas Tastaba community.",
+            "Gerakan Nasional Literasi dan Numerasi yang berfokus pada peningkatan kualitas pembelajaran di sekolah dasar dan madrasah ibtidaiyah di Indonesia.",
+            "A national literacy and numeracy movement focused on improving the quality of learning in Indonesian primary schools and madrasahs.",
           ),
-          warna: "abu",
-          rataTengah: true,
-          cta: {
-            label: L("Lihat Jadwal Acara →", "See Event Schedule →"),
-            href: "/belajar-bersama#jadwal-acara",
-          },
+          cta: { label: L("Selengkapnya Tentang Kami", "More About Us"), href: "/tentang-gernas-tastaka" },
+          fakta: [
+            { ikon: "kalender", teks: L("Dideklarasikan tahun 2018", "Declared in 2018") },
+            { ikon: "komunitas", teks: L("Bersama 16.000+ pendidik", "With 16,000+ educators") },
+            { ikon: "lokasi", teks: L("Hadir di 21 provinsi", "Present in 21 provinces") },
+            { ikon: "kolaborasi", teks: L("Didukung mitra dan relawan", "Supported by partners and volunteers") },
+          ],
         },
       ],
     } as never,
@@ -316,12 +380,24 @@ if (!perluDibuat) {
   const cek = await halamanSemuaLocale("pojok-guru");
   const intro = cek?.layout?.find((b: Json) => b.blockType === "introDuaKolom");
   const sorotan = cek?.layout?.find((b: Json) => b.blockType === "produkSorotan");
+  const perangkat = cek?.layout?.find((b: Json) => b.blockType === "perangkatGuru");
+  const acara = cek?.layout?.find((b: Json) => b.blockType === "jadwalAcara");
+  const komunitas = cek?.layout?.find((b: Json) => b.blockType === "komunitas");
+  const tentang = cek?.layout?.find((b: Json) => b.blockType === "tentangRingkas");
   if (
     cek?.title?.en !== "Teacher's Corner" ||
     cek?.layout?.[0]?.judul?.en !== "Find What You Need!" ||
     !intro?.judul?.en ||
     !intro?.isi?.en ||
-    sorotan?.alasan?.poin?.[0]?.teks?.en !== "Developed by education practitioners"
+    sorotan?.alasan?.poin?.[0]?.teks?.en !== "Developed by education practitioners" ||
+    perangkat?.kartu?.length !== 4 ||
+    perangkat?.kartu?.[3]?.deskripsi?.en !== "Digital numeracy activities students can play right away." ||
+    perangkat?.panel?.cta?.label?.en !== "Contact Us" ||
+    acara?.tampilan !== "geser" ||
+    acara?.tautanLihatSemua?.label?.en !== "View All Programs" ||
+    komunitas?.kartu?.[1]?.cta?.label?.en !== "Join Now!" ||
+    tentang?.fakta?.length !== 4 ||
+    tentang?.fakta?.[3]?.teks?.en !== "Supported by partners and volunteers"
   ) {
     throw new Error("/pojok-guru dibuat, tetapi terjemahan Inggrisnya tidak tersimpan. Periksa manual.");
   }

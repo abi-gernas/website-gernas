@@ -1,6 +1,6 @@
 import type { Block } from "payload";
 import { judulBaris } from "../fields/rowLabel";
-import { ctaField, ikonOptions, kolomField, statsArrayField, warnaOptions } from "./shared";
+import { ctaField, ikonLengkapOptions, ikonOptions, kolomField, statsArrayField, warnaOptions } from "./shared";
 
 /** Blok teks bebas untuk isi halaman yang tidak berpola. */
 export const RichTextBlock: Block = {
@@ -499,6 +499,86 @@ export const CalloutBlock: Block = {
         { name: "awalan", type: "text", localized: true, label: "Teks pembuka", admin: { description: "Mis. “Temukan Kami:”. Cukup diisi pada tautan pertama." } },
         { name: "label", type: "text", required: true, localized: true, label: "Teks" },
         { name: "href", type: "text", label: "Tautan" },
+      ],
+    },
+  ],
+};
+
+/**
+ * Kartu komunitas berdampingan (maks. 2) — "Bergabung dengan Komunitas" di
+ * Pojok Guru. Beda dengan Kartu Berisi: ada ikon bulat berwarna, ilustrasi di
+ * pojok, dan tombol isi-penuh sewarna kartu.
+ */
+export const KomunitasBlock: Block = {
+  slug: "komunitas",
+  labels: { singular: "Kartu Komunitas", plural: "Kartu Komunitas" },
+  imageURL: "/blok/komunitas.svg",
+  imageAltText: "Dua kartu komunitas berikon dengan tombol gabung dan ilustrasi di pojok",
+  fields: [
+    { name: "judul", type: "text", localized: true, label: "Judul bagian" },
+    { name: "subjudul", type: "text", localized: true, label: "Kalimat di bawah judul" },
+    {
+      name: "kartu",
+      type: "array",
+      label: "Komunitas",
+      minRows: 1,
+      maxRows: 2,
+      labels: { singular: "Komunitas", plural: "Komunitas" },
+      admin: { components: judulBaris },
+      fields: [
+        { name: "nama", type: "text", required: true, localized: true, label: "Nama komunitas" },
+        { name: "deskripsi", type: "textarea", localized: true, label: "Deskripsi" },
+        {
+          name: "warna",
+          type: "select",
+          label: "Warna",
+          defaultValue: "navy",
+          options: [
+            { label: "Biru tua", value: "navy" },
+            { label: "Merah", value: "merah" },
+          ],
+        },
+        { name: "ikon", type: "select", label: "Ikon", defaultValue: "komunitas", options: ikonLengkapOptions },
+        {
+          name: "ilustrasi",
+          type: "upload",
+          relationTo: "media",
+          label: "Ilustrasi (opsional)",
+          admin: { description: "Tampil di pojok kanan bawah kartu, disembunyikan di layar ponsel." },
+        },
+        ctaField("cta", "Tombol gabung"),
+      ],
+    },
+  ],
+};
+
+/**
+ * Panel ringkas "Tentang …" (kotak merah + tombol) dengan deretan fakta berikon
+ * di sampingnya. Kotak Sorot tidak punya tempat untuk deret fakta, dan
+ * Baris Statistik hanya menerima angka.
+ */
+export const TentangRingkasBlock: Block = {
+  slug: "tentangRingkas",
+  labels: { singular: "Tentang Ringkas + Fakta", plural: "Tentang Ringkas" },
+  imageURL: "/blok/tentangRingkas.svg",
+  imageAltText: "Kotak merah berjudul dengan tombol, empat ikon fakta di sampingnya",
+  fields: [
+    { name: "judul", type: "text", required: true, localized: true, label: "Judul" },
+    { name: "isi", type: "textarea", localized: true, label: "Isi" },
+    ctaField(),
+    {
+      name: "fakta",
+      type: "array",
+      label: "Fakta berikon",
+      maxRows: 4,
+      labels: { singular: "Fakta", plural: "Fakta" },
+      admin: {
+        components: judulBaris,
+        description: "Pastikan angkanya sama dengan halaman Tentang & Baris Statistik.",
+      },
+      fields: [
+        { name: "ikon", type: "select", label: "Ikon", defaultValue: "kalender", options: ikonLengkapOptions },
+        { name: "teks", type: "text", required: true, localized: true, label: "Teks" },
       ],
     },
   ],

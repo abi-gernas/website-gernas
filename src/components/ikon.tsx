@@ -17,7 +17,11 @@ export type NamaIkon =
   | "ide"
   | "buku"
   | "penghargaan"
-  | "daun";
+  | "daun"
+  | "kalender"
+  | "lokasi"
+  | "sekolah"
+  | "kolaborasi";
 
 /** Isi `<svg>` tiap ikon — dipisah dari pembungkusnya agar atributnya seragam. */
 const jalur: Record<NamaIkon, React.ReactNode> = {
@@ -67,6 +71,31 @@ const jalur: Record<NamaIkon, React.ReactNode> = {
     <>
       <path d="M4 20c0-8 5-14 16-15 0 10-6 15-13 15H4z" />
       <path d="M4 20c3-5 6-7 10-9" />
+    </>
+  ),
+  kalender: (
+    <>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2" />
+      <path d="M3.5 10h17M8 3v4M16 3v4" />
+    </>
+  ),
+  lokasi: (
+    <>
+      <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" />
+      <circle cx="12" cy="9.5" r="2.5" />
+    </>
+  ),
+  sekolah: (
+    <>
+      <path d="M3 21h18M5 21V10l7-5 7 5v11" />
+      <path d="M10 21v-5h4v5M12 5V2.5h3" />
+    </>
+  ),
+  kolaborasi: (
+    <>
+      <path d="M8 12.5 11.5 9a2.1 2.1 0 0 1 3 0l5 5" />
+      <path d="M2.5 11 6 7.5l3 1M21.5 11 18 7.5l-4 1.5" />
+      <path d="m6 13 4 4a1.4 1.4 0 0 0 2-2M9 16l2 2a1.4 1.4 0 0 0 2-2M12 15l1.5 1.5a1.4 1.4 0 0 0 2-2L13 12" />
     </>
   ),
 };

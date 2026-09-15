@@ -113,6 +113,19 @@ export const ikonOptions = [
   { label: "Daun — pertumbuhan", value: "daun" },
 ];
 
+/**
+ * Ikon lengkap untuk blok baru (Komunitas, Tentang Ringkas): `ikonOptions`
+ * ditambah ikon fakta. Dipisah supaya pilihan blok Kartu Kegiatan — dan enum
+ * databasenya — tidak ikut berubah.
+ */
+export const ikonLengkapOptions = [
+  ...ikonOptions,
+  { label: "Kalender — tahun & tanggal", value: "kalender" },
+  { label: "Penanda peta — wilayah", value: "lokasi" },
+  { label: "Gedung sekolah", value: "sekolah" },
+  { label: "Jabat tangan — kolaborasi & mitra", value: "kolaborasi" },
+];
+
 /** Warna latar kotak/kartu, mengikuti palet Design System v2.0. */
 export const warnaOptions = [
   { label: "Putih", value: "putih" },

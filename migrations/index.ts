@@ -28,6 +28,9 @@ import * as migration_20260914_171740_acara_lokasi_kategori from './20260914_171
 import * as migration_20260915_123730_pojok_guru_navigasi from './20260915_123730_pojok_guru_navigasi';
 import * as migration_20260915_125414_pojok_guru_pencarian from './20260915_125414_pojok_guru_pencarian';
 import * as migration_20260915_170426_pojok_guru_intro_produk from './20260915_170426_pojok_guru_intro_produk';
+import * as migration_20260915_172457_pojok_guru_perangkat from './20260915_172457_pojok_guru_perangkat';
+import * as migration_20260915_173330_pojok_guru_acara from './20260915_173330_pojok_guru_acara';
+import * as migration_20260915_173930_pojok_guru_komunitas from './20260915_173930_pojok_guru_komunitas';
 
 export const migrations = [
   {
@@ -178,6 +181,21 @@ export const migrations = [
   {
     up: migration_20260915_170426_pojok_guru_intro_produk.up,
     down: migration_20260915_170426_pojok_guru_intro_produk.down,
-    name: '20260915_170426_pojok_guru_intro_produk'
+    name: '20260915_170426_pojok_guru_intro_produk',
+  },
+  {
+    up: migration_20260915_172457_pojok_guru_perangkat.up,
+    down: migration_20260915_172457_pojok_guru_perangkat.down,
+    name: '20260915_172457_pojok_guru_perangkat',
+  },
+  {
+    up: migration_20260915_173330_pojok_guru_acara.up,
+    down: migration_20260915_173330_pojok_guru_acara.down,
+    name: '20260915_173330_pojok_guru_acara',
+  },
+  {
+    up: migration_20260915_173930_pojok_guru_komunitas.up,
+    down: migration_20260915_173930_pojok_guru_komunitas.down,
+    name: '20260915_173930_pojok_guru_komunitas'
   },
 ];

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DEFAULT_LOCALE, dateLocaleTag, uiText, type Locale } from "@/lib/i18n";
 
 /** Satu acara, sudah diratakan dari dokumen Payload. */
@@ -56,6 +56,11 @@ const warnaKategori: Record<string, { pil: string; latar: string }> = {
 };
 const warnaBawaan = warnaKategori.webinar;
 
+const teksGeser = {
+  id: { daftar: "Daftar acara", sebelumnya: "Acara sebelumnya", berikutnya: "Acara berikutnya" },
+  en: { daftar: "Event list", sebelumnya: "Previous events", berikutnya: "Next events" },
+} satisfies Record<Locale, Record<string, string>>;
+
 /**
  * Batas akhir hari acara (23:59:59 WIB) dalam milidetik. Tanggal dari Payload
  * disimpan sebagai waktu UTC, jadi harinya dibaca ulang di zona Jakarta dulu —
@@ -89,10 +94,13 @@ function KartuAcara({
   acara,
   selesai,
   locale,
+  ringkas = false,
 }: {
   acara: AcaraTampil;
   selesai: boolean;
   locale: Locale;
+  /** Tampilan Geser: selalu kotak berwarna, poster diabaikan. */
+  ringkas?: boolean;
 }) {
   const t = uiText[locale];
   const warna = warnaKategori[acara.kategori] ?? warnaBawaan;
@@ -142,7 +150,7 @@ function KartuAcara({
     </>
   );
 
-  if (acara.poster) {
+  if (acara.poster && !ringkas) {
     return (
       <article className="flex h-full flex-col">
         <div className="relative aspect-[4/5] w-full overflow-hidden rounded-card bg-surface shadow-soft">
@@ -171,6 +179,92 @@ function KartuAcara({
 }
 
 /**
+ * Tampilan Geser — satu baris kartu ringkas dalam kotak putih, kepala (judul +
+ * tautan "Lihat semua") di atasnya. Panah menggeser selebar satu kartu dan
+ * nonaktif di ujung; di ponsel cukup diusap. Tanpa `scroll-smooth` global
+ * supaya `prefers-reduced-motion` dihormati.
+ */
+function DeretAcara({
+  item,
+  kepala,
+  id,
+  locale,
+}: {
+  item: { a: AcaraTampil; selesai: boolean }[];
+  kepala?: React.ReactNode;
+  id?: string;
+  locale: Locale;
+}) {
+  const ref = useRef<HTMLUListElement>(null);
+  const [ujung, setUjung] = useState({ awal: true, akhir: false });
+  const t = teksGeser[locale];
+
+  const perbarui = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    setUjung({
+      awal: el.scrollLeft <= 4,
+      akhir: el.scrollLeft + el.clientWidth >= el.scrollWidth - 4,
+    });
+  }, []);
+
+  useEffect(() => {
+    perbarui();
+    window.addEventListener("resize", perbarui);
+    return () => window.removeEventListener("resize", perbarui);
+  }, [perbarui, item.length]);
+
+  const geser = (arah: number) => {
+    const el = ref.current;
+    if (!el) return;
+    const kartu = el.querySelector("li");
+    const langkah = kartu ? kartu.getBoundingClientRect().width + 16 : 280;
+    const kurangiGerak = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    el.scrollBy({ left: arah * langkah, behavior: kurangiGerak ? "auto" : "smooth" });
+  };
+
+  const kelasPanah =
+    "flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-brand-navy transition-colors hover:bg-brand-navy hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-35";
+
+  return (
+    <section id={id} className="container-page py-12 sm:py-16">
+      <div className="overflow-hidden rounded-card bg-white p-6 shadow-card sm:p-8">
+        {kepala}
+
+        <ul
+          ref={ref}
+          onScroll={perbarui}
+          tabIndex={0}
+          aria-label={t.daftar}
+          className={`no-scrollbar -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto px-6 pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-navy sm:-mx-8 sm:scroll-px-8 sm:px-8 ${
+            kepala ? "mt-6" : ""
+          }`}
+        >
+          {item.map(({ a, selesai }, i) => (
+            <li key={`${a.judul}-${a.tanggal}-${i}`} className="flex w-[260px] shrink-0 snap-start sm:w-[280px]">
+              <div className="w-full">
+                <KartuAcara acara={a} selesai={selesai} locale={locale} ringkas />
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {!(ujung.awal && ujung.akhir) && (
+          <div className="mt-5 flex justify-end gap-2">
+            <button type="button" onClick={() => geser(-1)} disabled={ujung.awal} aria-label={t.sebelumnya} className={kelasPanah}>
+              <span aria-hidden="true">‹</span>
+            </button>
+            <button type="button" onClick={() => geser(1)} disabled={ujung.akhir} aria-label={t.berikutnya} className={kelasPanah}>
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/**
  * Jadwal acara di halaman Belajar Bersama — kartu berposter bila posternya
  * ada, kotak berwarna per kategori bila tidak. Keduanya bisa bercampur di satu
  * grid; kotak tanpa poster meregang setinggi barisnya supaya tombol tetap
@@ -187,12 +281,20 @@ export function JadwalAcara({
   locale = DEFAULT_LOCALE,
   batasAwal,
   sembunyikanSelesai = false,
+  tampilan = "grid",
+  kepala,
+  id,
 }: {
   acara: AcaraTampil[];
   patokan: number;
   locale?: Locale;
   batasAwal?: number;
   sembunyikanSelesai?: boolean;
+  /** "geser" merender section-nya sendiri (kotak putih + `kepala`). */
+  tampilan?: "grid" | "geser";
+  kepala?: React.ReactNode;
+  /** Penanda tautan — hanya dipakai tampilan Geser; Grid memakai `Section` pembungkusnya. */
+  id?: string;
 }) {
   const [sekarang, setSekarang] = useState(patokan);
   const [terbuka, setTerbuka] = useState(false);
@@ -213,6 +315,13 @@ export function JadwalAcara({
   if (urut.length === 0) return null;
 
   const batas = batasAwal && batasAwal > 0 ? batasAwal : urut.length;
+
+  // Tanpa acara mendatang, acara selesai terbaru tetap mengisi deret —
+  // keputusan 16 Sep 2026, supaya bagian ini tidak kosong.
+  if (tampilan === "geser") {
+    return <DeretAcara item={urut.slice(0, batas)} kepala={kepala} id={id} locale={locale} />;
+  }
+
   const tampil = terbuka ? urut : urut.slice(0, batas);
   const sisa = urut.length - batas;
   const t = uiText[locale];

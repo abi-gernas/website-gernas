@@ -118,9 +118,9 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 | 5A | Pojok Guru — halaman CMS, navbar, breadcrumb, teaser beranda (§4.5) | Selesai (belum dicek di browser) | 15 Sep 2026 |
 | 5B | Pojok Guru — blok `pencarianCepat` + halaman `/pojok-guru/cari` | Selesai (belum dicek di browser; bug pencarian `/en` sudah diperbaiki) | 15 Sep 2026 |
 | 5C | Pojok Guru — intro 2 kolom + blok `produkSorotan` | Selesai (belum dicek di browser) | 16 Sep 2026 |
-| 5D | Pojok Guru — blok `perangkatGuru` (4 kartu + panel statistik/CTA) | Belum | — |
-| 5E | Pojok Guru — Acara Terdekat (perluas blok `jadwalAcara`) | Belum | — |
-| 5F | Pojok Guru — Komunitas + Tentang ringkas | Belum | — |
+| 5D | Pojok Guru — blok `perangkatGuru` (4 kartu + panel statistik/CTA) | Selesai (belum cek browser) | 16 Sep 2026 |
+| 5E | Pojok Guru — Acara Terdekat (perluas blok `jadwalAcara`) | Selesai (belum cek browser) | 16 Sep 2026 |
+| 5F | Pojok Guru — Komunitas + Tentang ringkas | Selesai (belum cek browser) | 16 Sep 2026 |
 
 ## 4. Task per Halaman
 
@@ -197,8 +197,9 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 | Navbar | Menu utama baru **"Pojok Guru"** berisi dropdown (lihat 5A). |
 | Pencarian hero | **Opsi A: halaman pencarian lintas koleksi** `/pojok-guru/cari?q=` (4 koleksi Library). Route kode eksplisit `pojok-guru/cari/page.tsx` — menang atas `[...slug]`. |
 | "Mengapa Guru Memilih Perangkat Gernas?" | **Umum** — daftar poin diisi di blok, bukan per produk. |
-| Tombol "Gabung Sekarang" komunitas | **Belum diketahui tujuannya.** Field tautan opsional; tombol **disembunyikan bila tautan kosong**. |
-| Acara | Sumber tunggal koleksi `acara`. `/belajar-bersama` tetap tampil semua; `/pojok-guru` hanya acara mendatang. Tidak ada data ganda. |
+| Tombol "Gabung Sekarang" komunitas | Field tautan opsional; tombol disembunyikan bila kosong. **16 Sep 2026:** diisi sama dengan "Hubungi Kami" (`/mitra#hubungi`) dulu. |
+| Acara | Sumber tunggal koleksi `acara`. `/belajar-bersama` tetap tampil semua; `/pojok-guru` utamakan acara mendatang, **tetap tampil dengan acara terbaru bila tidak ada yang mendatang** (koreksi 16 Sep 2026). Tidak ada data ganda. |
+| Angka statistik | **16 Sep 2026:** angka mockup cuma contoh. Tampilkan jumlah materi nyata, dihitung otomatis (5D). Jumlah anggota komunitas tidak ditampilkan dulu (5F). |
 
 Pemetaan section mockup → blok:
 
@@ -257,28 +258,54 @@ EN). Sinkronkan `scripts/seed-pages.mts`.
 
 #### 5D — `perangkatGuru`
 
-- [ ] Blok: `judul`, `subjudul`, `kartu[]` (maks 4: `judul`, `deskripsi`, `warna` enum yang ada, `gambar` upload, `tautan` via `ctaField`/preset route katalog), `panel.statistik` (`statsArrayField()`, ikon per baris), `panel.cta` (`judul`, `isi`, `gambar`, `ctaField()` — "Hubungi Kami")
-- [ ] Layout: grid 2×2 kiri + panel navy kanan (desktop), tumpuk di mobile
-- [ ] Angka mockup (45.000+ / 200+ / 1000+) diisi sbg contoh — **tandai perlu dikonfirmasi tim konten**; "200+ Materi" bisa dibandingkan dgn jumlah dokumen nyata
+Keputusan user 16 Sep 2026: angka mockup (45.000+ Peserta Didik / 200+ Materi
+/ 1000+ Unduhan) memang contoh — **jangan dikarang**, tampilkan jumlah materi
+yang ada. Gambar kartu pakai yang sudah ada dulu, tapi bisa diganti dari
+dasbor. "Hubungi Kami" ke formulir kontak yang sudah ada.
+
+- [x] Blok `perangkatGuru` ("Perangkat Guru (4 katalog + panel angka)", `koleksi.ts` — datanya dari koleksi): `judul`, `subjudul`, `kartu[]` maks 4 (`katalog` select 4 katalog → tujuan tautan otomatis, `judul` opsional = nama katalog dari `labelKatalogGuru`, `deskripsi`, `warna` aksen dari `warnaOptions`, `gambar` upload opsional), `panel` (`statistik[]` maks 4, `judul`, `isi`, `gambar` opsional, `ctaField`)
+- [x] Angka panel **dihitung saat render**: `statistik.sumber` = jumlah 1 katalog / `semua` / `manual` (field `angka` hanya muncul utk manual). `payload.count` di `src/lib/perangkatGuru.ts` (`getJumlahKatalogGuru`). Tidak pakai `statsArrayField()` karena angkanya wajib diketik. Ikon baris dipilih otomatis dari sumber
+- [x] Gambar kartu kosong → sampul/thumbnail materi pertama katalognya (Urutan terkecil, `getGambarKatalogGuru`); ilustrasi panel kosong → `/ilustrasi/cs-bantuan.png` (sama dgn `CtaBantuanBanner`). Gambar dekoratif `alt=""` — judul kartu = teks tautan
+- [x] Komponen `src/components/library/PerangkatGuru.tsx`: grid kartu `sm:2 kolom` + panel navy kolom kanan di `lg` (`2fr_1fr`), tumpuk di bawahnya. Seluruh kartu = satu `<Link>`; angka dalam `<dl>`. Panel disembunyikan bila tanpa angka & tanpa ajakan. Ikon blok `public/blok/perangkatGuru.svg`
+- [x] Migrasi `20260915_172457_pojok_guru_perangkat` (12 tabel + 6 enum baru, aditif, sudah jalan)
+- [x] Isi lewat `seed:pojok-guru` (halaman masih 1 versi → dibuat ulang; cadangan di scratchpad): blok ini **menggantikan** `featureCards` sementara 5A. Kartu: Buku (navy), Alat Peraga (merah), Video (kuning), Media Interaktif (abu); deskripsi Buku & Alat Peraga dari mockup, Video & Media ditulis ulang (di mockup cuma salinan). Angka: Buku 79, Video 6, Media Interaktif 20 per 16 Sep 2026. **Alat Peraga sengaja tidak dimasukkan ke angka** (18 dokumennya dummy `[QA]`) — tambahkan barisnya dari dasbor setelah housekeeping §6. Opsi `semua` juga masih ikut menghitung dummy. Tombol "Hubungi Kami!" → `/mitra#hubungi`
+- [x] Diuji tanpa browser: `getPageBySlug` id & en (judul/CTA EN tersimpan), `getJumlahKatalogGuru` & `getGambarKatalogGuru` 4 katalog ke DB asli. `npx tsc --noEmit` bersih
+- [ ] Belum dicek di browser
+- Catatan: "1000+ Unduhan" tidak dibuat — Leads `unduhan-materi` per 16 Sep baru 1 baris. Bisa jadi opsi `sumber` baru nanti (migrasi enum)
 
 #### 5E — Acara Terdekat
 
-- [ ] Perluas `jadwalAcara`: field `tampilan` (`grid` default | `geser`), `deskripsi`, `tautanLihatSemua` (`ctaField` opsional). `geser` = baris kartu scroll horizontal (snap), pola panah konsisten dgn carousel yang ada
-- [ ] Di `/pojok-guru`: `tampilan: geser` + `sembunyikanSelesai: true` + "Lihat Semua Program" → `/belajar-bersama#jadwal-acara`
-- [ ] Keadaan kosong: per 15 Sep 2026 semua acara sudah lewat → section tampil apa? Putuskan: sembunyikan section, atau teks "Belum ada acara terdekat" + tautan ke jadwal lengkap (rekomendasi: yang kedua)
-- [ ] Migrasi aditif untuk field baru
+Keputusan user 16 Sep 2026: **walau tidak ada acara mendatang, section tetap
+tampil dengan acara terbaru** (yang sudah lewat) — bukan disembunyikan, bukan
+teks kosong.
+
+- [x] `jadwalAcara` diperluas: `deskripsi` (localized; di Grid jadi subjudul `Section`), `tampilan` (`grid` bawaan | `geser`), `tautanLihatSemua` (`ctaField`, hanya dipakai Geser). Deskripsi `batasAwal` & `sembunyikanSelesai` di dasbor diperjelas (centang + tak ada acara mendatang = bagian hilang)
+- [x] **Tidak perlu opsi urutan baru:** urutan bawaan `JadwalAcara.tsx` sudah "mendatang (terdekat dulu), lalu selesai (terbaru dulu)". Geser = `urut.slice(0, batasAwal)` tanpa tombol "Lihat Semua" → acara mendatang otomatis di depan, sisa tempat diisi acara terbaru. Status dihitung ulang di browser seperti sebelumnya
+- [x] Tampilan Geser (`DeretAcara` di `JadwalAcara.tsx`): kotak putih berbayang, kepala dari `RenderBlocks` (judul + deskripsi kiri, "Lihat Semua Program →" merah kanan), baris `<ul>` scroll-snap horizontal, kartu 260/280px **tanpa poster** (kotak warna kategori, sesuai mockup), panah ‹ › kanan bawah selebar satu kartu, nonaktif di ujung, disembunyikan bila tidak ada yang perlu digeser. `prefers-reduced-motion` → geser tanpa animasi. `<ul>` bisa difokus (`tabIndex=0`) supaya bisa digeser dengan keyboard. Penanda "Selesai"/"Akan Datang" & aturan tombol Daftar tetap sama
+- [x] Migrasi `20260915_173330_pojok_guru_acara` (ADD COLUMN + 2 enum, aditif, sudah jalan). `belajar-bersama` otomatis `tampilan: grid` — ID/EN diuji utuh
+- [x] `seed:pojok-guru` (halaman 1 versi → dibuat ulang; cadangan `backup-5e` di scratchpad): `callout` sementara 5A diganti `jadwalAcara` Geser — "Acara Terdekat"/"Upcoming Events", deskripsi mockup, 8 kartu, `sembunyikanSelesai: false`, tautan → `/belajar-bersama#jadwal-acara`. Per 16 Sep 2026 isinya 8 dari 11 acara, semuanya "Selesai"
+- [x] `npx tsc --noEmit` bersih; `getPageBySlug` pojok-guru & belajar-bersama id/en dicek
+- [ ] Belum dicek di browser
+- [ ] **Perlu dipertimbangkan tim konten:** judul "Acara Terdekat" berisi kartu berlabel "Selesai" selama belum ada acara baru. Judul bisa diubah dari dasbor (mis. "Acara Gernas") tanpa kode
 
 #### 5F — Komunitas + Tentang ringkas
 
-- [ ] Blok `komunitas`: `judul`, `subjudul`, `kartu[]` (maks 2: `nama`, `deskripsi`, `warna`, `ikon` dari `ikonOptions`, `ilustrasi` upload, `jumlahAnggota` teks mis. "300+ Pendidik", `tautanGabung` **opsional — tombol disembunyikan bila kosong**)
-- [ ] Tentang ringkas: cek blok yang ada; kalau tak cocok, `tentangRingkas` (`judul`, `isi`, `cta`, `fakta[]` maks 4: `ikon` + `teks`)
-- [ ] Isi konten ID+EN dari mockup; angka komunitas & aset ilustrasi → minta ke user/tim konten
+Keputusan user 16 Sep 2026: jumlah anggota **belum perlu**; tombol "Gabung
+Sekarang" **samakan dengan "Hubungi Kami"** dulu (`/mitra#hubungi`).
+
+- [x] Blok `komunitas` ("Kartu Komunitas", `konten.ts`): `judul`, `subjudul`, `kartu[]` 1–2 (`nama`, `deskripsi`, `warna` navy|merah, `ikon`, `ilustrasi` upload opsional, `cta` via `ctaField` — tombol hilang bila kosong). **Tanpa field jumlah anggota.** Komponen `src/components/Komunitas.tsx`: ikon bulat berwarna, tombol isi-penuh sewarna, ilustrasi pojok kanan bawah (disembunyikan < `sm`, `alt=""`)
+- [x] Tentang ringkas: `callout` tidak punya deret fakta, `statCounter` hanya angka → blok baru `tentangRingkas` ("Tentang Ringkas + Fakta", `konten.ts`): `judul`, `isi`, `cta`, `fakta[]` maks 4 (`ikon` + `teks`). Komponen `src/components/TentangRingkas.tsx`: kotak merah kiri + fakta 2 kolom (ponsel) / 4 kolom
+- [x] Ikon baru di `ikon.tsx`: `kalender`, `lokasi`, `sekolah`, `kolaborasi`. Pilihannya lewat `ikonLengkapOptions` (shared.ts) yang hanya dipakai 2 blok baru — enum & pilihan Kartu Kegiatan tidak berubah
+- [x] Migrasi `20260915_173930_pojok_guru_komunitas` (16 tabel + 6 enum, aditif, sudah jalan). Ikon blok `komunitas.svg`, `tentangRingkas.svg`
+- [x] `seed:pojok-guru` (1 versi → dibuat ulang; cadangan `backup-5f` di scratchpad): Komunitas Tastaka (navy, ikon komunitas) & Tastaba (merah, ikon buku), tombol "Gabung Sekarang!" → `/mitra#hubungi`, ilustrasi kosong. Deskripsi Tastaba disesuaikan jadi "literasi membaca" (mockup: "literasi dan numerasi", padahal Tastaba = membaca). Tentang: isi dari mockup, tombol → `/tentang-gernas-tastaka`
+- [x] **Fakta tidak diambil dari mockup:** "Berdiri sejak 2017" bertentangan dgn linimasa halaman Tentang (deklarasi **2018**); "ribuan sekolah" tidak ada datanya. Dipakai data situs: "Dideklarasikan tahun 2018", "Bersama 16.000+ pendidik", "Hadir di 21 provinsi" (Baris Statistik beranda/Tentang), "Didukung mitra dan relawan"
+- [x] `npx tsc --noEmit` bersih; `getPageBySlug` id/en → 7 blok, teks & tautan kedua bahasa tersimpan
+- [ ] Belum dicek di browser
 
 #### Masih terbuka (tanyakan saat sesi terkait, jangan dikarang)
 
-- Tujuan tombol "Gabung Sekarang" Komunitas Tastaka/Tastaba (5F)
-- Sumber angka "300+ / 200+ Pendidik" komunitas & statistik 45.000+/200+/1000+ (5D, 5F)
-- Aset gambar: latar hero, ilustrasi kartu perangkat, ilustrasi komunitas, ilustrasi CS (5B–5F)
+- Aset gambar: latar hero, ilustrasi kartu perangkat, ilustrasi komunitas (5B–5F) — sementara pakai yang ada/kosong, bisa diganti dari dasbor
+- Tahun berdiri: mockup 2017 vs linimasa 2018 — konfirmasi tim konten; Pojok Guru memakai 2018
 - Posisi menu "Pojok Guru" di navbar & apakah diberi gaya menonjol (5A)
 
 ---
@@ -1265,4 +1292,62 @@ butuh data dummy lagi.
   **Posisi terakhir:** 5A–5C selesai (belum dicek visual di browser). Poin
   alasan "cetak & digital" / "harga terjangkau" menunggu konfirmasi tim konten.
   Berikutnya **5D** — blok `perangkatGuru`.
+
+- **16 Sep 2026** — Sesi 5D Pojok Guru selesai: blok Perangkat Guru
+  (`perangkatGuru`) sesuai mockup "Perangkat Pembelajaran untuk Guru" + panel
+  navy. Rincian di checklist 5D §4.5. Sebelum mulai, user menjawab pertanyaan
+  terbuka 5D–5F (dicatat di §4.5.0 dan kepala tiap sesi).
+  File baru: `src/lib/perangkatGuru.ts`, `library/PerangkatGuru.tsx`, ikon
+  blok, migrasi `20260915_172457_pojok_guru_perangkat`. Diubah: `koleksi.ts`,
+  `blocks/index.ts`, `RenderBlocks.tsx`, `payload-types.ts`,
+  `seed-pojok-guru.mts` (syarat buat ulang kini "belum ada blok
+  `perangkatGuru` & masih 1 versi"; `featureCards` sementara diganti).
+  `npx tsc --noEmit` bersih.
+
+  Keputusan di tempat: angka panel dihitung dari koleksi, bukan diketik (tidak
+  pernah basi, sesuai "jangan dikarang"); kartu memilih katalog, bukan tautan
+  bebas, supaya tujuan, nama bawaan, dan gambar bawaan selalu cocok; baris
+  angka Alat Peraga tidak diisi selama isinya dummy `[QA]`.
+
+  **Posisi terakhir:** 5A–5D selesai (belum dicek visual di browser, belum
+  commit). Berikutnya **5E** — Acara Terdekat dengan isian acara terbaru saat
+  tidak ada yang mendatang.
+
+- **16 Sep 2026** — Sesi 5E Pojok Guru selesai: blok Jadwal Acara punya
+  tampilan Geser untuk "Acara Terdekat". Rincian di checklist 5E §4.5.
+  Migrasi `20260915_173330_pojok_guru_acara`. Diubah: `koleksi.ts`,
+  `JadwalAcara.tsx` (+ `DeretAcara`, prop `ringkas` di kartu),
+  `RenderBlocks.tsx`, `payload-types.ts`, `seed-pojok-guru.mts` (syarat buat
+  ulang kini "belum ada blok `jadwalAcara` & masih 1 versi"; `callout`
+  sementara diganti). `npx tsc --noEmit` bersih.
+
+  Keputusan di tempat: tidak menambah opsi urutan — urutan yang ada sudah
+  memenuhi keputusan user; Geser tanpa poster (mockup memakai kartu ringkas,
+  poster 4:5 membuat baris terlalu tinggi); tautan "Lihat semua" hanya untuk
+  Geser, Grid tetap memakai tombol buka-tutupnya.
+
+  **Posisi terakhir:** 5A–5E selesai (belum dicek visual, belum commit).
+  Berikutnya **5F** — Komunitas + Tentang ringkas; tombol Gabung →
+  `/mitra#hubungi`, tanpa jumlah anggota.
+
+- **16 Sep 2026** — Sesi 5F Pojok Guru selesai: blok Kartu Komunitas
+  (`komunitas`) dan Tentang Ringkas + Fakta (`tentangRingkas`). Rincian di
+  checklist 5F §4.5. File baru: `Komunitas.tsx`, `TentangRingkas.tsx`, 2 ikon
+  blok, migrasi `20260915_173930_pojok_guru_komunitas`. Diubah: `konten.ts`,
+  `shared.ts` (`ikonLengkapOptions`), `ikon.tsx` (+4 ikon), `blocks/index.ts`,
+  `RenderBlocks.tsx`, `payload-types.ts`, `seed-pojok-guru.mts`. `npx tsc
+  --noEmit` bersih.
+
+  Keputusan di tempat: fakta Tentang memakai data situs, bukan mockup (tahun
+  2017 vs 2018 di linimasa); daftar ikon diperluas tanpa menyentuh enum Kartu
+  Kegiatan; komunitas tanpa field jumlah anggota sama sekali (bukan field
+  kosong) supaya staf tidak tergoda mengisi angka tanpa sumber.
+
+  5D–5F di-commit & di-push ke `preview` bersama dalam satu commit.
+
+  **Posisi terakhir:** §4.5 Pojok Guru 5A–5F **selesai secara kode**, belum
+  ada satu pun yang dicek visual di browser. Sisa: cek browser (terutama
+  navbar `lg`, deret acara, panel navy), konfirmasi tim konten (poin alasan
+  cetak/harga, tahun berdiri, judul "Acara Terdekat" saat semua acara lewat),
+  aset ilustrasi, housekeeping dummy `[QA]` Alat Peraga (§6).
 
