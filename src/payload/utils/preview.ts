@@ -1,4 +1,5 @@
 import { publicPath, type PreviewableCollection } from "@/lib/routes";
+import { getServerUrl } from "@/lib/env";
 
 /**
  * URL yang dipakai dasbor untuk membuka pratinjau — baik di dalam iframe Live
@@ -27,7 +28,7 @@ export function previewURL({
   });
 
   // Absolut, karena nilainya dipakai sebagai `src` iframe.
-  const base = process.env.NEXT_PUBLIC_SERVER_URL ?? "";
+  const base = getServerUrl();
   return `${base}/next/preview?${params.toString()}`;
 }
 

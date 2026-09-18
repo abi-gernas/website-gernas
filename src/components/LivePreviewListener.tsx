@@ -3,6 +3,7 @@
 import { RefreshRouteOnSave } from "@payloadcms/live-preview-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { getServerUrl } from "@/lib/env";
 
 /**
  * Menyegarkan halaman setiap kali staf menyimpan dokumen di dasbor.
@@ -46,7 +47,7 @@ export function LivePreviewListener() {
   return (
     <RefreshRouteOnSave
       refresh={refresh}
-      serverURL={process.env.NEXT_PUBLIC_SERVER_URL ?? ""}
+      serverURL={getServerUrl()}
     />
   );
 }

@@ -29,6 +29,7 @@ import { Leads } from "./payload/collections/Leads";
 import { Ulasan } from "./payload/collections/Ulasan";
 import { SiteSettings } from "./payload/globals/SiteSettings";
 import { Navigation } from "./payload/globals/Navigation";
+import { getServerUrl } from "./lib/env";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -46,7 +47,7 @@ const supabaseRef = process.env.S3_ENDPOINT?.match(/https:\/\/([^.]+)\./)?.[1] ?
 const supabasePublicBase = `https://${supabaseRef}.supabase.co/storage/v1/object/public/${process.env.S3_BUCKET}`;
 
 export default buildConfig({
-  serverURL: process.env.NEXT_PUBLIC_SERVER_URL,
+  serverURL: getServerUrl(),
 
   admin: {
     user: Users.slug,
