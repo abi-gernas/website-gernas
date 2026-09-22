@@ -1,7 +1,6 @@
 import "server-only";
 import { cache } from "react";
 import { DEFAULT_LOCALE, type Locale } from "./i18n";
-import { getAlatPeragaList, type AlatPeragaView } from "./alatPeraga";
 import { getMediaInteraktifList, type MediaInteraktifView } from "./mediaInteraktif";
 import { getPageBySlug } from "./pages";
 import { getProdukList, type ProdukView } from "./produk";
@@ -9,7 +8,7 @@ import { POJOK_GURU_SLUG } from "./routes";
 import { getVideoPembelajaranList, type VideoPembelajaranView } from "./videoPembelajaran";
 
 /**
- * Pencarian lintas 4 katalog Library untuk `/pojok-guru/cari` — sesi 5B di
+ * Pencarian lintas 3 katalog Library untuk `/pojok-guru/cari` — sesi 5B di
  * `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §4.5.
  *
  * Sengaja memanggil fungsi daftar milik tiap katalog apa adanya (halaman 1),
@@ -23,7 +22,6 @@ export type HasilKatalog<T> = { docs: T[]; totalDocs: number };
 
 export type HasilPencarianGuru = {
   produk: HasilKatalog<ProdukView>;
-  alatPeraga: HasilKatalog<AlatPeragaView>;
   videoPembelajaran: HasilKatalog<VideoPembelajaranView>;
   mediaInteraktif: HasilKatalog<MediaInteraktifView>;
   total: number;
@@ -37,20 +35,18 @@ export const cariPerangkatGuru = cache(async function cariPerangkatGuru(
   q: string,
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<HasilPencarianGuru> {
-  const [produk, alatPeraga, videoPembelajaran, mediaInteraktif] = await Promise.all([
+  const [produk, videoPembelajaran, mediaInteraktif] = await Promise.all([
     getProdukList({ q, locale }),
-    getAlatPeragaList({ q, locale }),
     getVideoPembelajaranList({ q, locale }),
     getMediaInteraktifList({ q, locale }),
   ]);
 
   return {
     produk: ringkas(produk),
-    alatPeraga: ringkas(alatPeraga),
     videoPembelajaran: ringkas(videoPembelajaran),
     mediaInteraktif: ringkas(mediaInteraktif),
     total:
-      produk.totalDocs + alatPeraga.totalDocs + videoPembelajaran.totalDocs + mediaInteraktif.totalDocs,
+      produk.totalDocs + videoPembelajaran.totalDocs + mediaInteraktif.totalDocs,
   };
 });
 

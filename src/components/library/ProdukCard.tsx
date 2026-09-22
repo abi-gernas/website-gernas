@@ -2,14 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Locale } from "@/lib/i18n";
 import { JENJANG_LABELS, MAPEL_LABELS } from "@/lib/library";
-import { TOPIK_PRODUK_LABELS, formatHarga, formatLabelPendek, type ProdukView } from "@/lib/produk";
+import { KATEGORI_PRODUK_LABELS, TOPIK_PRODUK_LABELS, formatHarga, formatLabelPendek, type ProdukView } from "@/lib/produk";
 import { produkPath } from "@/lib/routes";
 
 /**
  * Kartu katalog Buku, Bahan Ajar & Modul.
  *
- * Sampul dipasang `object-contain` (bukan `object-cover` seperti
- * `AlatPeragaCard`): isinya mockup buku tegak yang kalau dipangkas jadi
+ * Sampul dipasang `object-contain`: isinya mockup buku tegak yang kalau dipangkas jadi
  * terpotong judulnya.
  */
 export function ProdukCard({ item, locale = "id" }: { item: ProdukView; locale?: Locale }) {
@@ -63,18 +62,27 @@ export function ProdukCard({ item, locale = "id" }: { item: ProdukView; locale?:
           </div>
         )}
 
+        {/* Alat peraga cuma dipamerkan: jenisnya menggantikan format & harga. */}
         <div className="mt-4 flex items-end justify-between gap-3 pt-1">
-          <span className="text-sm font-bold text-brand-navy">
-            {formatLabelPendek(item.format, locale)}
-          </span>
-          {item.status === "gratis" ? (
-            <span className="text-sm font-bold text-emerald-600">{t.gratis}</span>
+          {item.kategoriProduk === "alat-peraga" ? (
+            <span className="text-sm font-bold text-brand-navy">
+              {KATEGORI_PRODUK_LABELS["alat-peraga"][locale]}
+            </span>
           ) : (
-            item.harga != null && (
-              <span className="text-sm font-bold text-brand-red">
-                {formatHarga(item.harga, locale)}
+            <>
+              <span className="text-sm font-bold text-brand-navy">
+                {formatLabelPendek(item.format, locale)}
               </span>
-            )
+              {item.status === "gratis" ? (
+                <span className="text-sm font-bold text-emerald-600">{t.gratis}</span>
+              ) : (
+                item.harga != null && (
+                  <span className="text-sm font-bold text-brand-red">
+                    {formatHarga(item.harga, locale)}
+                  </span>
+                )
+              )}
+            </>
           )}
         </div>
 

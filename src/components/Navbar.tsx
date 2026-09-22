@@ -34,7 +34,7 @@ function Chevron({ open }: { open?: boolean }) {
 
 /**
  * Benar bila `href` menunjuk halaman yang sedang dibuka (atau halaman di
- * bawahnya, mis. `/alat-peraga/slug` untuk `/alat-peraga`).
+ * bawahnya, mis. `/video-pembelajaran/slug` untuk `/video-pembelajaran`).
  *
  * Tautan beranda (`/`, `/en`) hanya cocok persis — kalau tidak, semua halaman
  * dianggap "di bawah" beranda. Tautan ber-anchor (`/mitra#hubungi`) diabaikan:

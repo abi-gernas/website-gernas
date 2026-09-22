@@ -68,11 +68,13 @@ export async function ProdukDetailContent({
   if (!item) notFound();
 
   const ulasan = await getUlasanByProduk(item.id);
+  // Alat peraga cuma dipamerkan: tanpa harga, format, maupun tombol unduh/beli.
+  const alatPeraga = item.kategoriProduk === "alat-peraga";
 
   // CTA donasi memakai tombol yang sama dengan navbar/footer (diatur staf di
   // global Navigasi), bukan tautan donasi terpisah — supaya kalau alamat
   // donasinya pindah, cukup diubah di satu tempat.
-  const donasi = item.status === "gratis" ? await getCtaButton(locale) : null;
+  const donasi = !alatPeraga && item.status === "gratis" ? await getCtaButton(locale) : null;
 
   // Alamat lengkap untuk tombol berbagi. `NEXT_PUBLIC_SERVER_URL` dipakai
   // (bukan `window.location` di klien) supaya tautan yang dibagikan tetap
@@ -142,41 +144,45 @@ export async function ProdukDetailContent({
                 </div>
               )}
 
-              <p className="mt-5 text-xl font-bold">
-                {item.status === "gratis" ? (
-                  <span className="text-emerald-600">{t.gratis}</span>
-                ) : (
-                  item.harga != null && (
-                    <span className="text-brand-red">{formatHarga(item.harga, locale)}</span>
-                  )
-                )}
-              </p>
+              {!alatPeraga && (
+                <>
+                  <p className="mt-5 text-xl font-bold">
+                    {item.status === "gratis" ? (
+                      <span className="text-emerald-600">{t.gratis}</span>
+                    ) : (
+                      item.harga != null && (
+                        <span className="text-brand-red">{formatHarga(item.harga, locale)}</span>
+                      )
+                    )}
+                  </p>
 
-              {item.format.length > 0 && (
-                <p className="mt-2 text-sm text-muted">
-                  {t.format}: {item.format.map((f) => FORMAT_LABELS[f][locale]).join(" · ")}
-                </p>
+                  {item.format.length > 0 && (
+                    <p className="mt-2 text-sm text-muted">
+                      {t.format}: {item.format.map((f) => FORMAT_LABELS[f][locale]).join(" · ")}
+                    </p>
+                  )}
+
+                  <div className="mt-6">
+                    {item.status === "berbayar" ? (
+                      <>
+                        <Link href={localizedPath("/mitra", locale)} className="btn-yellow">
+                          {t.beli}
+                        </Link>
+                        <p className="mt-2 text-xs text-muted">{t.catatanBeli}</p>
+                      </>
+                    ) : (
+                      <UnduhMateriGate
+                        slug={item.slug}
+                        judul={item.judul}
+                        punyaTautan={item.punyaTautan}
+                        urlHalaman={urlHalaman}
+                        donasi={donasi}
+                        locale={locale}
+                      />
+                    )}
+                  </div>
+                </>
               )}
-
-              <div className="mt-6">
-                {item.status === "berbayar" ? (
-                  <>
-                    <Link href={localizedPath("/mitra", locale)} className="btn-yellow">
-                      {t.beli}
-                    </Link>
-                    <p className="mt-2 text-xs text-muted">{t.catatanBeli}</p>
-                  </>
-                ) : (
-                  <UnduhMateriGate
-                    slug={item.slug}
-                    judul={item.judul}
-                    punyaTautan={item.punyaTautan}
-                    urlHalaman={urlHalaman}
-                    donasi={donasi}
-                    locale={locale}
-                  />
-                )}
-              </div>
             </div>
           </div>
         </div>

@@ -36,6 +36,13 @@ const jalur: Record<KategoriProduk, React.ReactNode> = {
       <path d="M14.5 9h2M14.5 14.5h2" />
     </>
   ),
+  "alat-peraga": (
+    <>
+      <path d="M12 3 7.5 10.5h9z" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1" />
+      <circle cx="17" cy="17" r="3.5" />
+    </>
+  ),
 };
 
 export function IkonKategoriProduk({

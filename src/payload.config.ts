@@ -22,7 +22,6 @@ import { Video } from "./payload/collections/Video";
 import { ModulPelatihan } from "./payload/collections/ModulPelatihan";
 import { Acara } from "./payload/collections/Acara";
 import { Produk } from "./payload/collections/Produk";
-import { AlatPeraga } from "./payload/collections/AlatPeraga";
 import { VideoPembelajaran } from "./payload/collections/VideoPembelajaran";
 import { MediaInteraktif } from "./payload/collections/MediaInteraktif";
 import { Leads } from "./payload/collections/Leads";
@@ -94,7 +93,6 @@ export default buildConfig({
     ModulPelatihan,
     Acara,
     Produk,
-    AlatPeraga,
     VideoPembelajaran,
     MediaInteraktif,
     Leads,

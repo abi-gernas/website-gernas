@@ -6,15 +6,14 @@ import { LIBRARY_PAGE_SIZE, buildLibraryWhere } from "./library";
 import type { Produk as PayloadProduk, Media } from "@/payload-types";
 
 /**
- * Akses koleksi Buku, Bahan Ajar & Modul lewat Local API — pola sama
- * `alatPeraga.ts`. Koleksi ini punya `jenjang`/`mapel` seperti Alat Peraga
- * (jadi tetap pakai `buildLibraryWhere`) plus satu filter tambahan
+ * Akses koleksi Buku, Bahan Ajar & Modul lewat Local API. Koleksi ini punya `jenjang`/`mapel`
+ * (jadi pakai `buildLibraryWhere`) plus satu filter tambahan
  * `kategoriProduk`, lihat `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §2.2.
  */
 
 export type KategoriProduk = PayloadProduk["kategoriProduk"];
 export type TopikProduk = PayloadProduk["topik"];
-export type FormatProduk = PayloadProduk["format"][number];
+export type FormatProduk = NonNullable<PayloadProduk["format"]>[number];
 
 export type ProdukView = {
   id: string;
@@ -51,6 +50,7 @@ export const KATEGORI_PRODUK_LABELS: Record<KategoriProduk, { id: string; en: st
   buku: { id: "Buku", en: "Books" },
   "bahan-ajar": { id: "Bahan Ajar", en: "Teaching Materials" },
   lks: { id: "LKS/Worksheet", en: "Worksheets" },
+  "alat-peraga": { id: "Alat Peraga", en: "Teaching Aids" },
 };
 
 /**
@@ -109,7 +109,7 @@ function toView(doc: PayloadProduk): ProdukView {
     penulis: doc.penulis ?? null,
     fiturUnggulan: (doc.fiturUnggulan ?? []).map((f) => f.teks),
     format: doc.format ?? [],
-    status: doc.status,
+    status: doc.status ?? "gratis",
     harga: doc.harga ?? null,
     punyaTautan: Boolean(doc.tautanDrive),
   };
@@ -187,6 +187,8 @@ export const getProdukTerbaru = cache(async function getProdukTerbaru(
     depth: 1,
     limit: 1,
     sort: "urutan",
+    // Bagian ini berisi tombol unduh/beli, jadi alat peraga (cuma dipamerkan) dilewati.
+    where: { kategoriProduk: { not_equals: "alat-peraga" } },
     locale,
     fallbackLocale: DEFAULT_LOCALE,
   });

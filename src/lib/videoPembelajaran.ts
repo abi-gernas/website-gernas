@@ -5,7 +5,7 @@ import { DEFAULT_LOCALE, type Locale } from "./i18n";
 import { LIBRARY_PAGE_SIZE, buildLibraryWhere } from "./library";
 import type { VideoPembelajaran as PayloadVideoPembelajaran, Media } from "@/payload-types";
 
-/** Akses koleksi Video Pembelajaran lewat Local API — lihat pola yang sama di `alatPeraga.ts`. */
+/** Akses koleksi Video Pembelajaran lewat Local API — lihat pola yang sama di `produk.ts`. */
 
 export type VideoPembelajaranView = {
   id: string;
@@ -151,7 +151,7 @@ export async function getVideoPembelajaranSlugs(): Promise<string[]> {
 
 /**
  * Video sematan (urutan terkecil) untuk korsel "Video Pilihan" di hero.
- * Pola yang sama dengan `getAlatPeragaSematan()`/`getProdukTerbaru()`: mockup
+ * Pola yang sama dengan `getProdukTerbaru()`: mockup
  * memperlihatkan deretan video pilihan di atas daftar, dan staf menentukan
  * isinya lewat kolom Urutan — belum ada field "unggulan" tersendiri.
  */

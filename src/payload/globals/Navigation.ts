@@ -19,7 +19,6 @@ const RUTE_TETAP = [
   { label: "Publikasi", value: "/publikasi" },
   { label: "Pojok Guru", value: "/pojok-guru" },
   { label: "Buku, Bahan Ajar & Modul", value: "/buku-bahan-ajar-modul" },
-  { label: "Alat Peraga", value: "/alat-peraga" },
   { label: "Video Pembelajaran", value: "/video-pembelajaran" },
   { label: "Media Interaktif", value: "/media-interaktif" },
   { label: "Jadwal Acara", value: "/belajar-bersama#jadwal-acara" },

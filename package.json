@@ -20,7 +20,6 @@
     "seed:datasitus": "tsx scripts/seed-datasitus.mts",
     "seed:pages": "tsx scripts/seed-pages.mts",
     "seed:navigation": "tsx scripts/seed-navigation.mts",
-    "seed:library-dummy": "tsx scripts/seed-library-dummy.mts",
     "drive:fetch": "tsx scripts/fetch-drive-konten.mts",
     "seed:produk-drive": "tsx scripts/seed-produk-drive.mts",
     "seed:media-interaktif-vm": "tsx scripts/seed-media-interaktif-vm.mts",

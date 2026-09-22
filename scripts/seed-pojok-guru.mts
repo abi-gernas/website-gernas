@@ -266,14 +266,6 @@ if (!perluDibuat) {
               ),
             },
             {
-              katalog: "alatPeraga",
-              warna: "merah",
-              deskripsi: L(
-                "Media berbentuk alat untuk memahami konsep dengan lebih konkret.",
-                "Hands-on tools that make concepts more concrete.",
-              ),
-            },
-            {
               katalog: "videoPembelajaran",
               warna: "kuning",
               deskripsi: L(
@@ -434,7 +426,6 @@ if (semuaTujuan.includes("/pojok-guru")) {
     children: [
       anak(L("Beranda Pojok Guru", "Teacher's Corner Home"), "/pojok-guru", L("Semua perangkat belajar untuk guru", "All teaching resources in one place")),
       anak(L("Buku, Bahan Ajar & Modul", "Books, Teaching Materials & Modules"), "/buku-bahan-ajar-modul", L("Materi ajar siap unduh", "Downloadable teaching materials")),
-      anak(L("Alat Peraga", "Teaching Aids"), "/alat-peraga", L("Alat bantu konsep di kelas", "Hands-on classroom aids")),
       anak(L("Video Pembelajaran", "Learning Videos"), "/video-pembelajaran", L("Video aktivitas mengajar", "Classroom activity videos")),
       anak(L("Media Interaktif", "Interactive Media"), "/media-interaktif", L("Latihan numerasi digital", "Digital numeracy activities")),
       anak(L("Jadwal Acara", "Event Schedule"), "/belajar-bersama#jadwal-acara", L("Webinar, pelatihan & klub buku", "Webinars, training & book clubs")),

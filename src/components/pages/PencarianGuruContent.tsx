@@ -4,13 +4,11 @@ import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 import { parseQueryParam, type LibrarySearchParams } from "@/lib/library";
 import { cariPerangkatGuru, getTagPopulerPojokGuru } from "@/lib/pencarianGuru";
 import {
-  alatPeragaListPath,
   mediaInteraktifListPath,
   pojokGuruCariPath,
   produkListPath,
   videoPembelajaranListPath,
 } from "@/lib/routes";
-import { AlatPeragaCard } from "@/components/library/AlatPeragaCard";
 import { Breadcrumb, labelKatalogGuru } from "@/components/library/Breadcrumb";
 import { CtaBantuanBanner } from "@/components/library/CtaBantuanBanner";
 import { LibrarySearchBar } from "@/components/library/LibrarySearchBar";
@@ -24,7 +22,7 @@ const text = {
     judulHasil: (q: string) => `Hasil pencarian “${q}”`,
     remah: "Pencarian",
     deskripsi:
-      "Cari sekaligus di buku & bahan ajar, alat peraga, video pembelajaran, dan media interaktif.",
+      "Cari sekaligus di buku, bahan ajar & alat peraga, video pembelajaran, dan media interaktif.",
     placeholder: "Cari materi, topik, kelas, atau kata kunci…",
     ringkasan: (total: number, katalog: number) =>
       `${total} materi ditemukan di ${katalog} katalog.`,
@@ -102,7 +100,6 @@ export async function PencarianGuruContent({
 
   const katalog = [
     { label: labelKatalogGuru.produk[locale], href: produkListPath(locale) },
-    { label: labelKatalogGuru.alatPeraga[locale], href: alatPeragaListPath(locale) },
     { label: labelKatalogGuru.videoPembelajaran[locale], href: videoPembelajaranListPath(locale) },
     { label: labelKatalogGuru.mediaInteraktif[locale], href: mediaInteraktifListPath(locale) },
   ];
@@ -120,20 +117,10 @@ export async function PencarianGuruContent({
             .map((item) => <ProdukCard key={item.id} item={item} locale={locale} />),
         },
         {
-          anchor: "hasil-alat-peraga",
-          label: katalog[1].label,
-          total: hasil.alatPeraga.totalDocs,
-          katalogHref: katalog[1].href,
-          grid: "sm:grid-cols-2 lg:grid-cols-3",
-          kartu: hasil.alatPeraga.docs
-            .slice(0, TAMPIL_3)
-            .map((item) => <AlatPeragaCard key={item.id} item={item} locale={locale} />),
-        },
-        {
           anchor: "hasil-video",
-          label: katalog[2].label,
+          label: katalog[1].label,
           total: hasil.videoPembelajaran.totalDocs,
-          katalogHref: katalog[2].href,
+          katalogHref: katalog[1].href,
           grid: "sm:grid-cols-2 lg:grid-cols-3",
           kartu: hasil.videoPembelajaran.docs
             .slice(0, TAMPIL_3)
@@ -141,9 +128,9 @@ export async function PencarianGuruContent({
         },
         {
           anchor: "hasil-media-interaktif",
-          label: katalog[3].label,
+          label: katalog[2].label,
           total: hasil.mediaInteraktif.totalDocs,
-          katalogHref: katalog[3].href,
+          katalogHref: katalog[2].href,
           grid: "sm:grid-cols-2 lg:grid-cols-4",
           kartu: hasil.mediaInteraktif.docs
             .slice(0, TAMPIL_4)

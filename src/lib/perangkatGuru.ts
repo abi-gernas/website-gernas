@@ -4,7 +4,6 @@ import { payloadPromise } from "./payload";
 import { mediaURL } from "./datasitus";
 import type { Locale } from "./i18n";
 import {
-  alatPeragaListPath,
   mediaInteraktifListPath,
   produkListPath,
   videoPembelajaranListPath,
@@ -18,20 +17,18 @@ import {
  * blok itu (`src/payload/blocks/koleksi.ts`) dan dengan `labelKatalogGuru` di
  * `Breadcrumb.tsx`.
  */
-export type KatalogGuru = "produk" | "alatPeraga" | "videoPembelajaran" | "mediaInteraktif";
+export type KatalogGuru = "produk" | "videoPembelajaran" | "mediaInteraktif";
 
-export const KATALOG_GURU: KatalogGuru[] = ["produk", "alatPeraga", "videoPembelajaran", "mediaInteraktif"];
+export const KATALOG_GURU: KatalogGuru[] = ["produk", "videoPembelajaran", "mediaInteraktif"];
 
 const koleksi = {
   produk: { slug: "produk", gambar: "cover" },
-  alatPeraga: { slug: "alat-peraga", gambar: "cover" },
   videoPembelajaran: { slug: "video-pembelajaran", gambar: "thumbnail" },
   mediaInteraktif: { slug: "media-interaktif", gambar: "thumbnail" },
 } as const;
 
 const alamat: Record<KatalogGuru, (locale: Locale) => string> = {
   produk: produkListPath,
-  alatPeraga: alatPeragaListPath,
   videoPembelajaran: videoPembelajaranListPath,
   mediaInteraktif: mediaInteraktifListPath,
 };

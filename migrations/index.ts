@@ -31,6 +31,7 @@ import * as migration_20260915_170426_pojok_guru_intro_produk from './20260915_1
 import * as migration_20260915_172457_pojok_guru_perangkat from './20260915_172457_pojok_guru_perangkat';
 import * as migration_20260915_173330_pojok_guru_acara from './20260915_173330_pojok_guru_acara';
 import * as migration_20260915_173930_pojok_guru_komunitas from './20260915_173930_pojok_guru_komunitas';
+import * as migration_20260922_085826_hapus_alat_peraga from './20260922_085826_hapus_alat_peraga';
 
 export const migrations = [
   {
@@ -196,6 +197,11 @@ export const migrations = [
   {
     up: migration_20260915_173930_pojok_guru_komunitas.up,
     down: migration_20260915_173930_pojok_guru_komunitas.down,
-    name: '20260915_173930_pojok_guru_komunitas'
+    name: '20260915_173930_pojok_guru_komunitas',
+  },
+  {
+    up: migration_20260922_085826_hapus_alat_peraga.up,
+    down: migration_20260922_085826_hapus_alat_peraga.down,
+    name: '20260922_085826_hapus_alat_peraga'
   },
 ];

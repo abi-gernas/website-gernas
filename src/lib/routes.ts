@@ -52,16 +52,6 @@ export function articlePath(slug: string, locale?: Locale): string {
   return locale ? localizedPath(path, locale) : path;
 }
 
-/** Alamat publik daftar/detail Alat Peraga — lihat `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §2.1. */
-export function alatPeragaListPath(locale?: Locale): string {
-  return locale ? localizedPath("/alat-peraga", locale) : "/alat-peraga";
-}
-
-export function alatPeragaPath(slug: string, locale?: Locale): string {
-  const path = `/alat-peraga/${slug}`;
-  return locale ? localizedPath(path, locale) : path;
-}
-
 /** Alamat publik daftar Media Digital Interaktif — tidak ada halaman detail, kartunya langsung ke tautan eksternal. */
 export function mediaInteraktifListPath(locale?: Locale): string {
   return locale ? localizedPath("/media-interaktif", locale) : "/media-interaktif";

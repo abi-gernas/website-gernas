@@ -77,7 +77,6 @@ export interface Config {
     'modul-pelatihan': ModulPelatihan;
     acara: Acara;
     produk: Produk;
-    'alat-peraga': AlatPeraga;
     'video-pembelajaran': VideoPembelajaran;
     'media-interaktif': MediaInteraktif;
     leads: Lead;
@@ -101,7 +100,6 @@ export interface Config {
     'modul-pelatihan': ModulPelatihanSelect<false> | ModulPelatihanSelect<true>;
     acara: AcaraSelect<false> | AcaraSelect<true>;
     produk: ProdukSelect<false> | ProdukSelect<true>;
-    'alat-peraga': AlatPeragaSelect<false> | AlatPeragaSelect<true>;
     'video-pembelajaran': VideoPembelajaranSelect<false> | VideoPembelajaranSelect<true>;
     'media-interaktif': MediaInteraktifSelect<false> | MediaInteraktifSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
@@ -834,7 +832,7 @@ export interface Page {
              */
             kartu?:
               | {
-                  katalog: 'produk' | 'alatPeraga' | 'videoPembelajaran' | 'mediaInteraktif';
+                  katalog: 'produk' | 'videoPembelajaran' | 'mediaInteraktif';
                   /**
                    * Kosongkan untuk memakai nama katalog.
                    */
@@ -860,7 +858,7 @@ export interface Page {
                     /**
                      * Jumlah katalog dihitung otomatis dari isi koleksinya setiap halaman dibuka.
                      */
-                    sumber: 'produk' | 'alatPeraga' | 'videoPembelajaran' | 'mediaInteraktif' | 'semua' | 'manual';
+                    sumber: 'produk' | 'videoPembelajaran' | 'mediaInteraktif' | 'semua' | 'manual';
                     /**
                      * Angka saja, tanpa titik/koma. Mis. 1000
                      */
@@ -1124,7 +1122,7 @@ export interface Category {
   createdAt: string;
 }
 /**
- * Katalog Buku, Bahan Ajar & Modul. Materi gratis diunduh lewat tautan Google Drive (perlu form isi data pengunjung dulu — lihat koleksi Pesan Masuk); materi berbayar masih menunggu keputusan mekanisme pembayaran (lihat PRD Fase 2 v1.2, OI-105).
+ * Katalog Buku, Bahan Ajar & Modul, termasuk Alat Peraga (Jenis materi = Alat Peraga, tanpa unduhan). Materi gratis diunduh lewat tautan Google Drive (perlu form isi data pengunjung dulu — lihat koleksi Pesan Masuk); materi berbayar masih menunggu keputusan mekanisme pembayaran (lihat PRD Fase 2 v1.2, OI-105).
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "produk".
@@ -1137,9 +1135,9 @@ export interface Produk {
    */
   slug: string;
   /**
-   * Bentuk materinya. Tidak dipakai kartu kategori di halaman katalog — itu memakai field Topik di bawah.
+   * Bentuk materinya. Alat Peraga = benda fisik yang cuma dipamerkan: harga, format, dan tautan unduhan disembunyikan. Tidak dipakai kartu kategori di halaman katalog — itu memakai field Topik di bawah.
    */
-  kategoriProduk: 'modul' | 'buku' | 'bahan-ajar' | 'lks';
+  kategoriProduk: 'modul' | 'buku' | 'bahan-ajar' | 'lks' | 'alat-peraga';
   /**
    * Menentukan kartu kategori mana di halaman katalog yang memuat produk ini. Nilainya mengikuti nama folder di Google Drive “Konten” — kalau menambah opsi di sini, tambahkan juga pemetaannya di scripts/fetch-drive-konten.mts.
    */
@@ -1167,8 +1165,8 @@ export interface Produk {
         id?: string | null;
       }[]
     | null;
-  format: ('pdf' | 'cetak')[];
-  status: 'gratis' | 'berbayar';
+  format?: ('pdf' | 'cetak')[] | null;
+  status?: ('gratis' | 'berbayar') | null;
   /**
    * Wajib diisi bila status Berbayar.
    */
@@ -1442,52 +1440,6 @@ export interface Acara {
   createdAt: string;
 }
 /**
- * Katalog Alat Peraga. Tanpa unduhan atau pembelian online — cuma halaman detail informasi produk.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "alat-peraga".
- */
-export interface AlatPeraga {
-  id: number;
-  judul: string;
-  /**
-   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
-   */
-  slug: string;
-  /**
-   * Teks kecil di bawah judul kartu, mis. “untuk SD Kelas 1–3”.
-   */
-  subjudul?: string | null;
-  jenjang: ('paud' | 'tk' | 'sd' | 'smp' | 'sma')[];
-  mapel: ('matematika' | 'membaca')[];
-  cover: number | Media;
-  galeriFoto?:
-    | {
-        gambar: number | Media;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Tampil di halaman detail produk.
-   */
-  deskripsi?: string | null;
-  /**
-   * Daftar isi 1 paket, mis. “5 bentuk bangun ruang”.
-   */
-  isiPaket?:
-    | {
-        teks: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
-   */
-  urutan?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * Katalog Video Pembelajaran per jenjang/mapel. Berbeda dari koleksi Video (rekaman Bincang Gernas).
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1696,10 +1648,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'produk';
         value: number | Produk;
-      } | null)
-    | ({
-        relationTo: 'alat-peraga';
-        value: number | AlatPeraga;
       } | null)
     | ({
         relationTo: 'video-pembelajaran';
@@ -2523,34 +2471,6 @@ export interface ProdukSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "alat-peraga_select".
- */
-export interface AlatPeragaSelect<T extends boolean = true> {
-  judul?: T;
-  slug?: T;
-  subjudul?: T;
-  jenjang?: T;
-  mapel?: T;
-  cover?: T;
-  galeriFoto?:
-    | T
-    | {
-        gambar?: T;
-        id?: T;
-      };
-  deskripsi?: T;
-  isiPaket?:
-    | T
-    | {
-        teks?: T;
-        id?: T;
-      };
-  urutan?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "video-pembelajaran_select".
  */
 export interface VideoPembelajaranSelect<T extends boolean = true> {
@@ -2744,7 +2664,6 @@ export interface Navigation {
           | '/publikasi'
           | '/pojok-guru'
           | '/buku-bahan-ajar-modul'
-          | '/alat-peraga'
           | '/video-pembelajaran'
           | '/media-interaktif'
           | '/belajar-bersama#jadwal-acara'
@@ -2773,7 +2692,6 @@ export interface Navigation {
               | '/publikasi'
               | '/pojok-guru'
               | '/buku-bahan-ajar-modul'
-              | '/alat-peraga'
               | '/video-pembelajaran'
               | '/media-interaktif'
               | '/belajar-bersama#jadwal-acara'
@@ -2809,7 +2727,6 @@ export interface Navigation {
                     | '/publikasi'
                     | '/pojok-guru'
                     | '/buku-bahan-ajar-modul'
-                    | '/alat-peraga'
                     | '/video-pembelajaran'
                     | '/media-interaktif'
                     | '/belajar-bersama#jadwal-acara'

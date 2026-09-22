@@ -34,6 +34,8 @@ export function ProdukSorotan({
 }) {
   const t = text[locale];
   const href = produkPath(item.slug, locale);
+  // Alat peraga cuma dipamerkan: tanpa daftar format & tombol unduh/beli.
+  const alatPeraga = item.kategoriProduk === "alat-peraga";
 
   return (
     <section className="container-page py-12 sm:py-16">
@@ -69,13 +71,13 @@ export function ProdukSorotan({
                 <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-body">{item.ringkasan}</p>
               )}
 
-              <DaftarFormat format={item.format} locale={locale} className="mt-5" />
+              {!alatPeraga && <DaftarFormat format={item.format} locale={locale} className="mt-5" />}
 
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link href={href} className="btn-outline">
                   {t.detail}
                 </Link>
-                {item.status === "berbayar" ? (
+                {alatPeraga ? null : item.status === "berbayar" ? (
                   <Link href={localizedPath("/mitra", locale)} className="btn-yellow">
                     {t.beli}
                   </Link>

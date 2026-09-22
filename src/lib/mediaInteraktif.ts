@@ -8,7 +8,7 @@ import type { MediaInteraktif as PayloadMediaInteraktif, Media } from "@/payload
 
 /**
  * Akses koleksi Media Digital Interaktif lewat Local API — pola sama
- * `alatPeraga.ts`. Koleksi ini tidak punya `jenjang`/`mapel` (cuma `tags`
+ * `produk.ts`. Koleksi ini tidak punya `jenjang`/`mapel` (cuma `tags`
  * bebas) jadi tidak pakai `buildLibraryWhere` dari `library.ts` — lihat
  * `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §5. Yang dipakai bersama cuma
  * pemecah kata kuncinya, supaya perilaku kotak pencarian tetap sama dengan

@@ -111,7 +111,7 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 | # | Halaman | Status | Sesi terakhir |
 |---|---|---|---|
 | 0 | Komponen bersama (§2) | Selesai | 24 Agu 2026 |
-| 1 | Alat Peraga | Selesai | 24 Agu 2026 |
+| 1 | Alat Peraga | **Dihapus**: digabung ke Buku, Bahan Ajar & Modul sbg Jenis materi "Alat Peraga" (§5 entri 22 Sep 2026) | 22 Sep 2026 |
 | 2 | Media Digital Interaktif | Selesai | 24 Agu 2026 |
 | 3 | Video Pembelajaran | Selesai | 26 Agu 2026 |
 | 4 | Buku, Bahan Ajar & Modul | Selesai (tampilan + data asli + gerbang unduhan FR-104) | 7 Sep 2026 |
@@ -124,7 +124,9 @@ ada), **bukan** satu super-card generik dengan banyak prop opsional.
 
 ## 4. Task per Halaman
 
-### 4.1 Alat Peraga (`FR-106`) — Selesai
+### 4.1 Alat Peraga (`FR-106`) — Dihapus 22 Sep 2026
+
+> **22 Sep 2026:** halaman `/alat-peraga` & koleksi `alat-peraga` dihapus. Alat peraga kini jadi Jenis materi "Alat Peraga" di koleksi Produk dan tampil di `/buku-bahan-ajar-modul`. Checklist di bawah tinggal riwayat. Lihat §5 entri 22 Sep 2026.
 
 - [x] Route `alat-peraga/page.tsx` (+ versi `en/`)
 - [x] Bangun komponen bersama §2.3 (sekali, dipakai ulang)
@@ -1351,3 +1353,44 @@ butuh data dummy lagi.
   cetak/harga, tahun berdiri, judul "Acara Terdekat" saat semua acara lewat),
   aset ilustrasi, housekeeping dummy `[QA]` Alat Peraga (§6).
 
+
+- **22 Sep 2026** — **Halaman Alat Peraga dihapus, digabung ke Buku, Bahan
+  Ajar & Modul** (keputusan user). Alat peraga kini dokumen koleksi `produk`
+  dengan `kategoriProduk: "alat-peraga"`, tampil di `/buku-bahan-ajar-modul`
+  dan detailnya di `/buku-bahan-ajar-modul/[slug]`. URL `/alat-peraga` dibiarkan
+  404 tanpa redirect (belum rilis produksi).
+
+  Perilaku khusus Jenis materi Alat Peraga (cuma dipamerkan): di dasbor field
+  Format/Status/Harga/Tautan Drive disembunyikan; di kartu, format+harga diganti
+  label "Alat Peraga"; di detail, harga/format/tombol unduh-beli tidak tampil;
+  Produk Terbaru melewati alat peraga; Produk Sorotan menyembunyikan format &
+  tombol unduh bila staf memilih alat peraga.
+
+  Dihapus: koleksi `AlatPeraga`, route `alat-peraga` (+`en/`), `AlatPeragaCard`,
+  `IkonAlatPeraga`, `AlatPeragaListContent`, `AlatPeragaDetailContent`,
+  `lib/alatPeraga.ts`, path di `routes.ts`, opsi `alatPeraga` di blok Perangkat
+  Guru (kartu & sumber angka), opsi `/alat-peraga` di rute tetap navigasi,
+  kelompok alat peraga di `/pojok-guru/cari`, dan `scripts/seed-library-dummy.mts`
+  (+ `npm run seed:library-dummy`) yang isinya tinggal dummy alat peraga.
+
+  Migrasi `20260922_085826_hapus_alat_peraga` (sudah dijalankan ke DB dev):
+  diawali pembersihan data (hapus submenu "Alat Peraga" di menu Pojok Guru,
+  hapus kartu `alatPeraga` di blok Perangkat Guru halaman Pojok Guru termasuk
+  versinya), lalu drop 7 tabel `alat_peraga*` (18 dokumen dummy `[QA]`),
+  tambah enum `alat-peraga`, `produk.status` jadi nullable. `DROP CONSTRAINT`/
+  `DROP INDEX` hasil generate diberi `IF EXISTS` karena sudah ikut terhapus
+  `DROP TABLE … CASCADE`. `seed-pojok-guru.mts` ikut disinkronkan.
+
+  Akibat yang perlu diketahui: blok Perangkat Guru di Pojok Guru kini 3 kartu
+  (bukan 2×2 penuh). Temuan QA #4 (isi detail alat peraga) gugur; alat peraga
+  memakai detail produk apa adanya (tanpa galeri foto & isi paket seperti
+  koleksi lama). `npx tsc --noEmit` bersih. **Tidak dicek di browser.**
+
+- **22 Sep 2026 (lanjutan)** — Kartu filter "Alat Peraga" ditambahkan di
+  halaman Buku, Bahan Ajar & Modul: kartu ke-7 setelah 6 topik, menuju
+  `?kategori=alat-peraga`, ikon dari `IkonKategoriProduk` (sebelumnya tidak
+  terpakai). Grid kartu jadi 4 kolom (4 + 3, sebelumnya 3 kolom), judul
+  bagian "Jelajahi Berdasarkan Topik" diganti "Jelajahi Berdasarkan Kategori"
+  (EN "Browse by Category") karena alat peraga bukan topik. Diubah:
+  `ProdukListContent.tsx`, komentar `LibraryCategoryChips.tsx`. `npx tsc
+  --noEmit` bersih. **Tidak dicek di browser.**

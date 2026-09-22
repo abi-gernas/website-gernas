@@ -5,6 +5,10 @@ import { slugField } from "../fields/slug";
 import { urutanField } from "../fields/urutan";
 import { revalidateSemua, revalidateSemuaAfterDelete } from "../hooks/revalidate";
 
+/** Alat peraga cuma dipamerkan (tanpa harga/unduhan), jadi field jual-unduh disembunyikan di dasbor. */
+const bukanAlatPeraga = (data: Partial<{ kategoriProduk: string }> | undefined) =>
+  data?.kategoriProduk !== "alat-peraga";
+
 /**
  * Katalog "Buku, Bahan Ajar & Modul" — PRD Fase 2 v1.2 FR-109/FR-110.
  *
@@ -34,9 +38,9 @@ export const Produk: CollectionConfig = {
     defaultColumns: ["judul", "kategoriProduk", "status", "harga", "urutan"],
     group: "Data Situs",
     description:
-      "Katalog Buku, Bahan Ajar & Modul. Materi gratis diunduh lewat tautan Google Drive (perlu form isi data pengunjung dulu — lihat koleksi Pesan Masuk); materi berbayar masih menunggu keputusan mekanisme pembayaran (lihat PRD Fase 2 v1.2, OI-105).",
+      "Katalog Buku, Bahan Ajar & Modul, termasuk Alat Peraga (Jenis materi = Alat Peraga, tanpa unduhan). Materi gratis diunduh lewat tautan Google Drive (perlu form isi data pengunjung dulu — lihat koleksi Pesan Masuk); materi berbayar masih menunggu keputusan mekanisme pembayaran (lihat PRD Fase 2 v1.2, OI-105).",
   },
-  labels: { singular: "Produk", plural: "Produk (Buku/Bahan Ajar/Modul)" },
+  labels: { singular: "Produk", plural: "Produk (Buku/Bahan Ajar/Modul/Alat Peraga)" },
   hooks: {
     afterChange: [revalidateSemua],
     afterDelete: [revalidateSemuaAfterDelete],
@@ -67,11 +71,12 @@ export const Produk: CollectionConfig = {
         { label: "Buku", value: "buku" },
         { label: "Bahan Ajar", value: "bahan-ajar" },
         { label: "LKS/Worksheet", value: "lks" },
+        { label: "Alat Peraga", value: "alat-peraga" },
       ],
       admin: {
         position: "sidebar",
         description:
-          "Bentuk materinya. Tidak dipakai kartu kategori di halaman katalog — itu memakai field Topik di bawah.",
+          "Bentuk materinya. Alat Peraga = benda fisik yang cuma dipamerkan: harga, format, dan tautan unduhan disembunyikan. Tidak dipakai kartu kategori di halaman katalog — itu memakai field Topik di bawah.",
       },
     },
     {
@@ -168,6 +173,7 @@ export const Produk: CollectionConfig = {
       hasMany: true,
       defaultValue: ["pdf"],
       label: "Format tersedia",
+      admin: { condition: bukanAlatPeraga },
       options: [
         { label: "PDF & Panduan Guru", value: "pdf" },
         { label: "Versi Cetak", value: "cetak" },
@@ -183,7 +189,7 @@ export const Produk: CollectionConfig = {
         { label: "Gratis", value: "gratis" },
         { label: "Berbayar", value: "berbayar" },
       ],
-      admin: { position: "sidebar" },
+      admin: { position: "sidebar", condition: bukanAlatPeraga },
     },
     {
       name: "harga",
@@ -192,7 +198,7 @@ export const Produk: CollectionConfig = {
       min: 0,
       admin: {
         position: "sidebar",
-        condition: (_data, siblingData) => siblingData?.status === "berbayar",
+        condition: (data, siblingData) => bukanAlatPeraga(data) && siblingData?.status === "berbayar",
         description: "Wajib diisi bila status Berbayar.",
       },
       validate: (value: number | null | undefined, { siblingData }: { siblingData?: Record<string, unknown> }) => {
@@ -207,6 +213,7 @@ export const Produk: CollectionConfig = {
       type: "text",
       label: "Tautan Google Drive",
       admin: {
+        condition: bukanAlatPeraga,
         description:
           "Alamat berkas/folder Drive (akses “siapa saja yang punya tautan”) sampai OAuth resmi (OI-108) selesai dibuat. Untuk produk berbayar, ini bisa dikosongkan dan dikirim manual setelah pembayaran dikonfirmasi.",
       },

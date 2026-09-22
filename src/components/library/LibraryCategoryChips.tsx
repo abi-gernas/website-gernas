@@ -50,8 +50,8 @@ export type LibraryCategoryChip = {
  *   ada tombol panah bundar di ujung kanan. Mengikuti mockup Figma halaman
  *   Alat Peraga (menutup temuan QA #3 halaman itu).
  *
- * `kolom` hanya berlaku untuk varian `ringkas`: halaman Buku memakai 3 kolom
- * sejak kartunya jadi 6 topik (4 kolom menyisakan baris kedua yang timpang).
+ * `kolom` hanya berlaku untuk varian `ringkas`. Halaman Buku memakai bawaan 4
+ * kolom: 6 topik + 1 kartu Alat Peraga = 4 + 3.
  */
 const kolomKelas: Record<3 | 4, string> = {
   3: "lg:grid-cols-3",

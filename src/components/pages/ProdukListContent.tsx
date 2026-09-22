@@ -7,12 +7,13 @@ import {
   parseQueryParam,
   type LibrarySearchParams,
 } from "@/lib/library";
-import { TOPIK_PRODUK_LABELS, getProdukList, getProdukTerbaru, type TopikProduk } from "@/lib/produk";
+import { KATEGORI_PRODUK_LABELS, TOPIK_PRODUK_LABELS, getProdukList, getProdukTerbaru, type TopikProduk } from "@/lib/produk";
 import { produkListPath } from "@/lib/routes";
 import { LibrarySearchBar } from "@/components/library/LibrarySearchBar";
 import { LibraryCategoryChips, type ChipWarna } from "@/components/library/LibraryCategoryChips";
 import { LibraryPagination } from "@/components/library/LibraryPagination";
 import { CtaBantuanBanner } from "@/components/library/CtaBantuanBanner";
+import { IkonKategoriProduk } from "@/components/library/IkonKategoriProduk";
 import { IkonTopikProduk } from "@/components/library/IkonTopikProduk";
 import { ProdukCard } from "@/components/library/ProdukCard";
 import { ProdukTerbaru } from "@/components/library/ProdukTerbaru";
@@ -24,7 +25,7 @@ const text = {
     description:
       "Kumpulan buku, modul dan bahan ajar berkualitas yang siap digunakan untuk mendukung pembelajaran di kelas.",
     searchPlaceholder: "Cari materi, topik, kelas, atau kata kunci...",
-    categoryTitle: "Jelajahi Berdasarkan Topik",
+    categoryTitle: "Jelajahi Berdasarkan Kategori",
     listTitle: "Semua Buku, Bahan Ajar & Modul",
     empty: "Belum ada produk yang cocok dengan pencarian Anda.",
     showing: (start: number, end: number, total: number) =>
@@ -35,7 +36,7 @@ const text = {
     description:
       "A collection of quality books, modules, and teaching materials ready to support learning in the classroom.",
     searchPlaceholder: "Search materials, topics, grade, or keywords...",
-    categoryTitle: "Browse by Topic",
+    categoryTitle: "Browse by Category",
     listTitle: "All Books, Teaching Materials & Modules",
     empty: "No products matched your search yet.",
     showing: (start: number, end: number, total: number) =>
@@ -88,6 +89,15 @@ const topikKartu: {
     deskripsi: { id: "Keliling, luas, volume, dan waktu", en: "Perimeter, area, volume, and time" },
   },
 ];
+
+/**
+ * Kartu ke-7 setelah topik: alat peraga bukan topik melainkan Jenis materi
+ * (`kategoriProduk`), sejak halaman Alat Peraga digabung ke sini (22 Sep 2026).
+ */
+const alatPeragaKartu: { warna: ChipWarna; deskripsi: Record<Locale, string> } = {
+  warna: "kuning",
+  deskripsi: { id: "Alat bantu konsep untuk dipakai di kelas", en: "Hands-on aids for classroom use" },
+};
 
 export async function ProdukListContent({
   searchParams,
@@ -161,14 +171,22 @@ export async function ProdukListContent({
         <div>
           <h2 className="mb-5 text-lg font-bold text-brand-navy">{t.categoryTitle}</h2>
           <LibraryCategoryChips
-            kolom={3}
-            items={topikKartu.map((k) => ({
-              label: TOPIK_PRODUK_LABELS[k.topik][locale],
-              deskripsi: k.deskripsi[locale],
-              ikon: <IkonTopikProduk topik={k.topik} />,
-              href: `${basePath}?topik=${k.topik}`,
-              warna: k.warna,
-            }))}
+            items={[
+              ...topikKartu.map((k) => ({
+                label: TOPIK_PRODUK_LABELS[k.topik][locale],
+                deskripsi: k.deskripsi[locale],
+                ikon: <IkonTopikProduk topik={k.topik} />,
+                href: `${basePath}?topik=${k.topik}`,
+                warna: k.warna,
+              })),
+              {
+                label: KATEGORI_PRODUK_LABELS["alat-peraga"][locale],
+                deskripsi: alatPeragaKartu.deskripsi[locale],
+                ikon: <IkonKategoriProduk kategori="alat-peraga" />,
+                href: `${basePath}?kategori=alat-peraga`,
+                warna: alatPeragaKartu.warna,
+              },
+            ]}
           />
         </div>
 

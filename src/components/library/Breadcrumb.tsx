@@ -11,7 +11,6 @@ export type Remah = { label: string; href?: string };
  */
 export const labelKatalogGuru = {
   produk: { id: "Buku, Bahan Ajar & Modul", en: "Books, Teaching Materials & Modules" },
-  alatPeraga: { id: "Alat Peraga", en: "Teaching Aids" },
   videoPembelajaran: { id: "Video Pembelajaran", en: "Learning Videos" },
   mediaInteraktif: { id: "Media Digital Interaktif", en: "Interactive Digital Media" },
 } satisfies Record<string, Record<Locale, string>>;
@@ -24,8 +23,8 @@ const text = {
 /**
  * Jejak "Pojok Guru › Katalog › Judul" di halaman Library.
  *
- * URL katalog sengaja tetap datar (`/alat-peraga`, bukan
- * `/pojok-guru/alat-peraga`) — hubungan ke Pojok Guru cukup ditunjukkan di
+ * URL katalog sengaja tetap datar (`/video-pembelajaran`, bukan
+ * `/pojok-guru/video-pembelajaran`) — hubungan ke Pojok Guru cukup ditunjukkan di
  * sini dan di menu, lihat §4.5 `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md`.
  */
 export function Breadcrumb({
