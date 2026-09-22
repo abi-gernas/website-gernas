@@ -266,6 +266,14 @@ if (!perluDibuat) {
               ),
             },
             {
+              katalog: "alatPeraga",
+              warna: "merah",
+              deskripsi: L(
+                "Media berbentuk alat untuk memahami konsep dengan lebih konkret.",
+                "Hands-on tools that make concepts more concrete.",
+              ),
+            },
+            {
               katalog: "videoPembelajaran",
               warna: "kuning",
               deskripsi: L(

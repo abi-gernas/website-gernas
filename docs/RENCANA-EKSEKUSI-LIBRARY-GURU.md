@@ -1394,3 +1394,16 @@ butuh data dummy lagi.
   (EN "Browse by Category") karena alat peraga bukan topik. Diubah:
   `ProdukListContent.tsx`, komentar `LibraryCategoryChips.tsx`. `npx tsc
   --noEmit` bersih. **Tidak dicek di browser.**
+
+- **22 Sep 2026 (lanjutan 2)** — Kotak "Alat Peraga" di blok Perangkat Guru
+  (Pojok Guru) **dikembalikan** atas permintaan user, supaya tetap 2×2. Katalog
+  `alatPeraga` hidup lagi di `KatalogGuru`, tapi sumbernya koleksi `produk`
+  dengan `kategoriProduk = alat-peraga` dan tautannya
+  `/buku-bahan-ajar-modul?kategori=alat-peraga`. Kartu/angka "Buku, Bahan Ajar
+  & Modul" kini tidak menghitung alat peraga (angka "semua materi" tidak
+  dobel). Migrasi `20260922_121534_kartu_alat_peraga_pojok_guru` cuma menambah
+  lagi nilai enum `alatPeraga`; baris kartunya (ID+EN, tabel utama & versi)
+  dikembalikan lewat SQL dari backup — tidak bisa di dalam migrasi karena nilai
+  enum baru tidak boleh dipakai di transaksi yang sama. `seed-pojok-guru.mts`
+  disinkronkan. Kartu tampil tanpa gambar sampai ada produk alat peraga (atau
+  staf unggah gambar kartu). `npx tsc --noEmit` bersih. Belum dicek di browser.

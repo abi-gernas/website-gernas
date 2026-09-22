@@ -5,6 +5,7 @@ import type { Warna } from "@/components/warna";
 
 export type SumberStatistik =
   | "produk"
+  | "alatPeraga"
   | "videoPembelajaran"
   | "mediaInteraktif"
   | "semua"
@@ -53,6 +54,13 @@ const ikonStatistik: Record<SumberStatistik, React.ReactNode> = {
     <>
       <path d="M12 6.5S10 4.5 4 4.5v13c6 0 8 2 8 2s2-2 8-2v-13c-6 0-8 2-8 2z" />
       <path d="M12 6.5v13" />
+    </>
+  ),
+  alatPeraga: (
+    <>
+      <path d="M12 3 7.5 10.5h9z" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1" />
+      <circle cx="17" cy="17" r="3.5" />
     </>
   ),
   videoPembelajaran: (

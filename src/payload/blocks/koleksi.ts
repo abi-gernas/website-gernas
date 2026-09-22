@@ -274,6 +274,7 @@ export const ProdukSorotanBlock: Block = {
 /** Pilihan katalog Library. Nilainya WAJIB sama dengan `KatalogGuru` di `src/lib/perangkatGuru.ts`. */
 const katalogGuruOptions = [
   { label: "Buku, Bahan Ajar & Modul", value: "produk" },
+  { label: "Alat Peraga", value: "alatPeraga" },
   { label: "Video Pembelajaran", value: "videoPembelajaran" },
   { label: "Media Digital Interaktif", value: "mediaInteraktif" },
 ];

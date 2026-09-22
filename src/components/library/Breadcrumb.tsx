@@ -11,6 +11,7 @@ export type Remah = { label: string; href?: string };
  */
 export const labelKatalogGuru = {
   produk: { id: "Buku, Bahan Ajar & Modul", en: "Books, Teaching Materials & Modules" },
+  alatPeraga: { id: "Alat Peraga", en: "Teaching Aids" },
   videoPembelajaran: { id: "Video Pembelajaran", en: "Learning Videos" },
   mediaInteraktif: { id: "Media Digital Interaktif", en: "Interactive Digital Media" },
 } satisfies Record<string, Record<Locale, string>>;

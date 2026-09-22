@@ -832,7 +832,7 @@ export interface Page {
              */
             kartu?:
               | {
-                  katalog: 'produk' | 'videoPembelajaran' | 'mediaInteraktif';
+                  katalog: 'produk' | 'alatPeraga' | 'videoPembelajaran' | 'mediaInteraktif';
                   /**
                    * Kosongkan untuk memakai nama katalog.
                    */
@@ -858,7 +858,7 @@ export interface Page {
                     /**
                      * Jumlah katalog dihitung otomatis dari isi koleksinya setiap halaman dibuka.
                      */
-                    sumber: 'produk' | 'videoPembelajaran' | 'mediaInteraktif' | 'semua' | 'manual';
+                    sumber: 'produk' | 'alatPeraga' | 'videoPembelajaran' | 'mediaInteraktif' | 'semua' | 'manual';
                     /**
                      * Angka saja, tanpa titik/koma. Mis. 1000
                      */
