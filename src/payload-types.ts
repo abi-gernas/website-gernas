@@ -1505,7 +1505,7 @@ export interface MediaInteraktif {
    */
   kontenHtml?: string | null;
   /**
-   * Alamat lengkap tujuan tombol “Buka Link”.
+   * Alamat lengkap tujuan tombol “Buka Media Interaktif” di halaman intro.
    */
   tautan: string;
   /**

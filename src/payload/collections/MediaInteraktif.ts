@@ -8,8 +8,9 @@ import { revalidateSemua, revalidateSemuaAfterDelete } from "../hooks/revalidate
 /**
  * Katalog Media Digital Interaktif — PRD Fase 2 v1.2 FR-108.
  *
- * Cuma metadata + tautan eksternal — kartunya di `/media-interaktif` langsung
- * membuka `tautan` di tab baru, tidak ada halaman detail di situs ini.
+ * Metadata + tautan eksternal. Kartunya di `/media-interaktif` masuk dulu ke
+ * halaman intro `/media-interaktif/[slug]` (sejak 23 Sep 2026, meniru alur
+ * Video Pembelajaran), baru tombol di sana membuka `tautan` di tab baru.
  *
  * `kontenHtml` (kode HTML lengkap mesin virtual/aktivitasnya, disalin dari
  * sumber asli) disiapkan utk penyematan langsung, diisi pertama kali oleh
@@ -86,7 +87,7 @@ export const MediaInteraktif: CollectionConfig = {
       type: "text",
       required: true,
       label: "Tautan",
-      admin: { description: "Alamat lengkap tujuan tombol “Buka Link”." },
+      admin: { description: "Alamat lengkap tujuan tombol “Buka Media Interaktif” di halaman intro." },
     },
     urutanField(),
   ]),

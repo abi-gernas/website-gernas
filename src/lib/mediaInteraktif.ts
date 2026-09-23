@@ -17,6 +17,7 @@ import type { MediaInteraktif as PayloadMediaInteraktif, Media } from "@/payload
 
 export type MediaInteraktifView = {
   id: string;
+  slug: string;
   judul: string;
   deskripsi: string | null;
   thumbnail: { url: string; width?: number; height?: number } | null;
@@ -34,6 +35,7 @@ function toImage(value: unknown): { url: string; width?: number; height?: number
 function toView(doc: PayloadMediaInteraktif): MediaInteraktifView {
   return {
     id: String(doc.id),
+    slug: doc.slug,
     judul: doc.judul,
     deskripsi: doc.deskripsi ?? null,
     thumbnail: toImage(doc.thumbnail),
@@ -94,6 +96,37 @@ export const getMediaInteraktifList = cache(async function getMediaInteraktifLis
     page: res.page ?? 1,
   };
 });
+
+export const getMediaInteraktifBySlug = cache(async function getMediaInteraktifBySlug(
+  slug: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<MediaInteraktifView | null> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "media-interaktif",
+    depth: 1,
+    limit: 1,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+    where: { slug: { equals: slug } },
+    pagination: false,
+  });
+  const doc = res.docs[0];
+  return doc ? toView(doc) : null;
+});
+
+/** Slug seluruh media — untuk `generateStaticParams`. */
+export async function getMediaInteraktifSlugs(): Promise<string[]> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "media-interaktif",
+    depth: 0,
+    limit: 1000,
+    pagination: false,
+    select: { slug: true },
+  });
+  return res.docs.map((d) => d.slug);
+}
 
 /**
  * 3 tag terpakai terbanyak, untuk "Pencarian Populer" di hero. Ambil semua
