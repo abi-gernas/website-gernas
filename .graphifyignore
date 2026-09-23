@@ -1,0 +1,9 @@
+# Dikecualikan dari knowledge graph graphify: tidak menambah info arsitektur,
+# dan snapshot JSON migrasi (~19MB) bikin korpus membengkak.
+migrations/*.json
+public/
+.playwright-mcp/
+.claude/
+scripts/**/*.png
+scripts/**/*.jpg
+scripts/**/*.jpeg

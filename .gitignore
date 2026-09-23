@@ -16,3 +16,6 @@ next-env.d.ts
 # Rangkuman CV/portofolio pribadi — diperbarui tiap ada pengembangan, bukan
 # dokumen proyek untuk klien.
 /docs/cv-gernas-tastaka.md
+
+# Knowledge graph graphify — hasil generate lokal, dibangun ulang via `graphify update .`
+/graphify-out/
