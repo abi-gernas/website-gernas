@@ -25,6 +25,8 @@
     "seed:media-interaktif-vm": "tsx scripts/seed-media-interaktif-vm.mts",
     "backfill:penulis-drive": "tsx scripts/backfill-penulis-drive.mts",
     "seed:video-youtube": "tsx scripts/seed-video-pembelajaran-youtube.mts",
+    "seed:alat-peraga": "tsx scripts/seed-alat-peraga.mts",
+    "seed:buku-shopee": "tsx scripts/seed-buku-shopee.mts",
     "seed:acara": "tsx scripts/seed-acara.mts",
     "seed:pojok-guru": "tsx scripts/seed-pojok-guru.mts",
     "translate:export": "tsx scripts/i18n/export-translations.mts",

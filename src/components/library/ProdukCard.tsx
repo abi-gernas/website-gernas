@@ -65,9 +65,17 @@ export function ProdukCard({ item, locale = "id" }: { item: ProdukView; locale?:
         {/* Alat peraga cuma dipamerkan: jenisnya menggantikan format & harga. */}
         <div className="mt-4 flex items-end justify-between gap-3 pt-1">
           {item.kategoriProduk === "alat-peraga" ? (
-            <span className="text-sm font-bold text-brand-navy">
-              {KATEGORI_PRODUK_LABELS["alat-peraga"][locale]}
-            </span>
+            <>
+              <span className="text-sm font-bold text-brand-navy">
+                {KATEGORI_PRODUK_LABELS["alat-peraga"][locale]}
+              </span>
+              {item.varian.length > 0 && (
+                <span className="text-sm font-bold text-brand-red">
+                  {locale === "en" ? "From " : "Mulai "}
+                  {formatHarga(Math.min(...item.varian.map((v) => v.harga)), locale)}
+                </span>
+              )}
+            </>
           ) : (
             <>
               <span className="text-sm font-bold text-brand-navy">

@@ -1147,7 +1147,10 @@ export interface Produk {
    * Sama seperti field Program di Modul Pelatihan — tambah opsi di sini bila nanti ada mapel baru.
    */
   mapel: ('matematika' | 'membaca')[];
-  cover: number | Media;
+  /**
+   * Boleh dikosongkan dulu dan diisi menyusul.
+   */
+  cover?: (number | null) | Media;
   /**
    * Tampil di kartu katalog dan sebagai deskripsi SEO bila belum diisi manual.
    */
@@ -1175,6 +1178,26 @@ export interface Produk {
    * Alamat berkas/folder Drive (akses “siapa saja yang punya tautan”) sampai OAuth resmi (OI-108) selesai dibuat. Untuk produk berbayar, ini bisa dikosongkan dan dikirim manual setelah pembayaran dikonfirmasi.
    */
   tautanDrive?: string | null;
+  /**
+   * Khusus Alat Peraga: pilihan kemasan beserta harganya di marketplace, mis. “Plastik OPP Tanpa Donasi”.
+   */
+  varian?:
+    | {
+        nama: string;
+        harga: number;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Tautan produk di Shopee/Tokopedia (Alat Peraga & materi berbayar). Bila diisi, tombol beli mengarah ke sini. Isi hanya yang sudah ada.
+   */
+  tautanMarketplace?:
+    | {
+        platform: 'shopee' | 'tokopedia';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
    */
@@ -2465,6 +2488,20 @@ export interface ProdukSelect<T extends boolean = true> {
   status?: T;
   harga?: T;
   tautanDrive?: T;
+  varian?:
+    | T
+    | {
+        nama?: T;
+        harga?: T;
+        id?: T;
+      };
+  tautanMarketplace?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
   urutan?: T;
   updatedAt?: T;
   createdAt?: T;

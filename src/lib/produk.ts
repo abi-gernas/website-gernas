@@ -42,6 +42,9 @@ export type ProdukView = {
    * server, di dalam `bukaMateri()` (src/lib/actions/unduh-materi.ts).
    */
   punyaTautan: boolean;
+  /** Khusus alat peraga: pilihan kemasan + harga, dan tautan beli di marketplace. */
+  varian: { nama: string; harga: number }[];
+  tautanMarketplace: { platform: "shopee" | "tokopedia"; url: string }[];
 };
 
 /** Label jenis materi — nilainya harus sama dengan `options` di `Produk.ts`. */
@@ -112,6 +115,8 @@ function toView(doc: PayloadProduk): ProdukView {
     status: doc.status ?? "gratis",
     harga: doc.harga ?? null,
     punyaTautan: Boolean(doc.tautanDrive),
+    varian: (doc.varian ?? []).map((v) => ({ nama: v.nama, harga: v.harga })),
+    tautanMarketplace: (doc.tautanMarketplace ?? []).map((t) => ({ platform: t.platform, url: t.url })),
   };
 }
 

@@ -9,6 +9,9 @@ import { revalidateSemua, revalidateSemuaAfterDelete } from "../hooks/revalidate
 const bukanAlatPeraga = (data: Partial<{ kategoriProduk: string }> | undefined) =>
   data?.kategoriProduk !== "alat-peraga";
 
+const alatPeraga = (data: Partial<{ kategoriProduk: string }> | undefined) =>
+  data?.kategoriProduk === "alat-peraga";
+
 /**
  * Katalog "Buku, Bahan Ajar & Modul" — PRD Fase 2 v1.2 FR-109/FR-110.
  *
@@ -134,8 +137,8 @@ export const Produk: CollectionConfig = {
       name: "cover",
       type: "upload",
       relationTo: "media",
-      required: true,
       label: "Gambar sampul",
+      admin: { description: "Boleh dikosongkan dulu dan diisi menyusul." },
     },
     {
       name: "ringkasan",
@@ -217,6 +220,46 @@ export const Produk: CollectionConfig = {
         description:
           "Alamat berkas/folder Drive (akses “siapa saja yang punya tautan”) sampai OAuth resmi (OI-108) selesai dibuat. Untuk produk berbayar, ini bisa dikosongkan dan dikirim manual setelah pembayaran dikonfirmasi.",
       },
+    },
+    {
+      name: "varian",
+      type: "array",
+      label: "Varian & harga",
+      labels: { singular: "Varian", plural: "Varian" },
+      admin: {
+        condition: alatPeraga,
+        components: judulBaris,
+        description: "Khusus Alat Peraga: pilihan kemasan beserta harganya di marketplace, mis. “Plastik OPP Tanpa Donasi”.",
+      },
+      fields: [
+        { name: "nama", type: "text", required: true, label: "Nama varian" },
+        { name: "harga", type: "number", required: true, min: 0, label: "Harga (Rp)" },
+      ],
+    },
+    {
+      name: "tautanMarketplace",
+      type: "array",
+      label: "Tautan pembelian",
+      labels: { singular: "Tautan", plural: "Tautan" },
+      admin: {
+        condition: (data) => alatPeraga(data) || data?.status === "berbayar",
+        components: judulBaris,
+        description:
+          "Tautan produk di Shopee/Tokopedia (Alat Peraga & materi berbayar). Bila diisi, tombol beli mengarah ke sini. Isi hanya yang sudah ada.",
+      },
+      fields: [
+        {
+          name: "platform",
+          type: "select",
+          required: true,
+          label: "Marketplace",
+          options: [
+            { label: "Shopee", value: "shopee" },
+            { label: "Tokopedia", value: "tokopedia" },
+          ],
+        },
+        { name: "url", type: "text", required: true, label: "Tautan produk" },
+      ],
     },
     urutanField(),
   ]),

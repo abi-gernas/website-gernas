@@ -45,6 +45,8 @@ const text = {
     beli: "Beli Sekarang",
     catatanBeli: "Pembelian sementara dilayani lewat tim kami.",
     disusunOleh: "Disusun oleh",
+    varian: "Pilihan kemasan",
+    beliDi: "Beli di",
   },
   en: {
     fitur: "Key Features",
@@ -53,6 +55,8 @@ const text = {
     beli: "Buy Now",
     catatanBeli: "Purchases are handled by our team for now.",
     disusunOleh: "Written by",
+    varian: "Packaging options",
+    beliDi: "Buy on",
   },
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -144,6 +148,39 @@ export async function ProdukDetailContent({
                 </div>
               )}
 
+              {alatPeraga && (
+                <>
+                  {item.varian.length > 0 && (
+                    <div className="mt-5">
+                      <h2 className="text-sm font-bold text-brand-navy">{t.varian}</h2>
+                      <ul className="mt-2 divide-y divide-brand-navy/10 rounded border border-brand-navy/10 text-sm">
+                        {item.varian.map((v) => (
+                          <li key={v.nama} className="flex justify-between gap-4 px-3 py-2">
+                            <span>{v.nama}</span>
+                            <span className="font-bold text-brand-red">{formatHarga(v.harga, locale)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {item.tautanMarketplace.length > 0 && (
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      {item.tautanMarketplace.map((l) => (
+                        <a
+                          key={l.platform}
+                          href={l.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-yellow"
+                        >
+                          {t.beliDi} {l.platform === "shopee" ? "Shopee" : "Tokopedia"}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
               {!alatPeraga && (
                 <>
                   <p className="mt-5 text-xl font-bold">
@@ -163,7 +200,21 @@ export async function ProdukDetailContent({
                   )}
 
                   <div className="mt-6">
-                    {item.status === "berbayar" ? (
+                    {item.status === "berbayar" && item.tautanMarketplace.length > 0 ? (
+                      <div className="flex flex-wrap gap-3">
+                        {item.tautanMarketplace.map((l) => (
+                          <a
+                            key={l.platform}
+                            href={l.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-yellow"
+                          >
+                            {t.beliDi} {l.platform === "shopee" ? "Shopee" : "Tokopedia"}
+                          </a>
+                        ))}
+                      </div>
+                    ) : item.status === "berbayar" ? (
                       <>
                         <Link href={localizedPath("/mitra", locale)} className="btn-yellow">
                           {t.beli}
