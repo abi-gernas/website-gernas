@@ -36,6 +36,8 @@ export type LibraryCategoryChip = {
   ikon?: ReactNode;
   href: string;
   warna?: ChipWarna;
+  /** Filter kartu ini sedang dipakai: diberi bingkai & `aria-current`. */
+  aktif?: boolean;
 };
 
 /**
@@ -79,9 +81,11 @@ export function LibraryCategoryChips({
           <Link
             key={item.href}
             href={item.href}
+            scroll={false}
+            aria-current={item.aktif ? "true" : undefined}
             className={`group flex rounded-card shadow-soft transition-shadow hover:shadow-card ${
-              warnaKartu[warna]
-            } ${lebar ? "items-center gap-5 p-6" : "items-start gap-3.5 p-5"}`}
+              item.aktif ? "ring-2 ring-brand-navy" : ""
+            } ${warnaKartu[warna]} ${lebar ? "items-center gap-5 p-6" : "items-start gap-3.5 p-5"}`}
           >
             {item.ikon && (
               <span className={`shrink-0 ${warnaIkon[warna]}`} aria-hidden="true">

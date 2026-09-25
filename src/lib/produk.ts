@@ -1,4 +1,5 @@
 import "server-only";
+import type { Where } from "payload";
 import { cache } from "react";
 import { payloadPromise } from "./payload";
 import { DEFAULT_LOCALE, type Locale } from "./i18n";
@@ -126,6 +127,8 @@ export type ProdukListParams = {
   mapel?: string[];
   kategori?: string[];
   topik?: string[];
+  /** "gratis" | "berbayar". Alat peraga dihitung berbayar: dijual lewat marketplace. */
+  status?: string;
   page?: number;
   locale?: Locale;
 };
@@ -136,6 +139,7 @@ export const getProdukList = cache(async function getProdukList({
   mapel,
   kategori,
   topik,
+  status,
   page = 1,
   locale = DEFAULT_LOCALE,
 }: ProdukListParams): Promise<{
@@ -155,6 +159,18 @@ export const getProdukList = cache(async function getProdukList({
   });
   if (kategori && kategori.length > 0) where.kategoriProduk = { in: kategori };
   if (topik && topik.length > 0) where.topik = { in: topik };
+  if (status === "gratis") {
+    where.and = [
+      ...((where.and as Where[] | undefined) ?? []),
+      { status: { equals: "gratis" } },
+      { kategoriProduk: { not_equals: "alat-peraga" } },
+    ];
+  } else if (status === "berbayar") {
+    where.and = [
+      ...((where.and as Where[] | undefined) ?? []),
+      { or: [{ status: { equals: "berbayar" } }, { kategoriProduk: { equals: "alat-peraga" } }] },
+    ];
+  }
 
   const res = await payload.find({
     collection: "produk",
