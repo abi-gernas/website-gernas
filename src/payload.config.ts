@@ -21,7 +21,9 @@ import { Mitra } from "./payload/collections/Mitra";
 import { Video } from "./payload/collections/Video";
 import { ModulPelatihan } from "./payload/collections/ModulPelatihan";
 import { Acara } from "./payload/collections/Acara";
+import { KategoriProduk } from "./payload/collections/KategoriProduk";
 import { Produk } from "./payload/collections/Produk";
+import { TopikProduk } from "./payload/collections/TopikProduk";
 import { VideoPembelajaran } from "./payload/collections/VideoPembelajaran";
 import { MediaInteraktif } from "./payload/collections/MediaInteraktif";
 import { Leads } from "./payload/collections/Leads";
@@ -92,6 +94,8 @@ export default buildConfig({
     Video,
     ModulPelatihan,
     Acara,
+    KategoriProduk,
+    TopikProduk,
     Produk,
     VideoPembelajaran,
     MediaInteraktif,

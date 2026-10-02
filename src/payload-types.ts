@@ -76,6 +76,8 @@ export interface Config {
     video: Video;
     'modul-pelatihan': ModulPelatihan;
     acara: Acara;
+    'kategori-produk': KategoriProduk;
+    'topik-produk': TopikProduk;
     produk: Produk;
     'video-pembelajaran': VideoPembelajaran;
     'media-interaktif': MediaInteraktif;
@@ -99,6 +101,8 @@ export interface Config {
     video: VideoSelect<false> | VideoSelect<true>;
     'modul-pelatihan': ModulPelatihanSelect<false> | ModulPelatihanSelect<true>;
     acara: AcaraSelect<false> | AcaraSelect<true>;
+    'kategori-produk': KategoriProdukSelect<false> | KategoriProdukSelect<true>;
+    'topik-produk': TopikProdukSelect<false> | TopikProdukSelect<true>;
     produk: ProdukSelect<false> | ProdukSelect<true>;
     'video-pembelajaran': VideoPembelajaranSelect<false> | VideoPembelajaranSelect<true>;
     'media-interaktif': MediaInteraktifSelect<false> | MediaInteraktifSelect<true>;
@@ -1135,18 +1139,18 @@ export interface Produk {
    */
   slug: string;
   /**
-   * Bentuk materinya. Alat Peraga = benda fisik yang cuma dipamerkan: harga, format, dan tautan unduhan disembunyikan. Tidak dipakai kartu kategori di halaman katalog — itu memakai field Topik di bawah.
+   * Bentuk materinya. Alat Peraga = benda fisik yang cuma dipamerkan: harga, format, dan tautan unduhan disembunyikan. Tidak dipakai kartu di halaman katalog — kartu itu memakai Kategori → Topik di bawah.
    */
   kategoriProduk: 'modul' | 'buku' | 'bahan-ajar' | 'lks' | 'alat-peraga';
   /**
-   * Menentukan kartu kategori mana di halaman katalog yang memuat produk ini. Nilainya mengikuti nama folder di Google Drive “Konten” — kalau menambah opsi di sini, tambahkan juga pemetaannya di scripts/fetch-drive-konten.mts.
+   * Mis. Matematika atau Membaca. Tekan “+” di samping kolom ini untuk menambah kategori baru, atau ikon pensil pada kategori terpilih untuk mengubah nama/urutannya.
    */
-  topik: 'geometri' | 'bilangan-cacah' | 'pecahan' | 'bilangan-bulat' | 'statistika' | 'pengukuran';
-  jenjang: ('paud' | 'tk' | 'sd' | 'smp' | 'sma')[];
+  kategori: number | KategoriProduk;
   /**
-   * Sama seperti field Program di Modul Pelatihan — tambah opsi di sini bila nanti ada mapel baru.
+   * Menentukan kartu topik mana di halaman katalog yang memuat produk ini. Pilih Kategori dulu — daftar topik menyesuaikan. Tekan “+” di samping kolom ini untuk menambah topik baru (nama, ikon, warna kartu) di kategori yang sedang dipilih, atau pensil untuk mengubah topik terpilih.
    */
-  mapel: ('matematika' | 'membaca')[];
+  topik: number | TopikProduk;
+  jenjang: ('paud' | 'tk' | 'sd' | 'smp' | 'sma')[];
   /**
    * Boleh dikosongkan dulu dan diisi menyusul.
    */
@@ -1198,6 +1202,63 @@ export interface Produk {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
+   */
+  urutan?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Kategori utama katalog Buku, Bahan Ajar & Modul, mis. Matematika atau Membaca. Tiap kategori punya Topik sendiri.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kategori-produk".
+ */
+export interface KategoriProduk {
+  id: number;
+  nama: string;
+  /**
+   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
+   */
+  slug: string;
+  /**
+   * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
+   */
+  urutan?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Topik di dalam sebuah kategori, mis. Pecahan atau Geometri (di Matematika). Tiap topik tampil sebagai satu kartu di halaman Buku, Bahan Ajar & Modul.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "topik-produk".
+ */
+export interface TopikProduk {
+  id: number;
+  nama: string;
+  /**
+   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
+   */
+  slug: string;
+  kategori: number | KategoriProduk;
+  /**
+   * Satu baris di bawah nama topik pada kartu, mis. “Bangun datar, bangun ruang, dan sudut”.
+   */
+  deskripsi?: string | null;
+  ikon:
+    | 'geometri'
+    | 'bilangan-cacah'
+    | 'pecahan'
+    | 'bilangan-bulat'
+    | 'statistika'
+    | 'pengukuran'
+    | 'buku'
+    | 'huruf'
+    | 'lampu'
+    | 'bintang';
+  warna: 'biru' | 'merah' | 'kuning' | 'langit';
   /**
    * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
    */
@@ -1667,6 +1728,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'acara';
         value: number | Acara;
+      } | null)
+    | ({
+        relationTo: 'kategori-produk';
+        value: number | KategoriProduk;
+      } | null)
+    | ({
+        relationTo: 'topik-produk';
+        value: number | TopikProduk;
       } | null)
     | ({
         relationTo: 'produk';
@@ -2466,15 +2535,41 @@ export interface AcaraSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kategori-produk_select".
+ */
+export interface KategoriProdukSelect<T extends boolean = true> {
+  nama?: T;
+  slug?: T;
+  urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "topik-produk_select".
+ */
+export interface TopikProdukSelect<T extends boolean = true> {
+  nama?: T;
+  slug?: T;
+  kategori?: T;
+  deskripsi?: T;
+  ikon?: T;
+  warna?: T;
+  urutan?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "produk_select".
  */
 export interface ProdukSelect<T extends boolean = true> {
   judul?: T;
   slug?: T;
   kategoriProduk?: T;
+  kategori?: T;
   topik?: T;
   jenjang?: T;
-  mapel?: T;
   cover?: T;
   ringkasan?: T;
   penulis?: T;

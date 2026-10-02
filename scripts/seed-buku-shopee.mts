@@ -16,14 +16,15 @@ for (const line of fs.readFileSync(".env", "utf8").split("\n")) {
 const { getPayload } = await import("payload");
 const config = (await import("../src/payload.config.js")).default;
 const payload = await getPayload({ config });
+const { idKategori, idTopik } = await import("./lib/taksonomi-produk.mjs");
 
 const judul = "Buku Belajar Matematika Gernas Tastaka";
 const data = {
   judul,
   kategoriProduk: "buku" as const,
-  topik: "bilangan-cacah" as const,
+  topik: await idTopik(payload, "bilangan-cacah"),
   jenjang: ["sd" as const],
-  mapel: ["matematika" as const],
+  kategori: await idKategori(payload, "matematika"),
   status: "berbayar" as const,
   harga: 59000,
   format: ["cetak" as const],

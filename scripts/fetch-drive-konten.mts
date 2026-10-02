@@ -27,14 +27,14 @@ const OUTPUT = path.join(DIR, "data-produk-drive.json");
 const FOLDER_AKAR = "1ucyEM7NXmqJhQyNtnuNqZCePno37VF86";
 
 /**
- * Pemetaan nama folder di Drive -> nilai field `topik` di koleksi `produk`.
+ * Pemetaan nama folder di Drive -> slug Topik di koleksi `topik-produk`.
  *
  * Sengaja eksplisit, bukan di-slugify otomatis dari nama folder: nama folder
  * di Drive diawali nomor ("1. Geometri") dan bisa diubah pemiliknya kapan
- * saja, sedangkan nilai `topik` terikat kontrak dengan `options` di
- * `src/payload/collections/Produk.ts` dan dengan URL `?topik=` di situs.
- * Kalau ada folder baru di Drive, tambahkan barisnya di sini dulu — skrip
- * akan berhenti dengan pesan jelas kalau menemukan folder yang belum dipetakan.
+ * saja, sedangkan slug topik terikat kontrak dengan URL `?topik=` di situs.
+ * Kalau ada folder baru di Drive: buat dulu Topik-nya di dasbor (koleksi Topik
+ * Produk), lalu tambahkan barisnya di sini — skrip akan berhenti dengan pesan
+ * jelas kalau menemukan folder yang belum dipetakan.
  */
 const PETA_TOPIK: Record<string, string> = {
   "1. Geometri": "geometri",
@@ -118,7 +118,7 @@ const belumDipetakan = isiAkar
 
 if (belumDipetakan.length > 0) {
   console.error(
-    `Folder berikut belum ada di PETA_TOPIK — tambahkan dulu di skrip ini (dan di options field "topik" pada Produk.ts):\n  - ${belumDipetakan.join("\n  - ")}`,
+    `Folder berikut belum ada di PETA_TOPIK — tambahkan dulu di skrip ini (dan buat Topik-nya di dasbor):\n  - ${belumDipetakan.join("\n  - ")}`,
   );
   process.exit(1);
 }

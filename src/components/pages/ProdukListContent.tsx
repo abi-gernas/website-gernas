@@ -9,7 +9,13 @@ import {
   withParam,
   type LibrarySearchParams,
 } from "@/lib/library";
-import { KATEGORI_PRODUK_LABELS, TOPIK_PRODUK_LABELS, getProdukList, getProdukTerbaru, type TopikProduk } from "@/lib/produk";
+import {
+  KATEGORI_PRODUK_LABELS,
+  getKategoriKatalog,
+  getProdukList,
+  getProdukTerbaru,
+  getTopikKatalog,
+} from "@/lib/produk";
 import { produkListPath } from "@/lib/routes";
 import { LibrarySearchBar } from "@/components/library/LibrarySearchBar";
 import { LibraryCategoryChips, type ChipWarna } from "@/components/library/LibraryCategoryChips";
@@ -28,6 +34,7 @@ const text = {
       "Kumpulan buku, modul dan bahan ajar berkualitas yang siap digunakan untuk mendukung pembelajaran di kelas.",
     searchPlaceholder: "Cari materi, topik, kelas, atau kata kunci...",
     categoryTitle: "Jelajahi Berdasarkan Kategori",
+    kategoriLabel: "Kategori",
     listTitle: "Semua Buku, Bahan Ajar & Modul",
     empty: "Belum ada produk yang cocok dengan pencarian Anda.",
     semua: "Semua",
@@ -44,6 +51,7 @@ const text = {
       "A collection of quality books, modules, and teaching materials ready to support learning in the classroom.",
     searchPlaceholder: "Search materials, topics, grade, or keywords...",
     categoryTitle: "Browse by Category",
+    kategoriLabel: "Category",
     listTitle: "All Books, Teaching Materials & Modules",
     empty: "No products matched your search yet.",
     semua: "All",
@@ -57,53 +65,7 @@ const text = {
 } satisfies Record<Locale, unknown>;
 
 /**
- * Deskripsi + tint tiap kartu topik.
- *
- * Urutan & isinya mengikuti folder di Google Drive "Konten" yang jadi sumber
- * materinya (lihat `scripts/fetch-drive-konten.mts`), bukan lagi keempat
- * kartu jenis materi Modul/Buku/Bahan Ajar/LKS di mockup awal: seluruh materi
- * yang sudah ada berjenis sama, jadi kartu jenis tidak memisahkan apa pun.
- * Warnanya bergilir merah–biru–kuning seperti kartu Modul Pelatihan.
- */
-const topikKartu: {
-  topik: TopikProduk;
-  warna: ChipWarna;
-  deskripsi: Record<Locale, string>;
-}[] = [
-  {
-    topik: "geometri",
-    warna: "biru",
-    deskripsi: { id: "Bangun datar, bangun ruang, dan sudut", en: "Shapes, solids, and angles" },
-  },
-  {
-    topik: "bilangan-cacah",
-    warna: "merah",
-    deskripsi: { id: "Nilai tempat sampai perkalian & pembagian", en: "Place value to multiplication & division" },
-  },
-  {
-    topik: "pecahan",
-    warna: "kuning",
-    deskripsi: { id: "Pecahan senilai, desimal, dan persen", en: "Equivalent fractions, decimals, and percent" },
-  },
-  {
-    topik: "bilangan-bulat",
-    warna: "langit",
-    deskripsi: { id: "Bilangan negatif dan operasinya", en: "Negative numbers and their operations" },
-  },
-  {
-    topik: "statistika",
-    warna: "biru",
-    deskripsi: { id: "Penyajian data, mean, median, modus", en: "Data displays, mean, median, mode" },
-  },
-  {
-    topik: "pengukuran",
-    warna: "merah",
-    deskripsi: { id: "Keliling, luas, volume, dan waktu", en: "Perimeter, area, volume, and time" },
-  },
-];
-
-/**
- * Kartu ke-7 setelah topik: alat peraga bukan topik melainkan Jenis materi
+ * Kartu terakhir setelah kartu-kartu topik: alat peraga bukan topik melainkan Jenis materi
  * (`kategoriProduk`), sejak halaman Alat Peraga digabung ke sini (22 Sep 2026).
  */
 const alatPeragaKartu: { warna: ChipWarna; deskripsi: Record<Locale, string> } = {
@@ -121,17 +83,30 @@ export async function ProdukListContent({
   const t = text[locale];
   const q = parseQueryParam(searchParams.q);
   const jenjang = parseListParam(searchParams.jenjang);
-  const mapel = parseListParam(searchParams.mapel);
-  const kategori = parseListParam(searchParams.kategori);
+  // `?kategori=` dulu berarti Jenis materi (mis. `?kategori=alat-peraga`, masih ada di tautan
+  // lama). Nilai yang dikenali sebagai Jenis materi dialihkan ke `jenis`.
+  const kategoriMentah = parseListParam(searchParams.kategori);
+  const jenis = [
+    ...parseListParam(searchParams.jenis),
+    ...kategoriMentah.filter((v) => v in KATEGORI_PRODUK_LABELS),
+  ];
+  const kategori = kategoriMentah.filter((v) => !(v in KATEGORI_PRODUK_LABELS));
   const topik = parseListParam(searchParams.topik);
   const page = parsePageParam(searchParams.page);
   const statusParam = parseQueryParam(searchParams.status);
   const status = statusParam === "gratis" || statusParam === "berbayar" ? statusParam : undefined;
 
-  const [{ docs, totalDocs, totalPages, page: currentPage }, terbaru] = await Promise.all([
-    getProdukList({ q, jenjang, mapel, kategori, topik, status, page, locale }),
-    getProdukTerbaru(locale),
-  ]);
+  const [{ docs, totalDocs, totalPages, page: currentPage }, terbaru, daftarKategori, semuaTopik] =
+    await Promise.all([
+      getProdukList({ q, jenjang, kategori, jenis, topik, status, page, locale }),
+      getProdukTerbaru(locale),
+      getKategoriKatalog(locale),
+      getTopikKatalog(locale),
+    ]);
+  const kategoriAktif = daftarKategori.find((k) => k.slug === kategori[0]);
+  // Tanpa kategori terpilih, semua topik tampil; memilih kategori menyempitkannya.
+  const kartuTopik = kategoriAktif ? semuaTopik.filter((t) => t.kategori === kategoriAktif.slug) : semuaTopik;
+  const topikAktif = semuaTopik.find((t) => t.slug === topik[0]);
 
   const start = totalDocs === 0 ? 0 : (currentPage - 1) * LIBRARY_PAGE_SIZE + 1;
   const end = Math.min(currentPage * LIBRARY_PAGE_SIZE, totalDocs);
@@ -140,12 +115,13 @@ export async function ProdukListContent({
   // Klik kartu yang sedang aktif = melepas filternya.
   const hrefFilter = (o: Record<string, string | undefined>) =>
     `${basePath}${withParam(searchParams, { page: undefined, ...o })}`;
-  const namaFilterAktif =
-    topik.length > 0
-      ? TOPIK_PRODUK_LABELS[topik[0] as TopikProduk]?.[locale]
-      : kategori.includes("alat-peraga")
-        ? KATEGORI_PRODUK_LABELS["alat-peraga"][locale]
-        : undefined;
+  const namaFilterAktif = [
+    kategoriAktif?.nama,
+    topikAktif?.nama,
+    jenis.includes("alat-peraga") ? KATEGORI_PRODUK_LABELS["alat-peraga"][locale] : undefined,
+  ]
+    .filter(Boolean)
+    .join(" › ");
 
   return (
     <div>
@@ -194,14 +170,43 @@ export async function ProdukListContent({
 
         <div>
           <h2 className="mb-5 text-lg font-bold text-brand-navy">{t.categoryTitle}</h2>
+
+          {daftarKategori.length > 1 && (
+            <div className="mb-5 flex flex-wrap items-center gap-2" role="group" aria-label={t.kategoriLabel}>
+              {[{ slug: undefined, nama: t.semua }, ...daftarKategori].map((k) => {
+                const aktif = k.slug === kategoriAktif?.slug;
+                return (
+                  <Link
+                    key={k.slug ?? "semua"}
+                    href={hrefFilter({ kategori: k.slug, topik: undefined })}
+                    scroll={false}
+                    aria-current={aktif ? "true" : undefined}
+                    className={`rounded-pill px-4 py-1.5 text-sm font-semibold transition-colors ${
+                      aktif
+                        ? "bg-brand-navy text-white"
+                        : "bg-brand-navy/5 text-brand-navy hover:bg-brand-navy/10"
+                    }`}
+                  >
+                    {k.nama}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
           <LibraryCategoryChips
             items={[
-              ...topikKartu.map((k) => ({
-                label: TOPIK_PRODUK_LABELS[k.topik][locale],
-                deskripsi: k.deskripsi[locale],
-                ikon: <IkonTopikProduk topik={k.topik} />,
-                href: hrefFilter({ kategori: undefined, topik: topik[0] === k.topik ? undefined : k.topik }),
-                aktif: topik[0] === k.topik,
+              ...kartuTopik.map((k) => ({
+                label: k.nama,
+                deskripsi: k.deskripsi ?? undefined,
+                ikon: <IkonTopikProduk ikon={k.ikon} />,
+                href: hrefFilter({
+                  // Topik membawa kategorinya, jadi kartu tetap benar walau dibuka dari "Semua".
+                  kategori: kategoriAktif ? kategoriAktif.slug : undefined,
+                  jenis: undefined,
+                  topik: topik[0] === k.slug ? undefined : k.slug,
+                }),
+                aktif: topik[0] === k.slug,
                 warna: k.warna,
               })),
               {
@@ -209,10 +214,11 @@ export async function ProdukListContent({
                 deskripsi: alatPeragaKartu.deskripsi[locale],
                 ikon: <IkonKategoriProduk kategori="alat-peraga" />,
                 href: hrefFilter({
+                  kategori: undefined,
                   topik: undefined,
-                  kategori: kategori.includes("alat-peraga") ? undefined : "alat-peraga",
+                  jenis: jenis.includes("alat-peraga") ? undefined : "alat-peraga",
                 }),
-                aktif: kategori.includes("alat-peraga"),
+                aktif: jenis.includes("alat-peraga"),
                 warna: alatPeragaKartu.warna,
               },
             ]}
@@ -248,7 +254,7 @@ export async function ProdukListContent({
               <span className="ml-1 inline-flex items-center gap-2 rounded-pill bg-brand-yellow/20 px-3 py-1.5 text-sm font-semibold text-brand-navy">
                 {t.filterAktif}: {namaFilterAktif}
                 <Link
-                  href={hrefFilter({ topik: undefined, kategori: undefined })}
+                  href={hrefFilter({ kategori: undefined, topik: undefined, jenis: undefined })}
                   scroll={false}
                   aria-label={t.hapusFilter}
                   className="text-base leading-none hover:text-brand-red"

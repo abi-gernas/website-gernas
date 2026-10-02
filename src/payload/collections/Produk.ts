@@ -1,4 +1,4 @@
-import type { CollectionConfig } from "payload";
+import type { CollectionConfig, Payload } from "payload";
 import { terapkanReferensiLokal } from "../fields/localeReference";
 import { judulBaris } from "../fields/rowLabel";
 import { slugField } from "../fields/slug";
@@ -8,6 +8,12 @@ import { revalidateSemua, revalidateSemuaAfterDelete } from "../hooks/revalidate
 /** Alat peraga cuma dipamerkan (tanpa harga/unduhan), jadi field jual-unduh disembunyikan di dasbor. */
 const bukanAlatPeraga = (data: Partial<{ kategoriProduk: string }> | undefined) =>
   data?.kategoriProduk !== "alat-peraga";
+
+/** Id dari nilai relationship, entah masih berupa id atau sudah terisi objeknya. */
+const idRelasi = (v: unknown): number | string | undefined => {
+  if (v && typeof v === "object" && "id" in v) return (v as { id: number | string }).id;
+  return typeof v === "number" || typeof v === "string" ? v : undefined;
+};
 
 const alatPeraga = (data: Partial<{ kategoriProduk: string }> | undefined) =>
   data?.kategoriProduk === "alat-peraga";
@@ -31,7 +37,7 @@ const alatPeraga = (data: Partial<{ kategoriProduk: string }> | undefined) =>
  * pertamanya dihasilkan `npm run seed:produk-drive` dari folder Drive
  * "Konten" milik gernastastaka.online@gmail.com. `judul`, `slug`, `topik`,
  * `cover`, `tautanDrive`, dan `urutan` ditimpa ulang tiap kali skrip itu
- * jalan; field lain (jenjang, mapel, ringkasan, harga, dst.) aman disunting
+ * jalan; field lain (jenjang, kategori, ringkasan, harga, dst.) aman disunting
  * lewat dasbor. Lihat docs/RENCANA-INTEGRASI-DRIVE.md.
  */
 export const Produk: CollectionConfig = {
@@ -79,27 +85,56 @@ export const Produk: CollectionConfig = {
       admin: {
         position: "sidebar",
         description:
-          "Bentuk materinya. Alat Peraga = benda fisik yang cuma dipamerkan: harga, format, dan tautan unduhan disembunyikan. Tidak dipakai kartu kategori di halaman katalog — itu memakai field Topik di bawah.",
+          "Bentuk materinya. Alat Peraga = benda fisik yang cuma dipamerkan: harga, format, dan tautan unduhan disembunyikan. Tidak dipakai kartu di halaman katalog — kartu itu memakai Kategori → Topik di bawah.",
+      },
+    },
+    {
+      name: "kategori",
+      type: "relationship",
+      relationTo: "kategori-produk",
+      required: true,
+      label: "Kategori",
+      admin: {
+        position: "sidebar",
+        description:
+          "Mis. Matematika atau Membaca. Tekan “+” di samping kolom ini untuk menambah kategori baru, atau ikon pensil pada kategori terpilih untuk mengubah nama/urutannya.",
       },
     },
     {
       name: "topik",
-      type: "select",
+      type: "relationship",
+      relationTo: "topik-produk",
       required: true,
       label: "Topik",
-      defaultValue: "geometri",
-      options: [
-        { label: "Geometri", value: "geometri" },
-        { label: "Bilangan Cacah", value: "bilangan-cacah" },
-        { label: "Pecahan", value: "pecahan" },
-        { label: "Bilangan Bulat", value: "bilangan-bulat" },
-        { label: "Statistika", value: "statistika" },
-        { label: "Pengukuran", value: "pengukuran" },
-      ],
+      // Hanya topik milik kategori terpilih yang ditawarkan.
+      filterOptions: ({ siblingData }) => {
+        const kategori = (siblingData as { kategori?: unknown } | undefined)?.kategori;
+        const id = idRelasi(kategori);
+        return id === undefined ? true : { kategori: { equals: id } };
+      },
+      validate: async (
+        value: unknown,
+        { siblingData, req }: { siblingData?: Record<string, unknown>; req: { payload: Payload } },
+      ) => {
+        const topikId = idRelasi(value);
+        const kategoriId = idRelasi(siblingData?.kategori);
+        if (topikId === undefined) return "Topik wajib dipilih.";
+        if (kategoriId === undefined) return true; // kategori sendiri yang akan menolak
+        const topik = await req.payload
+          .findByID({ collection: "topik-produk", id: topikId, depth: 0, disableErrors: true })
+          .catch(() => null);
+        if (topik && idRelasi(topik.kategori) !== kategoriId) {
+          return "Topik ini bukan milik kategori yang dipilih. Pilih topik lain atau ganti kategorinya.";
+        }
+        return true;
+      },
       admin: {
         position: "sidebar",
+        // Mengosongkan topik saat kategori diganti,
+        // dan menitipkan kategori ke drawer topik baru — lihat TopikProdukField.tsx.
+        components: { Field: "/payload/components/TopikProdukField#TopikProdukField" },
         description:
-          "Menentukan kartu kategori mana di halaman katalog yang memuat produk ini. Nilainya mengikuti nama folder di Google Drive “Konten” — kalau menambah opsi di sini, tambahkan juga pemetaannya di scripts/fetch-drive-konten.mts.",
+          "Menentukan kartu topik mana di halaman katalog yang memuat produk ini. Pilih Kategori dulu — daftar topik menyesuaikan. Tekan “+” di samping kolom ini untuk menambah topik baru (nama, ikon, warna kartu) di kategori yang sedang dipilih, atau pensil untuk mengubah topik terpilih.",
       },
     },
     {
@@ -116,22 +151,6 @@ export const Produk: CollectionConfig = {
         { label: "SMA", value: "sma" },
       ],
       admin: { position: "sidebar" },
-    },
-    {
-      name: "mapel",
-      type: "select",
-      required: true,
-      hasMany: true,
-      label: "Mapel/Program",
-      defaultValue: ["matematika"],
-      options: [
-        { label: "Matematika (Gernas Tastaka)", value: "matematika" },
-        { label: "Membaca/Literasi (Gernas Tastaba)", value: "membaca" },
-      ],
-      admin: {
-        position: "sidebar",
-        description: "Sama seperti field Program di Modul Pelatihan — tambah opsi di sini bila nanti ada mapel baru.",
-      },
     },
     {
       name: "cover",

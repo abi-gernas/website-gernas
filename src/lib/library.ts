@@ -130,6 +130,7 @@ export function buildLibraryWhere({
   q,
   jenjang,
   mapel,
+  mapelPath = "mapel",
   fields = ["judul"],
   localized = [],
   locale = DEFAULT_LOCALE,
@@ -137,6 +138,12 @@ export function buildLibraryWhere({
   q?: string;
   jenjang?: string[];
   mapel?: string[];
+  /**
+   * Path field yang menampung mapel/kategori. `mapel` untuk koleksi lama yang
+   * memakai select; Produk memakai relationship, jadi memberi `kategori.slug`.
+   * Dipakai untuk alias kata kunci ("numerasi" → matematika) maupun filter `mapel`.
+   */
+  mapelPath?: string;
   fields?: string[];
   /** Lihat `klausaKataKunci`. */
   localized?: string[];
@@ -150,13 +157,13 @@ export function buildLibraryWhere({
       const klausa = klausaKataKunci(kata, fields, { locale, localized });
       const or = klausa.or as Where[];
       if (JENJANG_ALIAS[kata]) or.push({ jenjang: { in: [JENJANG_ALIAS[kata]] } });
-      if (MAPEL_ALIAS[kata]) or.push({ mapel: { in: [MAPEL_ALIAS[kata]] } });
+      if (MAPEL_ALIAS[kata]) or.push({ [mapelPath]: { in: [MAPEL_ALIAS[kata]] } });
       return klausa;
     });
   }
 
   if (jenjang && jenjang.length > 0) where.jenjang = { in: jenjang };
-  if (mapel && mapel.length > 0) where.mapel = { in: mapel };
+  if (mapel && mapel.length > 0) where[mapelPath] = { in: mapel };
   return where;
 }
 

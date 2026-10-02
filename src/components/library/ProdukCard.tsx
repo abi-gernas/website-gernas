@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Locale } from "@/lib/i18n";
-import { JENJANG_LABELS, MAPEL_LABELS } from "@/lib/library";
-import { KATEGORI_PRODUK_LABELS, TOPIK_PRODUK_LABELS, formatHarga, formatLabelPendek, type ProdukView } from "@/lib/produk";
+import { JENJANG_LABELS } from "@/lib/library";
+import { KATEGORI_PRODUK_LABELS, formatHarga, formatLabelPendek, type ProdukView } from "@/lib/produk";
 import { produkPath } from "@/lib/routes";
 
 /**
@@ -18,12 +18,12 @@ export function ProdukCard({ item, locale = "id" }: { item: ProdukView; locale?:
       ? { detail: "Details", gratis: "Free" }
       : { detail: "Detail", gratis: "Gratis" };
   // Topik ditaruh paling depan: seluruh materi yang ada sekarang berjenjang &
-  // bermapel sama, jadi topik-lah satu-satunya tag yang membedakan antar kartu.
+  // sekategori sama, jadi topik-lah satu-satunya tag yang membedakan antar kartu.
   const tags = [
-    TOPIK_PRODUK_LABELS[item.topik][locale],
+    item.topik?.nama,
     ...item.jenjang.map((j) => JENJANG_LABELS[j] ?? j),
-    ...item.mapel.map((m) => MAPEL_LABELS[m] ?? m),
-  ];
+    item.kategori?.nama,
+  ].filter((t): t is string => Boolean(t));
 
   return (
     <article className="flex flex-col overflow-hidden rounded-card bg-white shadow-soft transition-shadow hover:shadow-card">

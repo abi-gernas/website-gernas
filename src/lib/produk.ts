@@ -4,16 +4,23 @@ import { cache } from "react";
 import { payloadPromise } from "./payload";
 import { DEFAULT_LOCALE, type Locale } from "./i18n";
 import { LIBRARY_PAGE_SIZE, buildLibraryWhere } from "./library";
-import type { Produk as PayloadProduk, Media } from "@/payload-types";
+import type {
+  KategoriProduk as KategoriProdukDoc,
+  Produk as PayloadProduk,
+  TopikProduk as TopikProdukDoc,
+  Media,
+} from "@/payload-types";
 
 /**
- * Akses koleksi Buku, Bahan Ajar & Modul lewat Local API. Koleksi ini punya `jenjang`/`mapel`
- * (jadi pakai `buildLibraryWhere`) plus satu filter tambahan
- * `kategoriProduk`, lihat `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §2.2.
+ * Akses koleksi Buku, Bahan Ajar & Modul lewat Local API. Koleksi ini punya `jenjang` dan
+ * Kategori (jadi pakai `buildLibraryWhere`) plus filter tambahan Jenis materi
+ * (`kategoriProduk`) dan Topik, lihat `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §2.2.
  */
 
+/** Jenis materi (Modul/Buku/…), bukan Kategori katalog — lihat `KategoriKatalog`. */
 export type KategoriProduk = PayloadProduk["kategoriProduk"];
-export type TopikProduk = PayloadProduk["topik"];
+export type IkonTopik = TopikProdukDoc["ikon"];
+export type WarnaTopik = TopikProdukDoc["warna"];
 export type FormatProduk = NonNullable<PayloadProduk["format"]>[number];
 
 export type ProdukView = {
@@ -21,9 +28,10 @@ export type ProdukView = {
   judul: string;
   slug: string;
   kategoriProduk: KategoriProduk;
-  topik: TopikProduk;
+  /** Kategori → Topik: keduanya dikelola staf (koleksi Kategori Produk / Topik Produk). */
+  kategori: { slug: string; nama: string } | null;
+  topik: { slug: string; nama: string } | null;
   jenjang: string[];
-  mapel: string[];
   cover: { url: string; width?: number; height?: number } | null;
   ringkasan: string | null;
   penulis: string | null;
@@ -57,20 +65,6 @@ export const KATEGORI_PRODUK_LABELS: Record<KategoriProduk, { id: string; en: st
   "alat-peraga": { id: "Alat Peraga", en: "Teaching Aids" },
 };
 
-/**
- * Label kartu kategori di halaman katalog — nilainya harus sama dengan
- * `options` field `topik` di `Produk.ts` dan dengan `PETA_TOPIK` di
- * `scripts/fetch-drive-konten.mts`.
- */
-export const TOPIK_PRODUK_LABELS: Record<TopikProduk, { id: string; en: string }> = {
-  geometri: { id: "Geometri", en: "Geometry" },
-  "bilangan-cacah": { id: "Bilangan Cacah", en: "Whole Numbers" },
-  pecahan: { id: "Pecahan", en: "Fractions" },
-  "bilangan-bulat": { id: "Bilangan Bulat", en: "Integers" },
-  statistika: { id: "Statistika", en: "Statistics" },
-  pengukuran: { id: "Pengukuran", en: "Measurement" },
-};
-
 /** Label panjang, dipakai di bagian "Produk Terbaru" & halaman detail. */
 export const FORMAT_LABELS: Record<FormatProduk, { id: string; en: string }> = {
   pdf: { id: "PDF & Panduan Guru", en: "PDF & Teacher Guide" },
@@ -99,15 +93,22 @@ function toImage(value: unknown): { url: string; width?: number; height?: number
   return { url: m.url, width: m.width ?? undefined, height: m.height ?? undefined };
 }
 
+/** Nilai relationship yang sudah terisi (depth ≥ 1); `null` bila masih id polos atau kosong. */
+function terisi<T extends object>(value: unknown): T | null {
+  return value && typeof value === "object" ? (value as T) : null;
+}
+
 function toView(doc: PayloadProduk): ProdukView {
+  const kategori = terisi<KategoriProdukDoc>(doc.kategori);
+  const topik = terisi<TopikProdukDoc>(doc.topik);
   return {
     id: String(doc.id),
     judul: doc.judul,
     slug: doc.slug,
     kategoriProduk: doc.kategoriProduk,
-    topik: doc.topik,
+    kategori: kategori ? { slug: kategori.slug, nama: kategori.nama } : null,
+    topik: topik ? { slug: topik.slug, nama: topik.nama } : null,
     jenjang: doc.jenjang ?? [],
-    mapel: doc.mapel ?? [],
     cover: toImage(doc.cover),
     ringkasan: doc.ringkasan ?? null,
     penulis: doc.penulis ?? null,
@@ -124,8 +125,11 @@ function toView(doc: PayloadProduk): ProdukView {
 export type ProdukListParams = {
   q?: string;
   jenjang?: string[];
-  mapel?: string[];
+  /** Slug Kategori katalog (mis. "matematika"). */
   kategori?: string[];
+  /** Slug Jenis materi (mis. "alat-peraga"). */
+  jenis?: string[];
+  /** Slug Topik. */
   topik?: string[];
   /** "gratis" | "berbayar". Alat peraga dihitung berbayar: dijual lewat marketplace. */
   status?: string;
@@ -136,8 +140,8 @@ export type ProdukListParams = {
 export const getProdukList = cache(async function getProdukList({
   q,
   jenjang,
-  mapel,
   kategori,
+  jenis,
   topik,
   status,
   page = 1,
@@ -152,13 +156,14 @@ export const getProdukList = cache(async function getProdukList({
   const where = buildLibraryWhere({
     q,
     jenjang,
-    mapel,
-    fields: ["judul", "ringkasan", "penulis"],
-    localized: ["judul", "ringkasan"],
+    mapel: kategori,
+    mapelPath: "kategori.slug",
+    fields: ["judul", "ringkasan", "penulis", "topik.nama", "kategori.nama"],
+    localized: ["judul", "ringkasan", "topik.nama", "kategori.nama"],
     locale,
   });
-  if (kategori && kategori.length > 0) where.kategoriProduk = { in: kategori };
-  if (topik && topik.length > 0) where.topik = { in: topik };
+  if (jenis && jenis.length > 0) where.kategoriProduk = { in: jenis };
+  if (topik && topik.length > 0) where["topik.slug"] = { in: topik };
   if (status === "gratis") {
     where.and = [
       ...((where.and as Where[] | undefined) ?? []),
@@ -188,6 +193,60 @@ export const getProdukList = cache(async function getProdukList({
     totalPages: res.totalPages,
     page: res.page ?? 1,
   };
+});
+
+export type KategoriKatalog = { id: string; slug: string; nama: string };
+export type TopikKatalog = {
+  id: string;
+  slug: string;
+  nama: string;
+  deskripsi: string | null;
+  ikon: IkonTopik;
+  warna: WarnaTopik;
+  /** Slug Kategori induknya. */
+  kategori: string | null;
+};
+
+/** Kategori katalog (Matematika, Membaca, …) berurutan menurut `urutan` yang diatur staf. */
+export const getKategoriKatalog = cache(async function getKategoriKatalog(
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<KategoriKatalog[]> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "kategori-produk",
+    depth: 0,
+    limit: 100,
+    pagination: false,
+    sort: "urutan",
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+  });
+  return res.docs.map((d) => ({ id: String(d.id), slug: d.slug, nama: d.nama }));
+});
+
+/** Seluruh topik — penyaringan per kategori dilakukan pemanggil lewat `kategori` (slug induk). */
+export const getTopikKatalog = cache(async function getTopikKatalog(
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<TopikKatalog[]> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "topik-produk",
+    depth: 1,
+    limit: 500,
+    pagination: false,
+    sort: "urutan",
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+  });
+  return res.docs.map((d) => ({
+    id: String(d.id),
+    slug: d.slug,
+    nama: d.nama,
+    deskripsi: d.deskripsi ?? null,
+    ikon: d.ikon,
+    warna: d.warna,
+    kategori: terisi<KategoriProdukDoc>(d.kategori)?.slug ?? null,
+  }));
 });
 
 /**

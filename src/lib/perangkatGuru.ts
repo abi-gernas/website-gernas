@@ -45,7 +45,7 @@ const koleksi: Record<KatalogGuru, SumberKatalog> = {
 
 const alamat: Record<KatalogGuru, (locale: Locale) => string> = {
   produk: produkListPath,
-  alatPeraga: (locale) => `${produkListPath(locale)}?kategori=alat-peraga`,
+  alatPeraga: (locale) => `${produkListPath(locale)}?jenis=alat-peraga`,
   videoPembelajaran: videoPembelajaranListPath,
   mediaInteraktif: mediaInteraktifListPath,
 };

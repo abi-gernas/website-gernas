@@ -86,7 +86,7 @@ const URUTAN_TOPIK = [
  */
 const KATEGORI = "bahan-ajar";
 const JENJANG = ["sd"];
-const MAPEL = ["matematika"];
+const KATEGORI_KATALOG = "matematika";
 
 /**
  * Field yang hanya diisi saat dokumen pertama kali dibuat.
@@ -96,9 +96,10 @@ const MAPEL = ["matematika"];
  * disinkronkan tiap kali jalan hanyalah data yang memang berasal dari Drive:
  * judul, topik, urutan, tautan, dan sampul.
  */
-const FIELD_SEKALI_ISI = ["kategoriProduk", "jenjang", "mapel", "status", "format"] as const;
+const FIELD_SEKALI_ISI = ["kategoriProduk", "jenjang", "kategori", "status", "format"] as const;
 
 const payload = await getPayload({ config });
+const { idKategori, idTopik } = await import("./lib/taksonomi-produk.mjs");
 
 // ── 1. Bersihkan data dummy ─────────────────────────────────────────────────
 
@@ -177,7 +178,7 @@ for (const [i, e] of daftar.entries()) {
 
     const dariDrive = {
       judul: e.judul,
-      topik: e.topik,
+      topik: await idTopik(payload, e.topik),
       cover,
       tautanDrive: e.tautanDrive,
       urutan,
@@ -219,7 +220,7 @@ for (const [i, e] of daftar.entries()) {
           slug: e.slug,
           kategoriProduk: KATEGORI,
           jenjang: JENJANG,
-          mapel: MAPEL,
+          kategori: await idKategori(payload, KATEGORI_KATALOG),
           status: "gratis",
           format: ["pdf"],
         } as never,

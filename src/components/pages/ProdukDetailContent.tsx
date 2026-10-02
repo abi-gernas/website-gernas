@@ -3,11 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { DEFAULT_LOCALE, localizedPath, type Locale } from "@/lib/i18n";
-import { JENJANG_LABELS, MAPEL_LABELS } from "@/lib/library";
+import { JENJANG_LABELS } from "@/lib/library";
 import {
   FORMAT_LABELS,
   KATEGORI_PRODUK_LABELS,
-  TOPIK_PRODUK_LABELS,
   formatHarga,
   getProdukBySlug,
 } from "@/lib/produk";
@@ -86,11 +85,11 @@ export async function ProdukDetailContent({
   const urlHalaman = `${process.env.NEXT_PUBLIC_SERVER_URL ?? ""}${produkPath(item.slug, locale)}`;
 
   const tags = [
-    TOPIK_PRODUK_LABELS[item.topik][locale],
+    item.topik?.nama,
     KATEGORI_PRODUK_LABELS[item.kategoriProduk][locale],
     ...item.jenjang.map((j) => JENJANG_LABELS[j] ?? j),
-    ...item.mapel.map((m) => MAPEL_LABELS[m] ?? m),
-  ];
+    item.kategori?.nama,
+  ].filter((t): t is string => Boolean(t));
 
   return (
     <article>

@@ -19,3 +19,5 @@ next-env.d.ts
 
 # Knowledge graph graphify — hasil generate lokal, dibangun ulang via `graphify update .`
 /graphify-out/
+/backups
+/.playwright-mcp

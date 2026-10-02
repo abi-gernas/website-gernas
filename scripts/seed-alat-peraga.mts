@@ -22,6 +22,7 @@ const config = (await import("../src/payload.config.js")).default;
 const coverArg = process.argv.find((a) => a.startsWith("--cover="))?.split("=")[1];
 
 const payload = await getPayload({ config });
+const { idKategori, idTopik } = await import("./lib/taksonomi-produk.mjs");
 
 let media: { id: number | string } | undefined;
 if (coverArg) {
@@ -43,9 +44,9 @@ if (coverArg) {
 const data = {
   judul: "Desimalken",
   kategoriProduk: "alat-peraga" as const,
-  topik: "pecahan" as const,
+  topik: await idTopik(payload, "pecahan"),
   jenjang: ["sd" as const],
-  mapel: ["matematika" as const],
+  kategori: await idKategori(payload, "matematika"),
   ...(media ? { cover: media.id } : {}),
   varian: [
     { nama: "Plastik OPP Tanpa Donasi", harga: 12000 },
