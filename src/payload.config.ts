@@ -30,7 +30,7 @@ import { Leads } from "./payload/collections/Leads";
 import { Ulasan } from "./payload/collections/Ulasan";
 import { SiteSettings } from "./payload/globals/SiteSettings";
 import { Navigation } from "./payload/globals/Navigation";
-import { getServerUrl } from "./lib/env";
+import { getCsrfOrigins, getServerUrl } from "./lib/env";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -49,6 +49,7 @@ const supabasePublicBase = `https://${supabaseRef}.supabase.co/storage/v1/object
 
 export default buildConfig({
   serverURL: getServerUrl(),
+  csrf: getCsrfOrigins(),
 
   admin: {
     user: Users.slug,

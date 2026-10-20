@@ -6,7 +6,9 @@ import type { CollectionConfig } from "payload";
  */
 export const Users: CollectionConfig = {
   slug: "users",
-  auth: true,
+  // Bawaan Payload 2 jam: tab dasbor yang dibiarkan terbuka berujung 401
+  // ("Unauthorized") pada fungsi server seperti muat ulang daftar & preferensi.
+  auth: { tokenExpiration: 60 * 60 * 24 },
   admin: {
     useAsTitle: "name",
     group: "Pengaturan",
