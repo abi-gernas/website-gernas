@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { getVideoPembelajaranSlugs } from "@/lib/videoPembelajaran";
 import {
   VideoPembelajaranDetailContent,
   videoPembelajaranMetadata,
@@ -14,9 +13,14 @@ import {
  */
 export const revalidate = 300;
 
-export async function generateStaticParams() {
-  const slugs = await getVideoPembelajaranSlugs();
-  return slugs.map((slug) => ({ slug }));
+/**
+ * Tidak ada halaman yang dirender saat build: tiap render menyeberang ke
+ * database Supabase (Singapura) dari mesin build Vercel (AS), dan ratusan
+ * halaman itu memakan ~4 menit. Dengan daftar kosong, halaman dirender saat
+ * pertama dikunjungi lalu di-cache; hook revalidate tetap menyegarkannya.
+ */
+export function generateStaticParams() {
+  return [];
 }
 
 export async function generateMetadata({

@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
-import { getArticleSlugs } from "@/lib/content";
 import { ArticleContent, articleMetadata } from "@/components/pages/ArticleContent";
 
 /** Versi Inggris dari halaman artikel — lihat catatan locale di `../../[slug]/page.tsx`. */
 
-export async function generateStaticParams() {
-  const slugs = await getArticleSlugs("en");
-  return slugs.map((slug) => ({ slug }));
+/**
+ * Tidak ada halaman yang dirender saat build: tiap render menyeberang ke
+ * database Supabase (Singapura) dari mesin build Vercel (AS), dan ratusan
+ * halaman itu memakan ~4 menit. Dengan daftar kosong, halaman dirender saat
+ * pertama dikunjungi lalu di-cache; hook revalidate tetap menyegarkannya.
+ */
+export function generateStaticParams() {
+  return [];
 }
 
 export async function generateMetadata({

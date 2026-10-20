@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { getAcaraSlugs } from "@/lib/datasitus";
 import { AcaraDetailContent, acaraMetadata } from "@/components/pages/AcaraDetailContent";
 
 /** Versi Inggris ada di `en/acara/[slug]/page.tsx` — lihat catatan locale di `src/lib/i18n.ts`. */
@@ -10,9 +9,14 @@ import { AcaraDetailContent, acaraMetadata } from "@/components/pages/AcaraDetai
  */
 export const revalidate = 300;
 
-export async function generateStaticParams() {
-  const slugs = await getAcaraSlugs();
-  return slugs.map((slug) => ({ slug }));
+/**
+ * Tidak ada halaman yang dirender saat build: tiap render menyeberang ke
+ * database Supabase (Singapura) dari mesin build Vercel (AS), dan ratusan
+ * halaman itu memakan ~4 menit. Dengan daftar kosong, halaman dirender saat
+ * pertama dikunjungi lalu di-cache; hook revalidate tetap menyegarkannya.
+ */
+export function generateStaticParams() {
+  return [];
 }
 
 export async function generateMetadata({

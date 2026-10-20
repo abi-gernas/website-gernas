@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { getMediaInteraktifSlugs } from "@/lib/mediaInteraktif";
 import {
   MediaInteraktifDetailContent,
   mediaInteraktifMetadata,
@@ -7,9 +6,14 @@ import {
 
 /** Versi Inggris dari halaman intro Media Interaktif — lihat `../../../media-interaktif/[slug]/page.tsx`. */
 
-export async function generateStaticParams() {
-  const slugs = await getMediaInteraktifSlugs();
-  return slugs.map((slug) => ({ slug }));
+/**
+ * Tidak ada halaman yang dirender saat build: tiap render menyeberang ke
+ * database Supabase (Singapura) dari mesin build Vercel (AS), dan ratusan
+ * halaman itu memakan ~4 menit. Dengan daftar kosong, halaman dirender saat
+ * pertama dikunjungi lalu di-cache; hook revalidate tetap menyegarkannya.
+ */
+export function generateStaticParams() {
+  return [];
 }
 
 export async function generateMetadata({
