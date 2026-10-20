@@ -1,9 +1,9 @@
 import "server-only";
 import { cache } from "react";
-import { payloadPromise } from "./payload";
+import { payloadPromise, toImage } from "./payload";
 import { DEFAULT_LOCALE, type Locale } from "./i18n";
 import { LIBRARY_PAGE_SIZE, buildLibraryWhere } from "./library";
-import type { VideoPembelajaran as PayloadVideoPembelajaran, Media } from "@/payload-types";
+import type { VideoPembelajaran as PayloadVideoPembelajaran } from "@/payload-types";
 
 /** Akses koleksi Video Pembelajaran lewat Local API — lihat pola yang sama di `produk.ts`. */
 
@@ -20,13 +20,6 @@ export type VideoPembelajaranView = {
   berkasVideo: { url: string; width?: number; height?: number } | null;
   durasi: string | null;
 };
-
-function toImage(value: unknown): { url: string; width?: number; height?: number } | null {
-  if (!value || typeof value !== "object") return null;
-  const m = value as Media;
-  if (!m.url) return null;
-  return { url: m.url, width: m.width ?? undefined, height: m.height ?? undefined };
-}
 
 /**
  * Alamat sumber video aslinya (YouTube / berkas Media).
@@ -135,19 +128,6 @@ export const getVideoPembelajaranBySlug = cache(async function getVideoPembelaja
   const doc = res.docs[0];
   return doc ? toView(doc) : null;
 });
-
-/** Slug seluruh video — untuk `generateStaticParams`. */
-export async function getVideoPembelajaranSlugs(): Promise<string[]> {
-  const payload = await payloadPromise;
-  const res = await payload.find({
-    collection: "video-pembelajaran",
-    depth: 0,
-    limit: 1000,
-    pagination: false,
-    select: { slug: true },
-  });
-  return res.docs.map((d) => d.slug);
-}
 
 /**
  * Video sematan (urutan terkecil) untuk korsel "Video Pilihan" di hero.

@@ -1,14 +1,13 @@
 import "server-only";
 import type { Where } from "payload";
 import { cache } from "react";
-import { payloadPromise } from "./payload";
+import { payloadPromise, toImage } from "./payload";
 import { DEFAULT_LOCALE, type Locale } from "./i18n";
 import { LIBRARY_PAGE_SIZE, buildLibraryWhere } from "./library";
 import type {
   KategoriProduk as KategoriProdukDoc,
   Produk as PayloadProduk,
   TopikProduk as TopikProdukDoc,
-  Media,
 } from "@/payload-types";
 
 /**
@@ -84,13 +83,6 @@ export function formatLabelPendek(format: FormatProduk[], locale: Locale = DEFAU
 /** "Rp20.000". Angka tanpa desimal — harga produk selalu bulat di dasbor. */
 export function formatHarga(harga: number, locale: Locale = DEFAULT_LOCALE): string {
   return `Rp${harga.toLocaleString(locale === "en" ? "en-US" : "id-ID")}`;
-}
-
-function toImage(value: unknown): { url: string; width?: number; height?: number } | null {
-  if (!value || typeof value !== "object") return null;
-  const m = value as Media;
-  if (!m.url) return null;
-  return { url: m.url, width: m.width ?? undefined, height: m.height ?? undefined };
 }
 
 /** Nilai relationship yang sudah terisi (depth ≥ 1); `null` bila masih id polos atau kosong. */
@@ -310,16 +302,3 @@ export const getProdukById = cache(async function getProdukById(
   });
   return doc ? toView(doc) : null;
 });
-
-/** Slug seluruh Produk — untuk `generateStaticParams`. */
-export async function getProdukSlugs(): Promise<string[]> {
-  const payload = await payloadPromise;
-  const res = await payload.find({
-    collection: "produk",
-    depth: 0,
-    limit: 1000,
-    pagination: false,
-    select: { slug: true },
-  });
-  return res.docs.map((d) => d.slug);
-}

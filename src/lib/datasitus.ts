@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { payloadPromise } from "./payload";
 import { DEFAULT_LOCALE, type Locale } from "./i18n";
 import type { Acara, Media, ModulPelatihan, Penggerak, Mitra, Video, SiteSetting } from "@/payload-types";
@@ -91,8 +92,11 @@ export async function getAcara(locale: Locale = DEFAULT_LOCALE): Promise<Acara[]
   return res.docs;
 }
 
-/** Satu acara menurut slug-nya — untuk halaman detail `/acara/[slug]`. */
-export async function getAcaraBySlug(
+/**
+ * Satu acara menurut slug-nya — untuk halaman detail `/acara/[slug]`.
+ * Dibungkus `cache` karena metadata dan halaman memanggilnya pada render yang sama.
+ */
+export const getAcaraBySlug = cache(async function getAcaraBySlug(
   slug: string,
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<Acara | null> {
@@ -107,20 +111,7 @@ export async function getAcaraBySlug(
     pagination: false,
   });
   return res.docs[0] ?? null;
-}
-
-/** Slug seluruh acara — untuk `generateStaticParams`. */
-export async function getAcaraSlugs(): Promise<string[]> {
-  const payload = await payloadPromise;
-  const res = await payload.find({
-    collection: "acara",
-    depth: 0,
-    limit: 1000,
-    pagination: false,
-    select: { slug: true },
-  });
-  return res.docs.map((d) => d.slug);
-}
+});
 
 export async function getModulPelatihan(
   program: "matematika" | "membaca",

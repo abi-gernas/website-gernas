@@ -1,8 +1,8 @@
 import "server-only";
 import { cache } from "react";
-import { payloadPromise } from "./payload";
+import { payloadPromise, toImage } from "./payload";
 import { DEFAULT_LOCALE, type Locale } from "./i18n";
-import type { Article as PayloadArticle, Media } from "@/payload-types";
+import type { Article as PayloadArticle } from "@/payload-types";
 
 /**
  * Akses konten dari Payload untuk halaman publik.
@@ -42,18 +42,6 @@ function toPersonName(
     return ref.relationTo === "users" ? ref.value.name : ref.value.nama;
   }
   return null;
-}
-
-/** Ambil URL & dimensi dari relasi Media yang sudah ter-populate. */
-function toImage(value: unknown): ArticleView["image"] {
-  if (!value || typeof value !== "object") return null;
-  const m = value as Media;
-  if (!m.url) return null;
-  return {
-    url: m.url,
-    width: m.width ?? undefined,
-    height: m.height ?? undefined,
-  };
 }
 
 function toView(doc: PayloadArticle, withContent = false): ArticleView {
@@ -137,20 +125,6 @@ export const getArticleBySlug = cache(async function getArticleBySlug(
   const doc = res.docs[0];
   return doc ? toView(doc, true) : null;
 });
-
-/** Slug seluruh artikel terbit — untuk generateStaticParams. */
-export async function getArticleSlugs(locale: Locale = DEFAULT_LOCALE): Promise<string[]> {
-  const payload = await payloadPromise;
-  const res = await payload.find({
-    collection: "articles",
-    depth: 0,
-    limit: 1000,
-    where: { _status: { equals: "published" } },
-    pagination: false,
-    select: { slug: true },
-  });
-  return res.docs.map((d) => d.slug);
-}
 
 /**
  * Slug + tanggal terbit seluruh artikel — untuk sitemap.

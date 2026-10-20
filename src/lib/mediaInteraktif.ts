@@ -1,10 +1,10 @@
 import "server-only";
 import { cache } from "react";
-import { payloadPromise } from "./payload";
+import { payloadPromise, toImage } from "./payload";
 import { DEFAULT_LOCALE, type Locale } from "./i18n";
 import { LIBRARY_PAGE_SIZE, klausaKataKunci, pecahKataKunci } from "./library";
 import type { Where } from "payload";
-import type { MediaInteraktif as PayloadMediaInteraktif, Media } from "@/payload-types";
+import type { MediaInteraktif as PayloadMediaInteraktif } from "@/payload-types";
 
 /**
  * Akses koleksi Media Digital Interaktif lewat Local API — pola sama
@@ -24,13 +24,6 @@ export type MediaInteraktifView = {
   tags: string[];
   tautan: string;
 };
-
-function toImage(value: unknown): { url: string; width?: number; height?: number } | null {
-  if (!value || typeof value !== "object") return null;
-  const m = value as Media;
-  if (!m.url) return null;
-  return { url: m.url, width: m.width ?? undefined, height: m.height ?? undefined };
-}
 
 function toView(doc: PayloadMediaInteraktif): MediaInteraktifView {
   return {
@@ -114,19 +107,6 @@ export const getMediaInteraktifBySlug = cache(async function getMediaInteraktifB
   const doc = res.docs[0];
   return doc ? toView(doc) : null;
 });
-
-/** Slug seluruh media — untuk `generateStaticParams`. */
-export async function getMediaInteraktifSlugs(): Promise<string[]> {
-  const payload = await payloadPromise;
-  const res = await payload.find({
-    collection: "media-interaktif",
-    depth: 0,
-    limit: 1000,
-    pagination: false,
-    select: { slug: true },
-  });
-  return res.docs.map((d) => d.slug);
-}
 
 /**
  * 3 tag terpakai terbanyak, untuk "Pencarian Populer" di hero. Ambil semua
