@@ -23,6 +23,7 @@ export function PencarianCepat({
   tagPopuler,
   locale,
   judulHalaman = false,
+  acara,
 }: {
   judul: string;
   subjudul?: string;
@@ -32,6 +33,8 @@ export function PencarianCepat({
   locale: Locale;
   /** Blok pertama di halaman → judulnya jadi `<h1>`. */
   judulHalaman?: boolean;
+  /** Deretan "Acara Terdekat" yang menempel di bawah pencarian, masih di dalam hero. */
+  acara?: React.ReactNode;
 }) {
   const t = text[locale];
   const Judul = judulHalaman ? "h1" : "h2";
@@ -52,7 +55,13 @@ export function PencarianCepat({
         </div>
       )}
 
-      <div className="container-page flex min-h-[320px] flex-col items-center justify-center py-16 text-center sm:min-h-[400px] sm:py-20">
+      <div
+        className={`container-page flex flex-col items-center justify-center text-center ${
+          acara
+            ? "pb-10 pt-16 sm:pb-12 sm:pt-20"
+            : "min-h-[320px] py-16 sm:min-h-[400px] sm:py-20"
+        }`}
+      >
         <Judul className="max-w-3xl text-2xl font-bold leading-tight text-white sm:text-4xl">
           {judul}
         </Judul>
@@ -87,6 +96,8 @@ export function PencarianCepat({
           </div>
         )}
       </div>
+
+      {acara}
     </section>
   );
 }

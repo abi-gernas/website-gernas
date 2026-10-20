@@ -21,6 +21,14 @@ import { PageContent, pageMetadata } from "@/components/pages/PageContent";
 type RouteParams = { slug: string[] };
 
 /**
+ * Dirender ulang tiap 5 menit selain saat staf menyimpan dari dasbor. Blok
+ * Perangkat Guru menghitung jumlah katalog saat render; tanpa ini angkanya
+ * membeku di nilai saat build bila materi ditambah lewat skrip/seed (yang tidak
+ * memicu `revalidatePath`, lihat hooks/revalidate.ts).
+ */
+export const revalidate = 300;
+
+/**
  * Beranda dilayani `(frontend)/page.tsx` di "/". Bila slug-nya tidak dibuang
  * di sini, isi yang sama juga tayang di "/beranda" — URL duplikat yang saling
  * bersaing di hasil pencarian.

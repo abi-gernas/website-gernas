@@ -181,7 +181,7 @@ export const JadwalAcaraBlock: Block = {
       ],
       admin: {
         description:
-          "“Geser” dipakai Pojok Guru: judul rata kiri dengan tautan “Lihat semua” di kanan, kartu digeser ke samping.",
+          "“Geser” dipakai Pojok Guru: judul rata kiri dengan tautan “Lihat semua” di kanan, kartu digeser ke samping. Bila halaman dibuka dengan blok Hero Pencarian, blok Geser pertama otomatis tampil di dalam hero itu (di bawah kotak pencarian), bukan di posisinya di daftar.",
       },
     },
     {

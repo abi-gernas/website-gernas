@@ -189,11 +189,13 @@ function DeretAcara({
   kepala,
   id,
   locale,
+  dalamHero = false,
 }: {
   item: { a: AcaraTampil; selesai: boolean }[];
   kepala?: React.ReactNode;
   id?: string;
   locale: Locale;
+  dalamHero?: boolean;
 }) {
   const ref = useRef<HTMLUListElement>(null);
   const [ujung, setUjung] = useState({ awal: true, akhir: false });
@@ -227,7 +229,10 @@ function DeretAcara({
     "flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-brand-navy transition-colors hover:bg-brand-navy hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-35";
 
   return (
-    <section id={id} className="container-page py-12 sm:py-16">
+    <section
+      id={id}
+      className={`container-page ${dalamHero ? "pb-12 sm:pb-16" : "py-12 sm:py-16"}`}
+    >
       <div className="overflow-hidden rounded-card bg-white p-6 shadow-card sm:p-8">
         {kepala}
 
@@ -284,6 +289,7 @@ export function JadwalAcara({
   tampilan = "grid",
   kepala,
   id,
+  dalamHero = false,
 }: {
   acara: AcaraTampil[];
   patokan: number;
@@ -295,6 +301,8 @@ export function JadwalAcara({
   kepala?: React.ReactNode;
   /** Penanda tautan — hanya dipakai tampilan Geser; Grid memakai `Section` pembungkusnya. */
   id?: string;
+  /** Geser di dalam hero Pojok Guru: tanpa padding atas, hero yang memberi jarak. */
+  dalamHero?: boolean;
 }) {
   const [sekarang, setSekarang] = useState(patokan);
   const [terbuka, setTerbuka] = useState(false);
@@ -319,7 +327,7 @@ export function JadwalAcara({
   // Tanpa acara mendatang, acara selesai terbaru tetap mengisi deret —
   // keputusan 16 Sep 2026, supaya bagian ini tidak kosong.
   if (tampilan === "geser") {
-    return <DeretAcara item={urut.slice(0, batas)} kepala={kepala} id={id} locale={locale} />;
+    return <DeretAcara item={urut.slice(0, batas)} kepala={kepala} id={id} locale={locale} dalamHero={dalamHero} />;
   }
 
   const tampil = terbuka ? urut : urut.slice(0, batas);

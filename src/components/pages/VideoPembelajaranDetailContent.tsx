@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import {
   getVideoPembelajaranBySlug,
-  getVideoPembelajaranPilihan,
+  getVideoPembelajaranLainnya,
   videoPembelajaranSumberHref,
 } from "@/lib/videoPembelajaran";
 import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
@@ -42,9 +42,7 @@ export async function VideoPembelajaranDetailContent({
   const item = await getVideoPembelajaranBySlug(slug, locale);
   if (!item) notFound();
 
-  const lainnya = (await getVideoPembelajaranPilihan(locale, 4))
-    .filter((v) => v.id !== item.id)
-    .slice(0, 3);
+  const lainnya = await getVideoPembelajaranLainnya(item.id, locale);
 
   const tags = [
     ...item.jenjang.map((j) => JENJANG_LABELS[j] ?? j),

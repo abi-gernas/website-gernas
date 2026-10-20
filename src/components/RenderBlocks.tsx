@@ -280,9 +280,11 @@ async function ModulPelatihanBlok({
 async function JadwalAcaraBlok({
   block,
   locale,
+  dalamHero = false,
 }: {
   block: Extract<Block, { blockType: "jadwalAcara" }>;
   locale: Locale;
+  dalamHero?: boolean;
 }) {
   const docs = await getAcara(locale);
   if (docs.length === 0) return null;
@@ -346,7 +348,15 @@ async function JadwalAcaraBlok({
         </div>
       ) : undefined;
 
-    return <JadwalAcara {...umum} tampilan="geser" kepala={kepala} id={block.anchor ?? undefined} />;
+    return (
+      <JadwalAcara
+        {...umum}
+        tampilan="geser"
+        kepala={kepala}
+        id={block.anchor ?? undefined}
+        dalamHero={dalamHero}
+      />
+    );
   }
 
   return (
@@ -468,11 +478,14 @@ async function RenderBlock({
   block,
   locale,
   pertama = false,
+  acaraHero,
 }: {
   block: Block;
   locale: Locale;
   /** Blok paling atas halaman — blok hero yang judulnya bisa jadi `<h1>`. */
   pertama?: boolean;
+  /** Hanya untuk `pencarianCepat`: blok Jadwal Acara (Geser) yang dipindah ke dalam hero. */
+  acaraHero?: Extract<Block, { blockType: "jadwalAcara" }>;
 }) {
   switch (block.blockType) {
     case "hero": {
@@ -519,6 +532,9 @@ async function RenderBlock({
           tagPopuler={(block.tagPopuler ?? []).map((t) => t.label).filter(Boolean)}
           locale={locale}
           judulHalaman={pertama}
+          acara={
+            acaraHero ? <JadwalAcaraBlok block={acaraHero} locale={locale} dalamHero /> : undefined
+          }
         />
       );
 
@@ -914,16 +930,29 @@ export function RenderBlocks({
 }) {
   if (!blocks || blocks.length === 0) return null;
 
+  // Hero Pencarian di paling atas menampung Jadwal Acara (Geser) pertama di
+  // halaman yang sama — satu blok, dua tempat tidak pernah dirender bersamaan.
+  const acaraHero =
+    blocks[0].blockType === "pencarianCepat"
+      ? blocks.find(
+          (b): b is Extract<Block, { blockType: "jadwalAcara" }> =>
+            b.blockType === "jadwalAcara" && b.tampilan === "geser",
+        )
+      : undefined;
+
   return (
     <>
-      {blocks.map((block, i) => (
-        <RenderBlock
-          key={block.id ?? `${block.blockType}-${i}`}
-          block={block}
-          locale={locale}
-          pertama={i === 0}
-        />
-      ))}
+      {blocks.map((block, i) =>
+        block === acaraHero ? null : (
+          <RenderBlock
+            key={block.id ?? `${block.blockType}-${i}`}
+            block={block}
+            locale={locale}
+            pertama={i === 0}
+            acaraHero={i === 0 ? acaraHero : undefined}
+          />
+        ),
+      )}
     </>
   );
 }

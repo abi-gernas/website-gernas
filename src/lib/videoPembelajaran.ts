@@ -170,3 +170,33 @@ export const getVideoPembelajaranPilihan = cache(async function getVideoPembelaj
   });
   return res.docs.map(toView);
 });
+
+/**
+ * Pilihan acak untuk "Video Lainnya" di halaman detail — bukan `urutan` terkecil
+ * lagi, yang membuat setiap video menampilkan tiga rekomendasi yang itu-itu saja.
+ * Halaman detail di-render ulang berkala (`revalidate`), jadi isinya berganti
+ * seiring waktu, tidak hanya saat build.
+ */
+export async function getVideoPembelajaranLainnya(
+  kecualiId: string,
+  locale: Locale = DEFAULT_LOCALE,
+  limit = 3,
+): Promise<VideoPembelajaranView[]> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "video-pembelajaran",
+    depth: 1,
+    limit: 200,
+    pagination: false,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+    where: { id: { not_equals: kecualiId } },
+  });
+  const pool = res.docs.map(toView);
+  // Fisher–Yates parsial: cukup `limit` elemen pertama yang teracak.
+  for (let i = 0; i < Math.min(limit, pool.length); i++) {
+    const j = i + Math.floor(Math.random() * (pool.length - i));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, limit);
+}

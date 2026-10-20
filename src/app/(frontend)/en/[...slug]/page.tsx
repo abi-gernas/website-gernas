@@ -5,6 +5,14 @@ import { PageContent, pageMetadata } from "@/components/pages/PageContent";
 
 type RouteParams = { slug: string[] };
 
+/**
+ * Dirender ulang tiap 5 menit selain saat staf menyimpan dari dasbor. Blok
+ * Perangkat Guru menghitung jumlah katalog saat render; tanpa ini angkanya
+ * membeku di nilai saat build bila materi ditambah lewat skrip/seed (yang tidak
+ * memicu `revalidatePath`, lihat hooks/revalidate.ts).
+ */
+export const revalidate = 300;
+
 /** Versi Inggris dari halaman catch-all — lihat catatan locale di `../../[...slug]/page.tsx`. */
 export async function generateStaticParams() {
   const slugs = await getPageSlugs("en");
