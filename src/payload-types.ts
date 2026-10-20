@@ -770,7 +770,7 @@ export interface Page {
             heading?: string | null;
             deskripsi?: string | null;
             /**
-             * “Geser” dipakai Pojok Guru: judul rata kiri dengan tautan “Lihat semua” di kanan, kartu digeser ke samping.
+             * “Geser” dipakai Pojok Guru: judul rata kiri dengan tautan “Lihat semua” di kanan, kartu digeser ke samping. Bila halaman dibuka dengan blok Hero Pencarian, blok Geser pertama otomatis tampil di dalam hero itu (di bawah kotak pencarian), bukan di posisinya di daftar.
              */
             tampilan?: ('grid' | 'geser') | null;
             /**
@@ -1501,6 +1501,10 @@ export interface ModulPelatihan {
 export interface Acara {
   id: number;
   judul: string;
+  /**
+   * Bagian akhir alamat halaman. Dibuat otomatis dari judul — ubah hanya bila perlu menyamakan dengan URL lama.
+   */
+  slug: string;
   kategori: 'webinar' | 'pelatihan' | 'workshop' | 'klubBuku' | 'seminar';
   /**
    * Bila diisi, kartu tampil sebagai poster. Bila kosong, kartu tampil sebagai kotak berwarna sesuai kategori. Poster sebaiknya tegak (4:5).
@@ -1516,6 +1520,10 @@ export interface Acara {
    * Untuk acara tatap muka/hybrid, mis. “Kantor Indorelawan, Jakarta”. Cukup nama tempat + kota.
    */
   lokasi?: string | null;
+  /**
+   * Tampil di halaman detail acara (kartu acara bisa diklik). Pisahkan paragraf dengan satu baris kosong. Boleh dikosongkan.
+   */
+  deskripsi?: string | null;
   /**
    * Alamat Google Form (https://forms.gle/…) atau formulir situs sendiri (/…). KOSONGKAN bila acara eksklusif — tombol “Daftar” tidak akan muncul. Tombol juga otomatis hilang setelah tanggal acara lewat.
    */
@@ -2523,12 +2531,14 @@ export interface ModulPelatihanSelect<T extends boolean = true> {
  */
 export interface AcaraSelect<T extends boolean = true> {
   judul?: T;
+  slug?: T;
   kategori?: T;
   poster?: T;
   tanggal?: T;
   waktu?: T;
   format?: T;
   lokasi?: T;
+  deskripsi?: T;
   tautanDaftar?: T;
   updatedAt?: T;
   createdAt?: T;

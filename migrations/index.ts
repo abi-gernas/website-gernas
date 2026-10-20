@@ -36,6 +36,7 @@ import * as migration_20260922_121534_kartu_alat_peraga_pojok_guru from './20260
 import * as migration_20260925_084315_varian_tautan_alat_peraga from './20260925_084315_varian_tautan_alat_peraga';
 import * as migration_20260925_084906_cover_produk_opsional from './20260925_084906_cover_produk_opsional';
 import * as migration_20261002_065842_kategori_topik_produk from './20261002_065842_kategori_topik_produk';
+import * as migration_20261020_032817_tambah_detail_acara from './20261020_032817_tambah_detail_acara';
 
 export const migrations = [
   {
@@ -226,6 +227,11 @@ export const migrations = [
   {
     up: migration_20261002_065842_kategori_topik_produk.up,
     down: migration_20261002_065842_kategori_topik_produk.down,
-    name: '20261002_065842_kategori_topik_produk'
+    name: '20261002_065842_kategori_topik_produk',
+  },
+  {
+    up: migration_20261020_032817_tambah_detail_acara.up,
+    down: migration_20261020_032817_tambah_detail_acara.down,
+    name: '20261020_032817_tambah_detail_acara'
   },
 ];

@@ -75,6 +75,17 @@ export function videoPembelajaranPath(slug: string, locale?: Locale): string {
   return locale ? localizedPath(path, locale) : path;
 }
 
+/** Alamat publik detail satu acara dari koleksi Acara. */
+export function acaraPath(slug: string, locale?: Locale): string {
+  const path = `/acara/${slug}`;
+  return locale ? localizedPath(path, locale) : path;
+}
+
+/** Bagian "Jadwal Acara" di Belajar Bersama — daftar lengkap semua acara. */
+export function jadwalAcaraPath(locale?: Locale): string {
+  return locale ? localizedPath("/belajar-bersama#jadwal-acara", locale) : "/belajar-bersama#jadwal-acara";
+}
+
 /** Alamat publik daftar/detail Buku, Bahan Ajar & Modul — lihat `docs/RENCANA-EKSEKUSI-LIBRARY-GURU.md` §2.1. */
 export function produkListPath(locale?: Locale): string {
   return locale ? localizedPath("/buku-bahan-ajar-modul", locale) : "/buku-bahan-ajar-modul";

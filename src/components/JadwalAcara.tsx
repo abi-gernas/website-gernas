@@ -4,74 +4,25 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DEFAULT_LOCALE, dateLocaleTag, uiText, type Locale } from "@/lib/i18n";
+import { acaraPath } from "@/lib/routes";
+import {
+  ZONA,
+  akhirHari,
+  labelFormat,
+  labelKategori,
+  warnaBawaan,
+  warnaKategori,
+  type AcaraTampil,
+} from "@/lib/acara";
 
-/** Satu acara, sudah diratakan dari dokumen Payload. */
-export type AcaraTampil = {
-  judul: string;
-  kategori: string;
-  poster?: string;
-  /** ISO string dari field `tanggal`. */
-  tanggal: string;
-  waktu?: string;
-  format: string;
-  lokasi?: string;
-  /** Kosong = acara eksklusif, tombol Daftar tidak dirender. */
-  tautanDaftar?: string;
-};
-
-const ZONA = "Asia/Jakarta";
-
-const labelKategori: Record<Locale, Record<string, string>> = {
-  id: {
-    webinar: "Webinar",
-    pelatihan: "Pelatihan",
-    workshop: "Workshop",
-    klubBuku: "Klub Buku",
-    seminar: "Seminar",
-  },
-  en: {
-    webinar: "Webinar",
-    pelatihan: "Training",
-    workshop: "Workshop",
-    klubBuku: "Book Club",
-    seminar: "Seminar",
-  },
-};
-
-const labelFormat: Record<Locale, Record<string, string>> = {
-  id: { online: "Online", offline: "Tatap Muka", hybrid: "Hybrid" },
-  en: { online: "Online", offline: "In-person", hybrid: "Hybrid" },
-};
-
-/** Warna pil kategori + latar kartu tanpa poster, mengikuti rujukan desain. */
-const warnaKategori: Record<string, { pil: string; latar: string }> = {
-  webinar: { pil: "bg-brand-navy text-white", latar: "bg-brand-navy/[0.04]" },
-  pelatihan: { pil: "bg-brand-yellow text-brand-navy", latar: "bg-brand-yellow/10" },
-  workshop: { pil: "bg-brand-red text-white", latar: "bg-brand-red/[0.04]" },
-  klubBuku: { pil: "bg-brand-blue text-white", latar: "bg-brand-blue/[0.05]" },
-  seminar: {
-    pil: "border border-brand-navy bg-white text-brand-navy",
-    latar: "bg-surface",
-  },
-};
-const warnaBawaan = warnaKategori.webinar;
+export type { AcaraTampil };
 
 const teksGeser = {
   id: { daftar: "Daftar acara", sebelumnya: "Acara sebelumnya", berikutnya: "Acara berikutnya" },
   en: { daftar: "Event list", sebelumnya: "Previous events", berikutnya: "Next events" },
 } satisfies Record<Locale, Record<string, string>>;
 
-/**
- * Batas akhir hari acara (23:59:59 WIB) dalam milidetik. Tanggal dari Payload
- * disimpan sebagai waktu UTC, jadi harinya dibaca ulang di zona Jakarta dulu —
- * tanpa itu acara pukul 00.00 WIB bisa tergeser ke hari sebelumnya.
- */
-function akhirHari(iso: string): number {
-  const ymd = new Intl.DateTimeFormat("en-CA", { timeZone: ZONA }).format(new Date(iso));
-  return Date.parse(`${ymd}T23:59:59+07:00`);
-}
-
-function TombolDaftar({ href, label }: { href: string; label: string }) {
+export function TombolDaftar({ href, label }: { href: string; label: string }) {
   const kelas =
     "inline-flex items-center justify-center rounded-pill border border-brand-navy px-4 py-2 text-sm font-semibold text-brand-navy transition-colors hover:bg-brand-navy hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2";
 
@@ -125,7 +76,20 @@ function KartuAcara({
 
   const rincian = (
     <>
-      <h3 className="mt-4 text-base font-bold leading-snug text-brand-navy">{acara.judul}</h3>
+      <h3 className="mt-4 text-base font-bold leading-snug text-brand-navy transition-colors group-hover:text-brand-red">
+        {acara.slug ? (
+          // Tautan direntangkan ke seluruh kartu (`after:inset-0`); tombol Daftar
+          // dinaikkan (`z-10`) supaya tetap bisa diklik sendiri.
+          <Link
+            href={acaraPath(acara.slug, locale)}
+            className="after:absolute after:inset-0 after:rounded-card focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-brand-navy focus-visible:after:ring-offset-2"
+          >
+            {acara.judul}
+          </Link>
+        ) : (
+          acara.judul
+        )}
+      </h3>
       <p className="mt-3 text-sm text-body">
         {tanggal}
         {acara.waktu && (
@@ -143,7 +107,7 @@ function KartuAcara({
       </p>
       {acara.lokasi && <p className="mt-1 pl-5 text-xs text-muted">{acara.lokasi}</p>}
       {bisaDaftar && acara.tautanDaftar && (
-        <div className="mt-auto pt-5">
+        <div className="relative z-10 mt-auto pt-5">
           <TombolDaftar href={acara.tautanDaftar} label={t.eventRegister} />
         </div>
       )}
@@ -152,7 +116,7 @@ function KartuAcara({
 
   if (acara.poster && !ringkas) {
     return (
-      <article className="flex h-full flex-col">
+      <article className="group relative flex h-full flex-col">
         <div className="relative aspect-[4/5] w-full overflow-hidden rounded-card bg-surface shadow-soft">
           <Image
             src={acara.poster}
@@ -171,7 +135,9 @@ function KartuAcara({
   }
 
   return (
-    <article className={`flex h-full flex-col rounded-card p-6 shadow-soft ${warna.latar}`}>
+    <article
+      className={`group relative flex h-full flex-col rounded-card p-6 shadow-soft transition-shadow hover:shadow-card ${warna.latar}`}
+    >
       {kepala}
       {rincian}
     </article>

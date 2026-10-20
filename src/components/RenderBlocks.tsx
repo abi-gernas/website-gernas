@@ -290,6 +290,7 @@ async function JadwalAcaraBlok({
   if (docs.length === 0) return null;
 
   const acara = docs.map((d) => ({
+    slug: d.slug,
     judul: d.judul,
     kategori: d.kategori,
     poster: mediaURL(d.poster),

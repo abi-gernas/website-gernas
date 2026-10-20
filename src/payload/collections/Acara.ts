@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { terapkanReferensiLokal } from "../fields/localeReference";
 import { revalidateSemua, revalidateSemuaAfterDelete } from "../hooks/revalidate";
+import { slugField } from "../fields/slug";
 
 /**
  * Jadwal acara — webinar, pelatihan, dan workshop yang terbuka (atau tertutup)
@@ -18,7 +19,7 @@ export const Acara: CollectionConfig = {
   slug: "acara",
   admin: {
     useAsTitle: "judul",
-    defaultColumns: ["judul", "kategori", "tanggal", "tautanDaftar"],
+    defaultColumns: ["judul", "kategori", "tanggal", "slug", "tautanDaftar"],
     group: "Data Situs",
     description:
       "Jadwal acara untuk blok “Jadwal Acara”. Acara yang akan datang tampil lebih dulu, lalu acara yang sudah selesai. Kosongkan Tautan pendaftaran bila acaranya eksklusif.",
@@ -43,6 +44,7 @@ export const Acara: CollectionConfig = {
       localized: true,
       label: "Judul acara",
     },
+    ...slugField("judul"),
     {
       name: "kategori",
       type: "select",
@@ -110,6 +112,16 @@ export const Acara: CollectionConfig = {
       admin: {
         description:
           "Untuk acara tatap muka/hybrid, mis. “Kantor Indorelawan, Jakarta”. Cukup nama tempat + kota.",
+      },
+    },
+    {
+      name: "deskripsi",
+      type: "textarea",
+      localized: true,
+      label: "Deskripsi acara",
+      admin: {
+        description:
+          "Tampil di halaman detail acara (kartu acara bisa diklik). Pisahkan paragraf dengan satu baris kosong. Boleh dikosongkan.",
       },
     },
     {

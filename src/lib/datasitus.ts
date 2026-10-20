@@ -91,6 +91,37 @@ export async function getAcara(locale: Locale = DEFAULT_LOCALE): Promise<Acara[]
   return res.docs;
 }
 
+/** Satu acara menurut slug-nya — untuk halaman detail `/acara/[slug]`. */
+export async function getAcaraBySlug(
+  slug: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<Acara | null> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "acara",
+    depth: 1,
+    limit: 1,
+    locale,
+    fallbackLocale: DEFAULT_LOCALE,
+    where: { slug: { equals: slug } },
+    pagination: false,
+  });
+  return res.docs[0] ?? null;
+}
+
+/** Slug seluruh acara — untuk `generateStaticParams`. */
+export async function getAcaraSlugs(): Promise<string[]> {
+  const payload = await payloadPromise;
+  const res = await payload.find({
+    collection: "acara",
+    depth: 0,
+    limit: 1000,
+    pagination: false,
+    select: { slug: true },
+  });
+  return res.docs.map((d) => d.slug);
+}
+
 export async function getModulPelatihan(
   program: "matematika" | "membaca",
   locale: Locale = DEFAULT_LOCALE,
