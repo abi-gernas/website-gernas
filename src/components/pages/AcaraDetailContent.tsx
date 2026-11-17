@@ -123,7 +123,9 @@ export async function AcaraDetailContent({
             {teks.length > 0 && (
               <div className="mt-8 space-y-4 text-sm leading-relaxed text-body sm:text-base">
                 {teks.map((p, i) => (
-                  <p key={i}>{p}</p>
+                  <p key={i} className="whitespace-pre-line">
+                    {p}
+                  </p>
                 ))}
               </div>
             )}

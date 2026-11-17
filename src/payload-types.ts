@@ -1521,7 +1521,7 @@ export interface Acara {
    */
   lokasi?: string | null;
   /**
-   * Tampil di halaman detail acara (kartu acara bisa diklik). Pisahkan paragraf dengan satu baris kosong. Boleh dikosongkan.
+   * Tampil di halaman detail acara (kartu acara bisa diklik). Bisa langsung tempel teks dari WhatsApp/dokumen: baris baru ikut tampil apa adanya, baris kosong memberi jarak antarparagraf. Boleh dikosongkan.
    */
   deskripsi?: string | null;
   /**
