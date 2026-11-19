@@ -27,6 +27,7 @@ import { TopikProduk } from "./payload/collections/TopikProduk";
 import { VideoPembelajaran } from "./payload/collections/VideoPembelajaran";
 import { MediaInteraktif } from "./payload/collections/MediaInteraktif";
 import { Leads } from "./payload/collections/Leads";
+import { UnduhanMateri } from "./payload/collections/UnduhanMateri";
 import { Ulasan } from "./payload/collections/Ulasan";
 import { SiteSettings } from "./payload/globals/SiteSettings";
 import { Navigation } from "./payload/globals/Navigation";
@@ -83,7 +84,7 @@ export default buildConfig({
   /**
    * Urutan di sini menentukan urutan di bilah sisi dasbor. Dikelompokkan lewat
    * `admin.group` masing-masing koleksi: "Konten" (yang disunting sehari-hari),
-   * "Data Situs" (daftar berulang yang dipakai blok), lalu "Pengaturan".
+   * "Data Situs" (daftar berulang yang dipakai blok + data masuk dari formulir), lalu "Pengaturan".
    */
   collections: [
     Pages,
@@ -101,6 +102,7 @@ export default buildConfig({
     VideoPembelajaran,
     MediaInteraktif,
     Leads,
+    UnduhanMateri,
     Ulasan,
     Users,
   ],

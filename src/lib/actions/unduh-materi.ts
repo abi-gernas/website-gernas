@@ -7,7 +7,7 @@ import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
  * Gerbang unduhan materi gratis (PRD Fase 2 v1.2 FR-104).
  *
  * Pengunjung mengisi nama + asal instansi (kontak opsional), datanya masuk ke
- * koleksi `leads` sbg `jenis: "unduhan-materi"`, baru tautan Drive-nya
+ * koleksi `unduhan-materi`, baru tautan Drive-nya
  * dikembalikan.
  *
  * **Ini gerbang longgar, dan itu disengaja.** Berkas Drive-nya publik
@@ -76,22 +76,14 @@ export async function bukaMateri(
       return { ok: false, pesan: "tanpa-tautan" };
     }
 
-    // Kontak opsional: kalau berisi "@" diperlakukan sbg email, selain itu
-    // sbg nomor telepon. Menebak begini jauh lebih ramah daripada memaksa
-    // pengunjung memilih jenis kontaknya sendiri di formulir.
-    const kontakEmail = kontak.includes("@");
-
     await payload.create({
-      collection: "leads",
+      collection: "unduhan-materi",
       data: {
-        jenis: "unduhan-materi",
-        name: nama,
+        nama,
         asalInstansi,
-        email: kontakEmail ? kontak : undefined,
-        phone: kontak && !kontakEmail ? kontak : undefined,
+        kontak: kontak || undefined,
         produkRef: produk.id,
         locale: LOCALES.includes(locale) ? locale : DEFAULT_LOCALE,
-        subject: `Unduhan materi: ${produk.judul}`,
       },
     });
 

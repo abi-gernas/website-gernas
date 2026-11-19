@@ -1,27 +1,20 @@
 import type { CollectionConfig } from "payload";
 
 /**
- * Data masuk dari formulir "Hubungi Kami" **dan** formulir gated-download
- * materi gratis di Library (PRD Fase 2 v1.2 FR-104) — disatukan di sini,
- * bukan koleksi baru, supaya staf cukup buka satu tempat untuk semua data
- * pengunjung yang masuk.
+ * Pesan dari formulir "Hubungi Kami" (`ContactForm`, lewat REST `/api/leads`).
+ * Data gated-download Library dulu ikut masuk ke sini, sejak 19 Nov 2026
+ * dipindah ke koleksi `unduhan-materi` supaya staf tidak perlu memilah.
  *
  * Publik boleh membuat (submit form), tapi hanya staf yang login yang boleh
- * membaca/mengubah/menghapus — ini bukan konten yang tampil di halaman jadi
+ * membaca/mengubah/menghapus. Ini bukan konten yang tampil di halaman jadi
  * tidak perlu hook revalidate.
- *
- * CATATAN KEPATUHAN (belum ada tindak lanjut — carry-over dari keputusan
- * 25 Jul 2026 & PRD Fase 2 v1.2 OI-107): `asalInstansi` berisi data pribadi
- * guru. Kebijakan retensi, siapa yang boleh lihat/ekspor, dan dasar hukum
- * pengumpulannya masih belum diputuskan — item adendum SPK, jangan dianggap
- * selesai cuma karena field-nya sudah ada.
  */
 export const Leads: CollectionConfig = {
   slug: "leads",
   admin: {
     useAsTitle: "name",
     defaultColumns: ["name", "email", "subject", "createdAt"],
-    group: "Pengaturan",
+    group: "Data Situs",
     description: "Pesan yang masuk lewat formulir Hubungi Kami di situs.",
   },
   labels: { singular: "Pesan Masuk", plural: "Pesan Masuk" },
@@ -32,59 +25,9 @@ export const Leads: CollectionConfig = {
     delete: ({ req }) => Boolean(req.user),
   },
   fields: [
-    {
-      name: "jenis",
-      type: "select",
-      required: true,
-      defaultValue: "kontak",
-      label: "Jenis",
-      options: [
-        { label: "Hubungi Kami", value: "kontak" },
-        { label: "Unduhan Materi", value: "unduhan-materi" },
-      ],
-      admin: {
-        position: "sidebar",
-        description: "Menentukan formulir asal: Hubungi Kami atau gated-download Library.",
-      },
-    },
     { name: "name", type: "text", required: true, label: "Nama" },
-    {
-      /**
-       * Wajib untuk formulir Hubungi Kami, opsional untuk formulir unduhan
-       * materi — di situ kontak sengaja tidak dipaksa supaya guru tidak batal
-       * mengunduh cuma karena enggan meninggalkan email (keputusan user,
-       * 7 Sep 2026). Karena `required` di Payload tidak bisa bersyarat,
-       * penegakannya dipindah ke `validate`.
-       */
-      name: "email",
-      type: "email",
-      label: "Email",
-      validate: (value: string | null | undefined, { siblingData }: { siblingData?: Record<string, unknown> }) => {
-        if (siblingData?.jenis !== "unduhan-materi" && !value) {
-          return "Email wajib diisi untuk pesan Hubungi Kami.";
-        }
-        return true;
-      },
-    },
+    { name: "email", type: "email", required: true, label: "Email" },
     { name: "phone", type: "text", label: "Telepon" },
-    {
-      name: "asalInstansi",
-      type: "text",
-      required: false,
-      label: "Asal instansi/sekolah/daerah",
-      admin: {
-        condition: (_data, siblingData) => siblingData?.jenis === "unduhan-materi",
-      },
-    },
-    {
-      name: "produkRef",
-      type: "relationship",
-      relationTo: "produk",
-      label: "Materi yang diunduh",
-      admin: {
-        condition: (_data, siblingData) => siblingData?.jenis === "unduhan-materi",
-      },
-    },
     { name: "subject", type: "text", label: "Subjek" },
     { name: "message", type: "textarea", label: "Pesan" },
     {

@@ -20,7 +20,7 @@ export const Ulasan: CollectionConfig = {
   admin: {
     useAsTitle: "nama",
     defaultColumns: ["nama", "produkRef", "rating", "status", "createdAt"],
-    group: "Pengaturan",
+    group: "Data Situs",
     description:
       "Ulasan & rating dari pengunjung yang sudah membuka materi gratis. Baru tampil di halaman publik sesudah statusnya diubah jadi \"Disetujui\".",
   },

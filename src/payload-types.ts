@@ -82,6 +82,7 @@ export interface Config {
     'video-pembelajaran': VideoPembelajaran;
     'media-interaktif': MediaInteraktif;
     leads: Lead;
+    'unduhan-materi': UnduhanMateri;
     ulasan: Ulasan;
     users: User;
     redirects: Redirect;
@@ -107,6 +108,7 @@ export interface Config {
     'video-pembelajaran': VideoPembelajaranSelect<false> | VideoPembelajaranSelect<true>;
     'media-interaktif': MediaInteraktifSelect<false> | MediaInteraktifSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
+    'unduhan-materi': UnduhanMateriSelect<false> | UnduhanMateriSelect<true>;
     ulasan: UlasanSelect<false> | UlasanSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -1615,19 +1617,32 @@ export interface MediaInteraktif {
  */
 export interface Lead {
   id: number;
-  /**
-   * Menentukan formulir asal: Hubungi Kami atau gated-download Library.
-   */
-  jenis: 'kontak' | 'unduhan-materi';
   name: string;
-  email?: string | null;
+  email: string;
   phone?: string | null;
-  asalInstansi?: string | null;
-  produkRef?: (number | null) | Produk;
   subject?: string | null;
   message?: string | null;
   locale?: ('id' | 'en') | null;
   status?: ('baru' | 'ditindaklanjuti') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Data pengunjung yang mengisi formulir sebelum mengunduh materi gratis di Library.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "unduhan-materi".
+ */
+export interface UnduhanMateri {
+  id: number;
+  nama: string;
+  asalInstansi: string;
+  produkRef?: (number | null) | Produk;
+  /**
+   * Opsional di formulir, disimpan apa adanya seperti yang diketik pengunjung.
+   */
+  kontak?: string | null;
+  locale?: ('id' | 'en') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1760,6 +1775,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'leads';
         value: number | Lead;
+      } | null)
+    | ({
+        relationTo: 'unduhan-materi';
+        value: number | UnduhanMateri;
       } | null)
     | ({
         relationTo: 'ulasan';
@@ -2656,16 +2675,26 @@ export interface MediaInteraktifSelect<T extends boolean = true> {
  * via the `definition` "leads_select".
  */
 export interface LeadsSelect<T extends boolean = true> {
-  jenis?: T;
   name?: T;
   email?: T;
   phone?: T;
-  asalInstansi?: T;
-  produkRef?: T;
   subject?: T;
   message?: T;
   locale?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "unduhan-materi_select".
+ */
+export interface UnduhanMateriSelect<T extends boolean = true> {
+  nama?: T;
+  asalInstansi?: T;
+  produkRef?: T;
+  kontak?: T;
+  locale?: T;
   updatedAt?: T;
   createdAt?: T;
 }
