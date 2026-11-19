@@ -38,6 +38,7 @@ import * as migration_20260925_084906_cover_produk_opsional from './20260925_084
 import * as migration_20261002_065842_kategori_topik_produk from './20261002_065842_kategori_topik_produk';
 import * as migration_20261020_032817_tambah_detail_acara from './20261020_032817_tambah_detail_acara';
 import * as migration_20261119_030902_pisah_unduhan_materi from './20261119_030902_pisah_unduhan_materi';
+import * as migration_20261119_040000_bersihkan_kolom_lama_leads from './20261119_040000_bersihkan_kolom_lama_leads';
 
 export const migrations = [
   {
@@ -238,6 +239,11 @@ export const migrations = [
   {
     up: migration_20261119_030902_pisah_unduhan_materi.up,
     down: migration_20261119_030902_pisah_unduhan_materi.down,
-    name: '20261119_030902_pisah_unduhan_materi'
+    name: '20261119_030902_pisah_unduhan_materi',
+  },
+  {
+    up: migration_20261119_040000_bersihkan_kolom_lama_leads.up,
+    down: migration_20261119_040000_bersihkan_kolom_lama_leads.down,
+    name: '20261119_040000_bersihkan_kolom_lama_leads'
   },
 ];
