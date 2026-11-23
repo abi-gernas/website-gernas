@@ -22,7 +22,9 @@ export type MediaInteraktifView = {
   deskripsi: string | null;
   thumbnail: { url: string; width?: number; height?: number } | null;
   tags: string[];
-  tautan: string;
+  /** Hanya alamat http(s) — isian lain (mis. teks "Buka") jadi null. */
+  tautan: string | null;
+  kontenHtml: string | null;
 };
 
 function toView(doc: PayloadMediaInteraktif): MediaInteraktifView {
@@ -33,7 +35,8 @@ function toView(doc: PayloadMediaInteraktif): MediaInteraktifView {
     deskripsi: doc.deskripsi ?? null,
     thumbnail: toImage(doc.thumbnail),
     tags: (doc.tags ?? []).map((t) => t.label),
-    tautan: doc.tautan,
+    tautan: /^https?:\/\//i.test(doc.tautan ?? "") ? doc.tautan! : null,
+    kontenHtml: doc.kontenHtml?.trim() || null,
   };
 }
 
@@ -81,6 +84,8 @@ export const getMediaInteraktifList = cache(async function getMediaInteraktifLis
     locale,
     fallbackLocale: DEFAULT_LOCALE,
     where,
+    // Kode HTML tiap item bisa puluhan KB; kartu katalog tidak memakainya.
+    select: { kontenHtml: false },
   });
   return {
     docs: res.docs.map(toView),

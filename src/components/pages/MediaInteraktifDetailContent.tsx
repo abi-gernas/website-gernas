@@ -12,11 +12,15 @@ const text = {
   id: {
     buka: "Buka Media Interaktif",
     catatan: "Media akan terbuka di tab baru.",
+    mainkan: "Mainkan Sekarang",
+    tabBaru: "Atau buka di tab baru",
     lainnya: "Media Interaktif Lainnya",
   },
   en: {
     buka: "Open Interactive Media",
     catatan: "The media will open in a new tab.",
+    mainkan: "Play Now",
+    tabBaru: "Or open it in a new tab",
     lainnya: "More Interactive Media",
   },
 } satisfies Record<Locale, Record<string, string>>;
@@ -26,6 +30,11 @@ const text = {
  * tautan eksternalnya, meniru alur Video Pembelajaran (keputusan 23 Sep 2026):
  * pengunjung melihat sampul, tag, dan deskripsi dulu di situs ini, baru tombol
  * "Buka Media Interaktif" membawa ke `tautan` di tab baru.
+ *
+ * Bila `kontenHtml` terisi, aktivitasnya juga dimainkan langsung di halaman
+ * ini lewat iframe `srcDoc`. `sandbox` tanpa `allow-same-origin` membuat kode
+ * itu jalan di origin kosong: tidak bisa membaca cookie/sesi admin atau
+ * mengubah halaman induk, jadi kode tempelan staf/kontributor aman dijalankan.
  */
 export async function MediaInteraktifDetailContent({
   slug,
@@ -94,17 +103,54 @@ export async function MediaInteraktifDetailContent({
               </p>
             )}
 
-            <a
-              href={item.tautan}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-red mt-6"
-            >
-              {t.buka}
-            </a>
-            <p className="mt-2 text-xs text-muted">{t.catatan}</p>
+            {item.kontenHtml ? (
+              <>
+                <a href="#mainkan" className="btn-red mt-6">
+                  {t.mainkan}
+                </a>
+                {item.tautan && (
+                  <p className="mt-3 text-sm">
+                    <a
+                      href={item.tautan}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-brand-blue underline underline-offset-2"
+                    >
+                      {t.tabBaru}
+                    </a>
+                  </p>
+                )}
+              </>
+            ) : (
+              item.tautan && (
+                <>
+                  <a
+                    href={item.tautan}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-red mt-6"
+                  >
+                    {t.buka}
+                  </a>
+                  <p className="mt-2 text-xs text-muted">{t.catatan}</p>
+                </>
+              )
+            )}
           </div>
         </div>
+
+        {item.kontenHtml && (
+          <iframe
+            id="mainkan"
+            title={item.judul}
+            srcDoc={item.kontenHtml}
+            sandbox="allow-scripts allow-forms allow-popups allow-modals"
+            allow="fullscreen"
+            allowFullScreen
+            loading="lazy"
+            className="mt-10 block h-[calc(100svh-7rem)] min-h-[520px] w-full scroll-mt-24 rounded-card border-0 bg-white shadow-soft"
+          />
+        )}
       </div>
 
       {lainnya.length > 0 && (

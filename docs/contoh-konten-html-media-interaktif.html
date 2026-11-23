@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!--
+  CONTOH isi kolom "Konten HTML (mesin virtual)" di CMS → Media Interaktif.
+
+  Aturannya:
+  1. Tempel SELURUH file ini, dari <!DOCTYPE html> sampai </html>.
+  2. CSS masuk ke <style>, JavaScript masuk ke <script>, keduanya di file ini juga.
+     Jangan tempel file .js atau .css saja, karena halamannya akan kosong.
+  3. Gambar, video, atau pustaka dari luar harus memakai alamat lengkap
+     (https://...). Alamat pendek seperti "gambar/koin.png" tidak akan ketemu.
+  4. Media dijalankan di kotak terisolasi, jadi localStorage, cookie, dan
+     akses ke halaman situs tidak tersedia. Simpan keadaan di variabel biasa.
+  5. Kolom "Tautan" boleh dikosongkan. Kalau diisi, harus alamat lengkap
+     https://..., bukan teks tombol.
+
+  Cara cek sebelum ditempel: simpan sebagai file .html, buka dua kali di
+  browser. Kalau di situ sudah jalan, di situs juga akan jalan.
+-->
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hitung Koin</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #f6f7fb;
+      color: #1d2a4d;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+    }
+    .papan {
+      display: grid;
+      grid-template-columns: repeat(5, 56px);
+      gap: 8px;
+      padding: 12px;
+      background: #fff;
+      border: 3px solid #1d2a4d;
+      border-radius: 12px;
+    }
+    .kotak {
+      width: 56px;
+      height: 56px;
+      border: 2px dashed #c5cbe0;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+    .kotak.isi::after {
+      content: "";
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #2fa84f;
+    }
+    .angka { font-size: 32px; font-weight: 700; margin-top: 16px; text-align: center; }
+    button { margin-top: 12px; padding: 10px 20px; font-size: 16px; border-radius: 8px; border: 0; background: #d62839; color: #fff; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="papan" id="papan"></div>
+    <div class="angka" id="angka">0</div>
+    <div style="text-align:center"><button id="ulang">Ulang</button></div>
+  </main>
+
+  <script>
+    const papan = document.getElementById('papan');
+    const angka = document.getElementById('angka');
+
+    for (let i = 0; i < 10; i++) {
+      const kotak = document.createElement('div');
+      kotak.className = 'kotak';
+      kotak.addEventListener('click', () => {
+        kotak.classList.toggle('isi');
+        hitung();
+      });
+      papan.appendChild(kotak);
+    }
+
+    function hitung() {
+      angka.textContent = papan.querySelectorAll('.isi').length;
+    }
+
+    document.getElementById('ulang').addEventListener('click', () => {
+      papan.querySelectorAll('.isi').forEach((k) => k.classList.remove('isi'));
+      hitung();
+    });
+  </script>
+</body>
+</html>

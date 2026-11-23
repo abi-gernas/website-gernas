@@ -1595,13 +1595,13 @@ export interface MediaInteraktif {
       }[]
     | null;
   /**
-   * Kode HTML lengkap aktivitas/mesin virtualnya, disalin dari sumber aslinya. Belum dipakai di halaman publik mana pun — disimpan utk dipakai nanti bila halaman detailnya dibangun.
+   * Satu file HTML utuh (<!DOCTYPE html> … </html>) dengan CSS di dalam <style> dan JavaScript di dalam <script>. Akan dimainkan langsung di halaman detail. Jangan tempel file .js atau .css saja; gambar/pustaka luar harus memakai alamat lengkap https://.
    */
   kontenHtml?: string | null;
   /**
-   * Alamat lengkap tujuan tombol “Buka Media Interaktif” di halaman intro.
+   * Opsional. Alamat web lengkap yang diawali https://, dibuka di tab baru. Kosongkan bila media cukup dimainkan lewat Konten HTML. Ini bukan teks tombol.
    */
-  tautan: string;
+  tautan?: string | null;
   /**
    * Angka kecil tampil lebih dulu. Biarkan 100 bila urutannya tidak penting.
    */

@@ -39,6 +39,7 @@ import * as migration_20261002_065842_kategori_topik_produk from './20261002_065
 import * as migration_20261020_032817_tambah_detail_acara from './20261020_032817_tambah_detail_acara';
 import * as migration_20261119_030902_pisah_unduhan_materi from './20261119_030902_pisah_unduhan_materi';
 import * as migration_20261119_040000_bersihkan_kolom_lama_leads from './20261119_040000_bersihkan_kolom_lama_leads';
+import * as migration_20261123_065756_tautan_media_interaktif_opsional from './20261123_065756_tautan_media_interaktif_opsional';
 
 export const migrations = [
   {
@@ -244,6 +245,11 @@ export const migrations = [
   {
     up: migration_20261119_040000_bersihkan_kolom_lama_leads.up,
     down: migration_20261119_040000_bersihkan_kolom_lama_leads.down,
-    name: '20261119_040000_bersihkan_kolom_lama_leads'
+    name: '20261119_040000_bersihkan_kolom_lama_leads',
+  },
+  {
+    up: migration_20261123_065756_tautan_media_interaktif_opsional.up,
+    down: migration_20261123_065756_tautan_media_interaktif_opsional.down,
+    name: '20261123_065756_tautan_media_interaktif_opsional'
   },
 ];
