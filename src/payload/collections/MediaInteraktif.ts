@@ -12,8 +12,9 @@ import { revalidateSemua, revalidateSemuaAfterDelete } from "../hooks/revalidate
  * halaman intro `/media-interaktif/[slug]` (sejak 23 Sep 2026, meniru alur
  * Video Pembelajaran), baru tombol di sana membuka `tautan` di tab baru.
  *
- * `kontenHtml` (kode HTML lengkap mesin virtual/aktivitasnya) dimainkan
- * langsung di halaman intro lewat iframe ber-sandbox (sejak 23 Nov 2026).
+ * `kontenHtml` (kode HTML lengkap mesin virtual/aktivitasnya) dimainkan di
+ * halaman main `/media-interaktif/[slug]/main` yang dibuka tombol di halaman
+ * intro, di tab baru (sejak 23 Nov 2026).
  * Diisi pertama kali oleh `scripts/seed-media-interaktif-vm.mts` (Repositori
  * Mesin Virtual Numerasi, prpic.id/vmnumerasi). Karena itu `tautan` tidak
  * lagi wajib: media yang cuma punya kode HTML tidak butuh alamat luar.
@@ -78,7 +79,7 @@ export const MediaInteraktif: CollectionConfig = {
       admin: {
         language: "html",
         description:
-          "Satu file HTML utuh (<!DOCTYPE html> … </html>) dengan CSS di dalam <style> dan JavaScript di dalam <script>. Akan dimainkan langsung di halaman detail. Jangan tempel file .js atau .css saja; gambar/pustaka luar harus memakai alamat lengkap https://.",
+          "Satu file HTML utuh (<!DOCTYPE html> … </html>) dengan CSS di dalam <style> dan JavaScript di dalam <script>. Dimainkan di halaman tersendiri yang terbuka di tab baru dari tombol di halaman detail. Jangan tempel file .js atau .css saja; gambar/pustaka luar harus memakai alamat lengkap https://.",
         // Kotak pilih/tarik file .html di atas editor — lihat KontenHtmlField.tsx.
         components: { Field: "/payload/components/KontenHtmlField#KontenHtmlField" },
       },
