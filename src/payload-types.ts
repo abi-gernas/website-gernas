@@ -1587,7 +1587,10 @@ export interface MediaInteraktif {
    */
   slug: string;
   deskripsi?: string | null;
-  thumbnail: number | Media;
+  /**
+   * Opsional. Kalau kosong, kartu memakai sampul berisi judul, dan halaman detail menampilkan cuplikan Konten HTML.
+   */
+  thumbnail?: (number | null) | Media;
   tags?:
     | {
         label: string;
@@ -1595,7 +1598,7 @@ export interface MediaInteraktif {
       }[]
     | null;
   /**
-   * Satu file HTML utuh (<!DOCTYPE html> … </html>) dengan CSS di dalam <style> dan JavaScript di dalam <script>. Akan dimainkan langsung di halaman detail. Jangan tempel file .js atau .css saja; gambar/pustaka luar harus memakai alamat lengkap https://.
+   * Satu file HTML utuh (<!DOCTYPE html> … </html>) dengan CSS di dalam <style> dan JavaScript di dalam <script>. Dimainkan di halaman tersendiri yang terbuka di tab baru dari tombol di halaman detail. Jangan tempel file .js atau .css saja; gambar/pustaka luar harus memakai alamat lengkap https://.
    */
   kontenHtml?: string | null;
   /**

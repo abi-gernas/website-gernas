@@ -61,8 +61,11 @@ export const MediaInteraktif: CollectionConfig = {
       name: "thumbnail",
       type: "upload",
       relationTo: "media",
-      required: true,
       label: "Gambar sampul",
+      admin: {
+        description:
+          "Opsional. Kalau kosong, kartu memakai sampul berisi judul, dan halaman detail menampilkan cuplikan Konten HTML.",
+      },
     },
     {
       name: "tags",

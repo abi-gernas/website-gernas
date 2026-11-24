@@ -6,7 +6,7 @@ import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
 import { mediaInteraktifListPath, mediaInteraktifPath } from "@/lib/routes";
 import { CtaBantuanBanner } from "@/components/library/CtaBantuanBanner";
 import { Breadcrumb, labelKatalogGuru } from "@/components/library/Breadcrumb";
-import { MediaInteraktifCard } from "@/components/library/MediaInteraktifCard";
+import { MediaInteraktifCard, SampulPengganti } from "@/components/library/MediaInteraktifCard";
 
 const text = {
   id: {
@@ -63,7 +63,7 @@ export async function MediaInteraktifDetailContent({
 
         <div className="mt-6 grid gap-8 md:grid-cols-2 md:items-start">
           <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-surface shadow-soft">
-            {item.thumbnail && (
+            {item.thumbnail ? (
               <Image
                 src={item.thumbnail.url}
                 alt={item.judul}
@@ -72,6 +72,20 @@ export async function MediaInteraktifDetailContent({
                 sizes="(min-width: 768px) 50vw, 100vw"
                 className="object-cover"
               />
+            ) : item.kontenHtml ? (
+              // Cuplikan hidup: halaman main dirender 2x lebih besar lalu
+              // diperkecil, dan tidak bisa diklik (mainnya lewat tombol).
+              <iframe
+                src={href!}
+                title={item.judul}
+                sandbox="allow-scripts"
+                loading="lazy"
+                tabIndex={-1}
+                aria-hidden
+                className="pointer-events-none absolute left-0 top-0 h-[200%] w-[200%] origin-top-left scale-50 border-0 bg-white"
+              />
+            ) : (
+              <SampulPengganti judul={item.judul} />
             )}
           </div>
 

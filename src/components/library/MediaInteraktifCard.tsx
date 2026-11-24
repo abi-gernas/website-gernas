@@ -23,7 +23,7 @@ export function MediaInteraktifCard({
   return (
     <article className="flex flex-col overflow-hidden rounded-card bg-white shadow-soft transition-shadow hover:shadow-card">
       <Link href={href} className="relative block aspect-[4/3] overflow-hidden bg-surface">
-        {item.thumbnail && (
+        {item.thumbnail ? (
           <Image
             src={item.thumbnail.url}
             alt={item.judul}
@@ -31,6 +31,8 @@ export function MediaInteraktifCard({
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover"
           />
+        ) : (
+          <SampulPengganti judul={item.judul} />
         )}
       </Link>
 
@@ -62,5 +64,14 @@ export function MediaInteraktifCard({
         </Link>
       </div>
     </article>
+  );
+}
+
+/** Sampul untuk media tanpa gambar sampul: judulnya saja di atas warna brand. */
+export function SampulPengganti({ judul }: { judul: string }) {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center bg-brand-navy p-6 text-center">
+      <span className="line-clamp-3 text-lg font-bold leading-snug text-white">{judul}</span>
+    </div>
   );
 }
